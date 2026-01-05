@@ -1,0 +1,335 @@
+﻿using UnityEngine;
+using UnityEngine.UI;
+using TMPro;
+
+/// <summary>
+/// Game Over Panel dengan input nama untuk leaderboard.
+/// SELALU allow input - unlimited players bisa save!
+/// </summary>
+public class GameOverPanel : MonoBehaviour
+{
+    [Header("Stats Display")]
+    [SerializeField] private TextMeshProUGUI finalScoreText;
+    [SerializeField] private TextMeshProUGUI finalKillsText;
+    [SerializeField] private TextMeshProUGUI finalTimeText;
+    [SerializeField] private TextMeshProUGUI finalWaveText;
+    
+    [Header("Leaderboard Input")]
+    [SerializeField] private GameObject nameInputPanel;
+    [SerializeField] private TMP_InputField nameInput;
+    [SerializeField] private Button submitButton;
+    [SerializeField] private TextMeshProUGUI rankText; // Display rank/message
+    
+    [Header("Buttons")]
+    [SerializeField] private Button restartButton;
+    [SerializeField] private Button quitButton;
+    
+    [Header("Settings")]
+    [Tooltip("ALWAYS show input - every player can save! (Recommended: TRUE)")]
+    [SerializeField] private bool alwaysShowInput = true; // DEFAULT: TRUE!
+    
+    [Tooltip("Show rank message? (Will show if player makes Top 7)")]
+    [SerializeField] private bool showRankMessage = true;
+    
+    [Header("Format")]
+    [SerializeField] private string scoreFormat = "SCORE: {0}";
+    [SerializeField] private string killsFormat = "KILLS: {0}";
+    [SerializeField] private string timeFormat = "TIME: {0}";
+    [SerializeField] private string waveFormat = "WAVE: {0}";
+    [SerializeField] private string topRankFormat = "?? TOP 7! RANK #{0}";
+    [SerializeField] private string normalRankFormat = "Your Rank: #{0}";
+    [SerializeField] private string inputPrompt = "Enter Your Name:";
+    
+    private bool isTopScore = false;
+    private bool inputPanelShown = false;
+    private bool hasSubmitted = false; // NEW: Prevent double submit
+    
+    void Start()
+    {
+        // Setup button listeners
+        if (submitButton != null)
+        {
+            submitButton.onClick.AddListener(OnSubmitName);
+        }
+        
+        if (restartButton != null)
+        {
+            restartButton.onClick.AddListener(OnRestart);
+        }
+        
+        if (quitButton != null)
+        {
+            quitButton.onClick.AddListener(OnQuit);
+        }
+        
+        // Hide name input by default
+        if (nameInputPanel != null)
+        {
+            nameInputPanel.SetActive(false);
+        }
+    }
+    
+    void OnEnable()
+    {
+        inputPanelShown = false;
+        hasSubmitted = false; // Reset submit flag
+        
+        // Update stats saat panel muncul
+        UpdateStats();
+        
+        // Force show with delay to ensure it stays active
+        if (alwaysShowInput && nameInputPanel != null)
+        {
+            StartCoroutine(ForceShowPanelDelayed());
+        }
+    }
+    
+    private System.Collections.IEnumerator ForceShowPanelDelayed()
+    {
+        // Wait a frame
+        yield return null;
+        
+        // Force show again
+        if (nameInputPanel != null && !inputPanelShown)
+        {
+            int score = GameStats.Instance != null ? GameStats.Instance.GetScore() : 0;
+            ShowInputPanel(score);
+            
+            Debug.Log("?? Force re-activated input panel (delayed)");
+        }
+    }
+    
+    void LateUpdate()
+    {
+        // EMERGENCY: Keep panel active if it should be shown
+        if (alwaysShowInput && nameInputPanel != null && inputPanelShown && !hasSubmitted)
+        {
+            if (!nameInputPanel.activeSelf)
+            {
+                nameInputPanel.SetActive(true);
+                Debug.LogWarning("?? Panel was disabled! Re-enabling...");
+            }
+        }
+    }
+    
+    private void UpdateStats()
+    {
+        if (GameStats.Instance == null)
+        {
+            Debug.LogWarning("GameStats.Instance is null!");
+            return;
+        }
+        
+        int score = GameStats.Instance.GetScore();
+        int kills = GameStats.Instance.GetKills();
+        float time = GameStats.Instance.GetSurvivalTime();
+        int wave = GameStats.Instance.GetCurrentWave();
+        
+        // Display stats
+        if (finalScoreText != null)
+        {
+            finalScoreText.text = string.Format(scoreFormat, score);
+        }
+        
+        if (finalKillsText != null)
+        {
+            finalKillsText.text = string.Format(killsFormat, kills);
+        }
+        
+        if (finalTimeText != null)
+        {
+            finalTimeText.text = string.Format(timeFormat, GameStats.Instance.GetFormattedTime());
+        }
+        
+        if (finalWaveText != null)
+        {
+            finalWaveText.text = string.Format(waveFormat, wave);
+        }
+        
+        // ALWAYS show input panel (sesuai requirement)
+        if (alwaysShowInput)
+        {
+            ShowInputPanel(score);
+        }
+        else
+        {
+            // Fallback: hide panel
+            if (nameInputPanel != null)
+            {
+                nameInputPanel.SetActive(false);
+                inputPanelShown = false;
+            }
+        }
+    }
+    
+    private void ShowInputPanel(int score)
+    {
+        if (nameInputPanel == null)
+        {
+            Debug.LogWarning("nameInputPanel is null! Assign in Inspector!");
+            return;
+        }
+        
+        Debug.Log($"?? Activating NameInputPanel... (Current state: {nameInputPanel.activeSelf})");
+        
+        nameInputPanel.SetActive(true);
+        inputPanelShown = true;
+        
+        Debug.Log($"? NameInputPanel.SetActive(true) called! (New state: {nameInputPanel.activeSelf})");
+        
+        // Update rank text
+        if (rankText != null && showRankMessage)
+        {
+            if (LeaderboardManager.Instance != null)
+            {
+                // Check if score makes Top 7
+                isTopScore = LeaderboardManager.Instance.WillShowInLeaderboard(score, 7);
+                
+                int rank = LeaderboardManager.Instance.GetRank(score);
+                
+                if (isTopScore)
+                {
+                    // Top 7! Show special message
+                    rankText.text = string.Format(topRankFormat, rank);
+                    Debug.Log($"?? Player made TOP 7! Rank #{rank}");
+                }
+                else
+                {
+                    // Not in Top 7, but still saved
+                    rankText.text = string.Format(normalRankFormat, rank);
+                    Debug.Log($"Player rank: #{rank}");
+                }
+            }
+            else
+            {
+                rankText.text = inputPrompt;
+            }
+        }
+        else if (rankText != null)
+        {
+            rankText.text = inputPrompt;
+        }
+        
+        // Focus input field
+        if (nameInput != null)
+        {
+            nameInput.text = ""; // Clear previous input
+            nameInput.Select();
+            nameInput.ActivateInputField();
+        }
+        
+        Debug.Log("? Name input panel shown - all players can save!");
+    }
+    
+    /// <summary>
+    /// PUBLIC method untuk Unity Button OnClick event.
+    /// Submit nama ke leaderboard.
+    /// PROTECTED: Prevents double submission!
+    /// </summary>
+    public void OnSubmitName()
+    {
+        // PREVENT DOUBLE SUBMIT!
+        if (hasSubmitted)
+        {
+            Debug.LogWarning("?? Already submitted! Ignoring duplicate submit.");
+            return;
+        }
+        
+        if (nameInput == null || LeaderboardManager.Instance == null || GameStats.Instance == null)
+        {
+            Debug.LogWarning("Cannot submit: Missing references!");
+            return;
+        }
+        
+        string playerName = nameInput.text.Trim();
+        
+        // Validation
+        if (string.IsNullOrEmpty(playerName))
+        {
+            playerName = "Anonymous";
+        }
+        
+        if (playerName.Length > 20)
+        {
+            playerName = playerName.Substring(0, 20);
+        }
+        
+        // Mark as submitted BEFORE calling AddEntry
+        hasSubmitted = true;
+        
+        // Disable submit button to prevent double click
+        if (submitButton != null)
+        {
+            submitButton.interactable = false;
+        }
+        
+        // Submit to leaderboard - SEMUA player bisa save!
+        LeaderboardManager.Instance.AddEntry(
+            playerName,
+            GameStats.Instance.GetScore(),
+            GameStats.Instance.GetKills(),
+            GameStats.Instance.GetSurvivalTime(),
+            GameStats.Instance.GetCurrentWave()
+        );
+        
+        Debug.Log($"? Score saved! Player: {playerName}");
+        Debug.Log($"   Score: {GameStats.Instance.GetScore()}");
+        Debug.Log($"   Total entries: {LeaderboardManager.Instance.GetTotalEntries()}");
+        
+        // Hide input panel
+        if (nameInputPanel != null)
+        {
+            nameInputPanel.SetActive(false);
+            inputPanelShown = false;
+        }
+        
+        // Show confirmation
+        if (rankText != null)
+        {
+            if (isTopScore)
+            {
+                rankText.text = "?? Score Saved! You're in TOP 7!";
+            }
+            else
+            {
+                rankText.text = "? Score Saved!";
+            }
+        }
+    }
+    
+    /// <summary>
+    /// PUBLIC method untuk Unity Button - Restart game.
+    /// </summary>
+    public void OnRestart()
+    {
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.RestartGame();
+        }
+    }
+    
+    /// <summary>
+    /// PUBLIC method untuk Unity Button - Quit to menu.
+    /// </summary>
+    public void OnQuit()
+    {
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.QuitToMainMenu();
+        }
+    }
+    
+    /// <summary>
+    /// EMERGENCY MANUAL ACTIVATION - Call dari Inspector
+    /// </summary>
+    [ContextMenu("?? FORCE SHOW INPUT PANEL NOW")]
+    public void ForceShowInputNow()
+    {
+        if (nameInputPanel != null)
+        {
+            Debug.Log("?? MANUAL FORCE SHOW!");
+            int score = GameStats.Instance != null ? GameStats.Instance.GetScore() : 0;
+            ShowInputPanel(score);
+        }
+    }
+}

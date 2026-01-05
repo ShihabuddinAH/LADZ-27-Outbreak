@@ -1,0 +1,38 @@
+﻿using UnityEngine;
+
+/// <summary>
+/// Membersihkan semua item pickup saat game berhenti atau restart
+/// </summary>
+public class ItemCleanup : MonoBehaviour
+{
+    [Header("Debug")]
+    [SerializeField] private bool showDebugLog = false;
+    
+    public void CleanupAllItems()
+    {
+        int totalCleaned = 0;
+        
+        // Cleanup ItemPickup
+        ItemPickup[] items = FindObjectsByType<ItemPickup>(FindObjectsSortMode.None);
+        foreach (ItemPickup item in items)
+        {
+            Destroy(item.gameObject);
+            totalCleaned++;
+        }
+        
+        // Cleanup WeaponPickup jika ada
+        WeaponPickup[] weapons = FindObjectsByType<WeaponPickup>(FindObjectsSortMode.None);
+        foreach (WeaponPickup weapon in weapons)
+        {
+            Destroy(weapon.gameObject);
+            totalCleaned++;
+        }
+        
+        if (showDebugLog)
+            Debug.Log($"ItemCleanup: Cleaned up {totalCleaned} items");
+    }
+    
+    public void OnGameOver() => CleanupAllItems();
+    public void OnRestart() => CleanupAllItems();
+    public void OnSceneChange() => CleanupAllItems();
+}

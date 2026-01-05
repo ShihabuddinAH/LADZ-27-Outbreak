@@ -1,0 +1,203 @@
+﻿using UnityEngine;
+using UnityEngine.UI;
+using UnityEngine.SceneManagement;
+using TMPro;
+
+/// <summary>
+/// Game Over Panel dengan input nama untuk leaderboard.
+/// </summary>
+public class GameOverPanel : MonoBehaviour
+{
+    [Header("Stats Display")]
+    [SerializeField] private TextMeshProUGUI finalScoreText;
+    [SerializeField] private TextMeshProUGUI finalKillsText;
+    [SerializeField] private TextMeshProUGUI finalTimeText;
+    [SerializeField] private TextMeshProUGUI finalWaveText;
+    
+    [Header("Leaderboard Input")]
+    [SerializeField] private GameObject nameInputPanel;
+    [SerializeField] private TMP_InputField nameInput;
+    [SerializeField] private Button submitButton;
+    [SerializeField] private TextMeshProUGUI rankText;
+    
+    [Header("Buttons")]
+    [SerializeField] private Button restartButton;
+    [SerializeField] private Button quitButton;
+    
+    [Header("Settings")]
+    [SerializeField] private bool alwaysShowInput = true;
+    
+    [Header("Format")]
+    [SerializeField] private string scoreFormat = "SCORE: {0}";
+    [SerializeField] private string killsFormat = "KILLS: {0}";
+    [SerializeField] private string timeFormat = "TIME: {0}";
+    [SerializeField] private string waveFormat = "WAVE: {0}";
+    
+    private bool hasSubmitted = false;
+    
+    void Start()
+    {
+        // Setup button listeners
+        if (submitButton != null)
+        {
+            submitButton.onClick.AddListener(OnSubmitName);
+        }
+        
+        if (restartButton != null)
+        {
+            restartButton.onClick.AddListener(OnRestart);
+        }
+        
+        if (quitButton != null)
+        {
+            quitButton.onClick.AddListener(OnQuit);
+        }
+        
+        if (nameInputPanel != null)
+        {
+            nameInputPanel.SetActive(false);
+        }
+    }
+    
+    void OnEnable()
+    {
+        hasSubmitted = false;
+        UpdateStats();
+        
+        if (alwaysShowInput && nameInputPanel != null)
+        {
+            ShowInputPanel();
+        }
+    }
+    
+    private void UpdateStats()
+    {
+        if (GameStats.Instance == null) return;
+        
+        if (finalScoreText != null)
+            finalScoreText.text = string.Format(scoreFormat, GameStats.Instance.GetScore());
+        
+        if (finalKillsText != null)
+            finalKillsText.text = string.Format(killsFormat, GameStats.Instance.GetKills());
+        
+        if (finalTimeText != null)
+            finalTimeText.text = string.Format(timeFormat, GameStats.Instance.GetFormattedTime());
+        
+        if (finalWaveText != null)
+            finalWaveText.text = string.Format(waveFormat, GameStats.Instance.GetCurrentWave());
+    }
+    
+    private void ShowInputPanel()
+    {
+        if (nameInputPanel == null) return;
+        
+        nameInputPanel.SetActive(true);
+        
+        if (nameInput != null)
+        {
+            nameInput.text = "";
+            nameInput.Select();
+            nameInput.ActivateInputField();
+        }
+        
+        if (rankText != null)
+            rankText.text = "Enter Your Name:";
+    }
+    
+    public void OnSubmitName()
+    {
+        if (hasSubmitted) return;
+        if (nameInput == null || LeaderboardManager.Instance == null || GameStats.Instance == null) return;
+        
+        string playerName = nameInput.text.Trim();
+        if (string.IsNullOrEmpty(playerName))
+            playerName = "Anonymous";
+        
+        if (playerName.Length > 20)
+            playerName = playerName.Substring(0, 20);
+        
+        hasSubmitted = true;
+        
+        if (submitButton != null)
+            submitButton.interactable = false;
+        
+        LeaderboardManager.Instance.AddEntry(
+            playerName,
+            GameStats.Instance.GetScore(),
+            GameStats.Instance.GetKills(),
+            GameStats.Instance.GetSurvivalTime(),
+            GameStats.Instance.GetCurrentWave()
+        );
+        
+        Debug.Log($"Score saved! Player: {playerName}");
+        
+        if (nameInputPanel != null)
+            nameInputPanel.SetActive(false);
+        
+        if (rankText != null)
+            rankText.text = "Score Saved!";
+    }
+    
+    public void OnRestart()
+    {
+        Debug.Log("[GameOverPanel] Restart button clicked!");
+        
+        // Cleanup semua objects dulu
+        CleanupAllObjects();
+        
+        // Reset time scale FIRST
+        Time.timeScale = 1f;
+        
+        // Load scene directly (bypass GameManager if it's causing issues)
+        string currentScene = SceneManager.GetActiveScene().name;
+        Debug.Log($"[GameOverPanel] Loading scene: {currentScene}");
+        SceneManager.LoadScene(currentScene);
+    }
+    
+    public void OnQuit()
+    {
+        Debug.Log("[GameOverPanel] Quit button clicked!");
+        
+        // Cleanup semua objects dulu
+        CleanupAllObjects();
+        
+        // Reset time scale FIRST
+        Time.timeScale = 1f;
+        
+        // Load main menu directly
+        Debug.Log("[GameOverPanel] Loading MainMenu scene");
+        SceneManager.LoadScene("MainMenu");
+    }
+    
+    /// <summary>
+    /// Cleanup semua spawned objects sebelum scene change
+    /// </summary>
+    private void CleanupAllObjects()
+    {
+        // Cleanup Items
+        ItemPickup[] items = FindObjectsByType<ItemPickup>(FindObjectsSortMode.None);
+        foreach (ItemPickup item in items)
+        {
+            if (item != null)
+                DestroyImmediate(item.gameObject);
+        }
+        
+        // Cleanup Zombies
+        ZombieHealth[] zombies = FindObjectsByType<ZombieHealth>(FindObjectsSortMode.None);
+        foreach (ZombieHealth zombie in zombies)
+        {
+            if (zombie != null)
+                DestroyImmediate(zombie.gameObject);
+        }
+        
+        // Cleanup Bullets
+        Bullet[] bullets = FindObjectsByType<Bullet>(FindObjectsSortMode.None);
+        foreach (Bullet bullet in bullets)
+        {
+            if (bullet != null)
+                DestroyImmediate(bullet.gameObject);
+        }
+        
+        Debug.Log($"[GameOverPanel] Cleanup: {items.Length} items, {zombies.Length} zombies, {bullets.Length} bullets");
+    }
+}

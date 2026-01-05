@@ -1,0 +1,120 @@
+using UnityEngine;
+
+public class ZombieHealth : MonoBehaviour
+{
+    [Header("Health Settings")]
+    [SerializeField] private int maxHealth = 50;
+    [SerializeField] private int currentHealth;
+    
+    [Header("Damage Feedback")]
+    [SerializeField] private SpriteRenderer spriteRenderer;
+    [SerializeField] private Color damageFlashColor = Color.red;
+    [SerializeField] private float flashDuration = 0.1f;
+    
+    [Header("Death Settings")]
+    [SerializeField] private float destroyDelay = 0.5f; // Delay sebelum destroy (biar animasi death selesai)
+    
+    private Color originalColor;
+    private bool isDead = false;
+    private ItemDropper itemDropper; // Reference ke ItemDropper component
+    
+    void Start()
+    {
+        currentHealth = maxHealth;
+        
+        if (spriteRenderer != null)
+        {
+            originalColor = spriteRenderer.color;
+        }
+        
+        // Get ItemDropper component jika ada
+        itemDropper = GetComponent<ItemDropper>();
+    }
+    
+    public void TakeDamage(int damage)
+    {
+        if (isDead)
+        {
+            return;
+        }
+        
+        currentHealth -= damage;
+        currentHealth = Mathf.Max(currentHealth, 0);
+        
+        // Play zombie hit SFX
+        if (SFXManager.Instance != null)
+        {
+            SFXManager.Instance.PlayZombieHit();
+        }
+        
+        // Flash effect
+        if (spriteRenderer != null)
+        {
+            StartCoroutine(DamageFlash());
+        }
+        
+        // Cek apakah zombie mati
+        if (currentHealth <= 0)
+        {
+            Die();
+        }
+    }
+    
+    private System.Collections.IEnumerator DamageFlash()
+    {
+        spriteRenderer.color = damageFlashColor;
+        yield return new WaitForSeconds(flashDuration);
+        spriteRenderer.color = originalColor;
+    }
+    
+    private void Die()
+    {
+        isDead = true;
+        
+        // Play zombie death SFX
+        if (SFXManager.Instance != null)
+        {
+            SFXManager.Instance.PlayZombieDeath();
+        }
+        
+        // Disable movement & attack
+        ZombieMovement movement = GetComponent<ZombieMovement>();
+        if (movement != null)
+        {
+            movement.enabled = false;
+        }
+        
+        // Trigger death animation (optional)
+        Animator animator = GetComponent<Animator>();
+        if (animator != null)
+        {
+            animator.SetTrigger("isDead");
+        }
+        
+        // Disable collider agar tidak mengganggu
+        Collider2D col = GetComponent<Collider2D>();
+        if (col != null)
+        {
+            col.enabled = false;
+        }
+        
+        // PENTING: Drop items SEBELUM destroy
+        if (itemDropper != null)
+        {
+            itemDropper.DropItems();
+        }
+        
+        // Destroy setelah delay
+        Destroy(gameObject, destroyDelay);
+    }
+    
+    public bool IsDead()
+    {
+        return isDead;
+    }
+    
+    public int GetCurrentHealth()
+    {
+        return currentHealth;
+    }
+}

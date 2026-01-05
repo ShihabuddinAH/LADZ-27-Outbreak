@@ -1,0 +1,242 @@
+﻿using UnityEngine;
+
+/// <summary>
+/// Membersihkan semua item pickup saat game berhenti atau restart
+/// Attach ke GameManager atau GameObject persistent
+/// </summary>
+public class ItemCleanup : MonoBehaviour
+{
+    [Header("Auto Cleanup Settings")]
+    [SerializeField] private bool cleanupOnGameOver = true;
+    [SerializeField] private bool cleanupOnRestart = true;
+    [SerializeField] private bool cleanupOnSceneChange = true;
+    
+    [Header("Cleanup Tags")]
+    [SerializeField] private string[] itemTags = new string[]
+    {
+        "MedkitPickup",
+        "AmmoHandgunPickup",
+        "AmmoRiflePickup",
+        "AmmoShotgunPickup",
+        "WeaponPickup"
+    };
+    
+    [Header("Debug")]
+    [SerializeField] private bool showDebugLog = true;
+    
+    private GameManager gameManager;
+    
+    void Start()
+    {
+        gameManager = FindObjectOfType<GameManager>();
+        
+        if (gameManager != null && showDebugLog)
+        {
+            Debug.Log("ItemCleanup: Connected to GameManager");
+        }
+    }
+    
+    void OnEnable()
+    {
+        // Subscribe to game events jika ada
+        // GameManager.OnGameOver += CleanupAllItems;
+        // GameManager.OnRestart += CleanupAllItems;
+    }
+    
+    void OnDisable()
+    {
+        // Unsubscribe
+        // GameManager.OnGameOver -= CleanupAllItems;
+        // GameManager.OnRestart -= CleanupAllItems;
+    }
+    
+    /// <summary>
+    /// Cleanup semua item di scene
+    /// Panggil method ini dari GameManager saat game over atau restart
+    /// </summary>
+    public void CleanupAllItems()
+    {
+        int totalCleaned = 0;
+        
+        // Method 1: Cleanup by Tags
+        foreach (string tag in itemTags)
+        {
+            try
+            {
+                GameObject[] items = GameObject.FindGameObjectsWithTag(tag);
+                foreach (GameObject item in items)
+                {
+                    Destroy(item);
+                    totalCleaned++;
+                }
+            }
+            catch
+            {
+                // Tag tidak ada, skip
+            }
+        }
+        
+        // Method 2: Cleanup by Components (fallback jika tidak pakai tag)
+        // Hanya cleanup ItemPickup dan WeaponPickup yang sudah ada
+        totalCleaned += CleanupByComponent<ItemPickup>();
+        totalCleaned += CleanupByComponent<WeaponPickup>();
+        
+        if (showDebugLog)
+        {
+            Debug.Log($"ItemCleanup: Cleaned up {totalCleaned} items");
+        }
+    }
+    
+    /// <summary>
+    /// Cleanup specific item type by component
+    /// </summary>
+    private int CleanupByComponent<T>() where T : MonoBehaviour
+    {
+        T[] items = FindObjectsOfType<T>();
+        int count = items.Length;
+        
+        foreach (T item in items)
+        {
+            Destroy(item.gameObject);
+        }
+        
+        return count;
+    }
+    
+    /// <summary>
+    /// Cleanup hanya item dalam radius tertentu (optional)
+    /// </summary>
+    public void CleanupInRadius(Vector3 center, float radius)
+    {
+        int totalCleaned = 0;
+        
+        Collider2D[] colliders = Physics2D.OverlapCircleAll(center, radius);
+        
+        foreach (Collider2D col in colliders)
+        {
+            // Cek apakah object adalah item pickup
+            if (IsItemPickup(col.gameObject))
+            {
+                Destroy(col.gameObject);
+                totalCleaned++;
+            }
+        }
+        
+        if (showDebugLog)
+        {
+            Debug.Log($"ItemCleanup: Cleaned up {totalCleaned} items in radius {radius}");
+        }
+    }
+    
+    /// <summary>
+    /// Cek apakah GameObject adalah item pickup
+    /// </summary>
+    private bool IsItemPickup(GameObject obj)
+    {
+        // Cek by tag
+        foreach (string tag in itemTags)
+        {
+            try
+            {
+                if (obj.CompareTag(tag))
+                {
+                    return true;
+                }
+            }
+            catch
+            {
+                // Tag tidak ada, skip
+            }
+        }
+        
+        // Cek by component
+        if (obj.GetComponent<ItemPickup>() != null ||
+            obj.GetComponent<WeaponPickup>() != null)
+        {
+            return true;
+        }
+        
+        return false;
+    }
+    
+    /// <summary>
+    /// Cleanup items yang sudah lama (optional - untuk mencegah spam)
+    /// </summary>
+    public void CleanupOldItems(float maxAge = 60f)
+    {
+        // Implementasi dengan tracking spawn time per item
+        // Butuh modifikasi di ItemPickup untuk track spawn time
+    }
+    
+    /// <summary>
+    /// Get total item count di scene
+    /// </summary>
+    public int GetTotalItemCount()
+    {
+        int total = 0;
+        
+        total += FindObjectsOfType<ItemPickup>().Length;
+        total += FindObjectsOfType<WeaponPickup>().Length;
+        
+        return total;
+    }
+    
+    // Public methods untuk dipanggil dari GameManager
+    public void OnGameOver()
+    {
+        if (cleanupOnGameOver)
+        {
+            if (showDebugLog)
+            {
+                Debug.Log("ItemCleanup: Game Over - Cleaning up items...");
+            }
+            CleanupAllItems();
+        }
+    }
+    
+    public void OnRestart()
+    {
+        if (cleanupOnRestart)
+        {
+            if (showDebugLog)
+            {
+                Debug.Log("ItemCleanup: Restart - Cleaning up items...");
+            }
+            CleanupAllItems();
+        }
+    }
+    
+    public void OnSceneChange()
+    {
+        if (cleanupOnSceneChange)
+        {
+            if (showDebugLog)
+            {
+                Debug.Log("ItemCleanup: Scene Change - Cleaning up items...");
+            }
+            CleanupAllItems();
+        }
+    }
+    
+    // Cleanup otomatis saat aplikasi quit (safety)
+    void OnApplicationQuit()
+    {
+        CleanupAllItems();
+    }
+    
+    // Debug key untuk manual cleanup (testing)
+    void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.C) && Input.GetKey(KeyCode.LeftShift))
+        {
+            Debug.Log("ItemCleanup: Manual cleanup triggered");
+            CleanupAllItems();
+        }
+        
+        // Show item count (optional debug)
+        if (Input.GetKeyDown(KeyCode.I) && Input.GetKey(KeyCode.LeftShift))
+        {
+            Debug.Log($"ItemCleanup: Current items in scene: {GetTotalItemCount()}");
+        }
+    }
+}

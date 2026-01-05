@@ -1,0 +1,310 @@
+using UnityEngine;
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
+
+/// <summary>
+/// Main Menu Manager - Handle navigation & panels.
+/// EXCLUSIVE panel system - only ONE panel active at a time.
+/// </summary>
+public class MainMenuManager : MonoBehaviour
+{
+    [Header("Main Menu Panels")]
+    [Tooltip("Main menu panel dengan Play, Settings, Leaderboard buttons")]
+    [SerializeField] private GameObject mainMenuPanel;
+    
+    [Tooltip("Settings panel")]
+    [SerializeField] private GameObject settingsPanel;
+    
+    [Tooltip("Leaderboard panel (Top 7 display)")]
+    [SerializeField] private GameObject leaderboardPanel;
+    
+    [Tooltip("How to Play panel (Popup style)")]
+    [SerializeField] private GameObject howToPlayPanel; // NEW: How to Play panel
+    
+    [Header("Buttons")]
+    [SerializeField] private Button endlessButton;
+    [SerializeField] private Button storyButton;
+    [SerializeField] private Button settingsButton;
+    [SerializeField] private Button leaderboardButton;
+    [SerializeField] private Button howToPlayButton; // NEW: How to Play button
+    [SerializeField] private Button exitButton;
+    
+    [Header("Scene Names")]
+    [SerializeField] private string endlessSceneName = "EndlessScene";
+    [SerializeField] private string storySceneName = "StoryScene";
+    
+    [Header("Debug")]
+    [SerializeField] private bool debugMode = true;
+    
+    private bool isInitializing = true; // Flag untuk prevent SFX saat init
+    
+    void Start()
+    {
+        // Setup button listeners
+        if (endlessButton != null)
+            endlessButton.onClick.AddListener(LoadEndlessMode);
+        
+        if (storyButton != null)
+            storyButton.onClick.AddListener(LoadStoryMode);
+        
+        if (settingsButton != null)
+            settingsButton.onClick.AddListener(ShowSettings);
+        
+        if (leaderboardButton != null)
+            leaderboardButton.onClick.AddListener(ShowLeaderboard);
+        
+        if (howToPlayButton != null)
+            howToPlayButton.onClick.AddListener(ShowHowToPlay);
+        
+        if (exitButton != null)
+            exitButton.onClick.AddListener(ExitGame);
+        
+        VerifyPanelReferences();
+        
+        // Show main menu by default (tanpa SFX)
+        isInitializing = true;
+        ShowMainMenu();
+        isInitializing = false;
+    }
+    
+    private void VerifyPanelReferences()
+    {
+        if (mainMenuPanel == null)
+            Debug.LogWarning("?? Main Menu Panel not assigned!");
+        
+        if (settingsPanel == null)
+            Debug.LogWarning("?? Settings Panel not assigned!");
+        
+        if (leaderboardPanel == null)
+            Debug.LogWarning("?? Leaderboard Panel not assigned!");
+        
+        if (howToPlayPanel == null)
+            Debug.LogWarning("?? How to Play Panel not assigned!");
+    }
+    
+    // ========== SCENE NAVIGATION ==========\
+
+    public void LoadEndlessMode()
+    {
+        PlayButtonClick();
+        DebugLog("Loading Endless Mode...");
+        Time.timeScale = 1f; // Ensure timescale is normal
+        SceneManager.LoadScene(endlessSceneName);
+    }
+    
+    public void LoadStoryMode()
+    {
+        PlayButtonClick();
+        DebugLog("Loading Story Mode...");
+        Time.timeScale = 1f;
+        SceneManager.LoadScene(storySceneName);
+    }
+    
+    // ========== PANEL NAVIGATION ==========\
+    
+    /// <summary>
+    /// Show Main Menu panel ONLY (hide others).
+    /// </summary>
+    public void ShowMainMenu()
+    {
+        if (!isInitializing)
+        {
+            PlayButtonClick();
+        }
+        
+        DebugLog("?? Showing Main Menu Panel");
+        
+        SetPanelActive(mainMenuPanel, true);
+        SetPanelActive(settingsPanel, false);
+        SetPanelActive(leaderboardPanel, false);
+        SetPanelActive(howToPlayPanel, false);
+        
+        // IMPORTANT: Close How to Play jika popup
+        if (howToPlayPanel != null)
+        {
+            HowToPlayPanel howToPlayUI = howToPlayPanel.GetComponent<HowToPlayPanel>();
+            if (howToPlayUI != null)
+            {
+                howToPlayUI.Close();
+            }
+            else
+            {
+                howToPlayPanel.SetActive(false);
+            }
+        }
+        
+        DebugLog($"   Main Menu: {(mainMenuPanel != null ? mainMenuPanel.activeSelf.ToString() : "NULL")}");
+        DebugLog($"   Settings: {(settingsPanel != null ? settingsPanel.activeSelf.ToString() : "NULL")}");
+        DebugLog($"   Leaderboard: {(leaderboardPanel != null ? leaderboardPanel.activeSelf.ToString() : "NULL")}");
+    }
+    
+    /// <summary>
+    /// Show Settings panel ONLY (hide others).
+    /// </summary>
+    public void ShowSettings()
+    {
+        PlayButtonClick();
+        DebugLog("?? Showing Settings Panel");
+        
+        SetPanelActive(mainMenuPanel, false);
+        SetPanelActive(settingsPanel, true);
+        SetPanelActive(leaderboardPanel, false);
+        SetPanelActive(howToPlayPanel, false);
+        
+        // Close How to Play popup
+        if (howToPlayPanel != null)
+        {
+            HowToPlayPanel howToPlayUI = howToPlayPanel.GetComponent<HowToPlayPanel>();
+            if (howToPlayUI != null)
+            {
+                howToPlayUI.Close();
+            }
+        }
+        
+        DebugLog($"   Main Menu: {(mainMenuPanel != null ? mainMenuPanel.activeSelf.ToString() : "NULL")}");
+        DebugLog($"   Settings: {(settingsPanel != null ? settingsPanel.activeSelf.ToString() : "NULL")}");
+        DebugLog($"   Leaderboard: {(leaderboardPanel != null ? leaderboardPanel.activeSelf.ToString() : "NULL")}");
+    }
+    
+    /// <summary>
+    /// Show Leaderboard panel ONLY (hide others).
+    /// </summary>
+    public void ShowLeaderboard()
+    {
+        PlayButtonClick();
+        DebugLog("?? Showing Leaderboard Panel");
+        
+        SetPanelActive(mainMenuPanel, false);
+        SetPanelActive(settingsPanel, false);
+        SetPanelActive(leaderboardPanel, true);
+        SetPanelActive(howToPlayPanel, false);
+        
+        // Close How to Play popup
+        if (howToPlayPanel != null)
+        {
+            HowToPlayPanel howToPlayUI = howToPlayPanel.GetComponent<HowToPlayPanel>();
+            if (howToPlayUI != null)
+            {
+                howToPlayUI.Close();
+            }
+        }
+        
+        DebugLog($"   Main Menu: {(mainMenuPanel != null ? mainMenuPanel.activeSelf.ToString() : "NULL")}");
+        DebugLog($"   Settings: {(settingsPanel != null ? settingsPanel.activeSelf.ToString() : "NULL")}");
+        DebugLog($"   Leaderboard: {(leaderboardPanel != null ? leaderboardPanel.activeSelf.ToString() : "NULL")}");
+        
+        // Refresh leaderboard when shown
+        if (leaderboardPanel != null)
+        {
+            LeaderboardPanelUI leaderboardUI = leaderboardPanel.GetComponent<LeaderboardPanelUI>();
+            if (leaderboardUI != null)
+            {
+                leaderboardUI.RefreshLeaderboard();
+                DebugLog("   ? Leaderboard refreshed");
+            }
+            else
+            {
+                Debug.LogWarning("?? LeaderboardPanelUI component not found!");
+            }
+        }
+    }
+    
+    /// <summary>
+    /// Show How to Play panel (Popup style - overlay)
+    /// </summary>
+    public void ShowHowToPlay()
+    {
+        DebugLog("?? Showing How to Play Panel");
+        
+        // How to Play sebagai popup - tidak hide main menu
+        if (howToPlayPanel != null)
+        {
+            HowToPlayPanel howToPlayUI = howToPlayPanel.GetComponent<HowToPlayPanel>();
+            if (howToPlayUI != null)
+            {
+                howToPlayUI.Show();
+                DebugLog("   ? How to Play UI shown");
+            }
+            else
+            {
+                // Fallback: just show panel
+                howToPlayPanel.SetActive(true);
+                DebugLog("   ? How to Play Panel activated (fallback)");
+            }
+        }
+    }
+    
+    // ========== UTILITY ==========\
+    
+    public void ExitGame()
+    {
+        PlayButtonClick();
+        DebugLog("Exiting game...");
+        Application.Quit();
+        
+        #if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;
+        #endif
+    }
+    
+    private void PlayButtonClick()
+    {
+        if (!isInitializing && SFXManager.Instance != null)
+        {
+            SFXManager.Instance.PlayButtonClick();
+        }
+    }
+    
+    private void SetPanelActive(GameObject panel, bool active)
+    {
+        if (panel != null)
+        {
+            panel.SetActive(active);
+        }
+    }
+    
+    private void DebugLog(string message)
+    {
+        if (debugMode)
+        {
+            Debug.Log(message);
+        }
+    }
+    
+    // ========== CONTEXT MENU TESTING ==========\
+    
+    [ContextMenu("Test: Show Main Menu")]
+    private void TestShowMainMenu()
+    {
+        ShowMainMenu();
+    }
+    
+    [ContextMenu("Test: Show Settings")]
+    private void TestShowSettings()
+    {
+        ShowSettings();
+    }
+    
+    [ContextMenu("Test: Show Leaderboard")]
+    private void TestShowLeaderboard()
+    {
+        ShowLeaderboard();
+    }
+    
+    [ContextMenu("Test: Show How to Play")]
+    private void TestShowHowToPlay()
+    {
+        ShowHowToPlay();
+    }
+    
+    [ContextMenu("Print Panel States")]
+    private void PrintPanelStates()
+    {
+        Debug.Log("========== PANEL STATES ==========");
+        Debug.Log($"Main Menu Panel: {(mainMenuPanel != null ? (mainMenuPanel.activeSelf ? "ACTIVE" : "INACTIVE") : "NULL")}");
+        Debug.Log($"Settings Panel: {(settingsPanel != null ? (settingsPanel.activeSelf ? "ACTIVE" : "INACTIVE") : "NULL")}");
+        Debug.Log($"Leaderboard Panel: {(leaderboardPanel != null ? (leaderboardPanel.activeSelf ? "ACTIVE" : "INACTIVE") : "NULL")}");
+        Debug.Log($"How to Play Panel: {(howToPlayPanel != null ? (howToPlayPanel.activeSelf ? "ACTIVE" : "INACTIVE") : "NULL")}");
+        Debug.Log("==================================");
+    }
+}

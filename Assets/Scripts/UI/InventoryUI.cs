@@ -1,0 +1,179 @@
+using UnityEngine;
+using UnityEngine.UI;
+using TMPro;
+
+public class InventoryUI : MonoBehaviour
+{
+    [Header("Medkit UI")]
+    [SerializeField] private TextMeshProUGUI medkitText;
+    [SerializeField] private Image medkitIcon;
+    
+    [Header("Handgun Ammo UI")]
+    [SerializeField] private TextMeshProUGUI handgunAmmoText;
+    [SerializeField] private Image handgunAmmoIcon;
+    
+    [Header("Rifle Ammo UI")]
+    [SerializeField] private TextMeshProUGUI rifleAmmoText;
+    [SerializeField] private Image rifleAmmoIcon;
+    
+    [Header("Shotgun Ammo UI")]
+    [SerializeField] private TextMeshProUGUI shotgunAmmoText;
+    [SerializeField] private Image shotgunAmmoIcon;
+    
+    [Header("Current Weapon Display")]
+    [SerializeField] private TextMeshProUGUI currentWeaponText;
+    [SerializeField] private TextMeshProUGUI currentAmmoText;
+    
+    [Header("UI Settings")]
+    [SerializeField] private Color lowAmmoColor = Color.red;
+    [SerializeField] private Color normalAmmoColor = Color.white;
+    [SerializeField] private int lowAmmoThreshold = 10;
+    [SerializeField] private float dimmedAlpha = 0.3f;
+    
+    private static InventoryUI instance;
+    public static InventoryUI Instance => instance;
+    
+    void Awake()
+    {
+        instance = this;
+    }
+    
+    void Update()
+    {
+        UpdateAllUI();
+    }
+    
+    private void UpdateAllUI()
+    {
+        UpdateMedkitUI();
+        UpdateAmmoUI();
+        UpdateCurrentWeaponUI();
+    }
+    
+    private void UpdateMedkitUI()
+    {
+        // Gunakan singleton PlayerInventory
+        PlayerInventory inventory = FindFirstObjectByType<PlayerInventory>();
+        if (inventory == null || medkitText == null) return;
+        
+        int count = inventory.GetCurrentMedkits();
+        medkitText.text = $"x {count:00}";
+        medkitText.color = count == 0 ? lowAmmoColor : normalAmmoColor;
+        
+        if (medkitIcon != null)
+        {
+            Color c = medkitIcon.color;
+            c.a = count > 0 ? 1f : dimmedAlpha;
+            medkitIcon.color = c;
+        }
+    }
+    
+    private void UpdateAmmoUI()
+    {
+        // PENTING: Selalu gunakan WeaponController.Instance (singleton)
+        // Ini memastikan kita membaca dari instance yang SAMA dengan ItemPickup
+        WeaponController weapon = WeaponController.Instance;
+        
+        if (weapon == null) return;
+        
+        // Handgun
+        int handgunAmmo = weapon.GetReserveAmmoForType(WeaponType.Handgun);
+        if (handgunAmmoText != null)
+        {
+            handgunAmmoText.text = $"x {handgunAmmo:000}";
+            handgunAmmoText.color = handgunAmmo <= lowAmmoThreshold ? lowAmmoColor : normalAmmoColor;
+        }
+        if (handgunAmmoIcon != null)
+        {
+            Color c = handgunAmmoIcon.color;
+            c.a = handgunAmmo > 0 ? 1f : dimmedAlpha;
+            handgunAmmoIcon.color = c;
+        }
+        
+        // Rifle
+        int rifleAmmo = weapon.GetReserveAmmoForType(WeaponType.Rifle);
+        if (rifleAmmoText != null)
+        {
+            rifleAmmoText.text = $"x {rifleAmmo:000}";
+            rifleAmmoText.color = rifleAmmo <= lowAmmoThreshold ? lowAmmoColor : normalAmmoColor;
+        }
+        if (rifleAmmoIcon != null)
+        {
+            Color c = rifleAmmoIcon.color;
+            c.a = rifleAmmo > 0 ? 1f : dimmedAlpha;
+            rifleAmmoIcon.color = c;
+        }
+        
+        // Shotgun
+        int shotgunAmmo = weapon.GetReserveAmmoForType(WeaponType.Shotgun);
+        if (shotgunAmmoText != null)
+        {
+            shotgunAmmoText.text = $"x {shotgunAmmo:000}";
+            shotgunAmmoText.color = shotgunAmmo <= lowAmmoThreshold ? lowAmmoColor : normalAmmoColor;
+        }
+        if (shotgunAmmoIcon != null)
+        {
+            Color c = shotgunAmmoIcon.color;
+            c.a = shotgunAmmo > 0 ? 1f : dimmedAlpha;
+            shotgunAmmoIcon.color = c;
+        }
+    }
+    
+    private void UpdateCurrentWeaponUI()
+    {
+        WeaponController weapon = WeaponController.Instance;
+        if (weapon == null) return;
+        
+        WeaponData currentWeapon = weapon.GetCurrentWeapon();
+        if (currentWeapon == null) return;
+        
+        if (currentWeaponText != null)
+            currentWeaponText.text = currentWeapon.weaponName.ToUpper();
+        
+        if (currentAmmoText != null)
+        {
+            int current = weapon.GetCurrentAmmo();
+            int reserve = weapon.GetReserveAmmo();
+            currentAmmoText.text = $"{current} / {reserve}";
+            currentAmmoText.color = current <= lowAmmoThreshold ? lowAmmoColor : normalAmmoColor;
+        }
+    }
+    
+    // Flash effects
+    public void FlashMedkitIcon()
+    {
+        if (medkitIcon != null) StartCoroutine(FlashIcon(medkitIcon));
+    }
+    
+    public void FlashHandgunAmmoIcon()
+    {
+        if (handgunAmmoIcon != null) StartCoroutine(FlashIcon(handgunAmmoIcon));
+    }
+    
+    public void FlashRifleAmmoIcon()
+    {
+        if (rifleAmmoIcon != null) StartCoroutine(FlashIcon(rifleAmmoIcon));
+    }
+    
+    public void FlashShotgunAmmoIcon()
+    {
+        if (shotgunAmmoIcon != null) StartCoroutine(FlashIcon(shotgunAmmoIcon));
+    }
+    
+    private System.Collections.IEnumerator FlashIcon(Image icon)
+    {
+        Color original = icon.color;
+        Color flash = Color.green;
+        flash.a = original.a;
+        
+        for (int i = 0; i < 3; i++)
+        {
+            icon.color = flash;
+            yield return new WaitForSeconds(0.1f);
+            icon.color = original;
+            yield return new WaitForSeconds(0.1f);
+        }
+    }
+    
+    public void ForceUpdateUI() => UpdateAllUI();
+}

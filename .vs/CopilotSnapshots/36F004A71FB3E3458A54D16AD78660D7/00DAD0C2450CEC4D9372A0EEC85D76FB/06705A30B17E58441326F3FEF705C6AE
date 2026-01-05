@@ -1,0 +1,268 @@
+﻿using UnityEngine;
+using UnityEngine.SceneManagement;
+
+/// <summary>
+/// Game Manager untuk endless zombie game.
+/// Mengatur game state, pause, restart, dll.
+/// </summary>
+public class GameManager : MonoBehaviour
+{
+    [Header("References")]
+    [SerializeField] private ZombieSpawner spawner;
+    [SerializeField] private PlayerHealth playerHealth;
+    [SerializeField] private GameStats gameStats; // TAMBAHAN
+    [SerializeField] private ItemCleanup itemCleanup; // NEW: Reference ke ItemCleanup
+    
+    [Header("Game State")]
+    [SerializeField] private bool isPaused = false;
+    [SerializeField] private bool isGameOver = false;
+    
+    [Header("UI Panels")]
+    [SerializeField] private GameObject pauseMenuPanel;
+    [SerializeField] private GameObject gameOverPanel;
+    [SerializeField] private GameObject hudPanel;
+    
+    private static GameManager instance;
+    
+    public static GameManager Instance
+    {
+        get { return instance; }
+    }
+    
+    void Awake()
+    {
+        // Singleton pattern
+        if (instance == null)
+        {
+            instance = this;
+        }
+        else
+        {
+            Destroy(gameObject);
+            return;
+        }
+    }
+    
+    void Start()
+    {
+        // Auto-find references jika belum di-assign
+        if (spawner == null)
+        {
+            spawner = FindObjectOfType<ZombieSpawner>();
+        }
+        
+        if (playerHealth == null)
+        {
+            playerHealth = FindObjectOfType<PlayerHealth>();
+        }
+        
+        if (gameStats == null)
+        {
+            gameStats = FindObjectOfType<GameStats>();
+        }
+        
+        // NEW: Auto-find ItemCleanup
+        if (itemCleanup == null)
+        {
+            itemCleanup = FindObjectOfType<ItemCleanup>();
+            
+            // Jika tidak ada, create it
+            if (itemCleanup == null)
+            {
+                GameObject cleanupObj = new GameObject("ItemCleanup");
+                itemCleanup = cleanupObj.AddComponent<ItemCleanup>();
+                Debug.Log("GameManager: ItemCleanup component created automatically");
+            }
+        }
+        
+        // Subscribe to player death event
+        if (playerHealth != null)
+        {
+            // Jika PlayerHealth punya event OnDeath, subscribe di sini
+            // playerHealth.OnDeath += OnPlayerDeath;
+        }
+        
+        // Initialize UI
+        if (pauseMenuPanel != null) pauseMenuPanel.SetActive(false);
+        if (gameOverPanel != null) gameOverPanel.SetActive(false);
+        if (hudPanel != null) hudPanel.SetActive(true);
+        
+        // Start game
+        ResumeGame();
+    }
+    
+    void Update()
+    {
+        // Pause menu toggle
+        if (Input.GetKeyDown(KeyCode.Escape) && !isGameOver)
+        {
+            if (isPaused)
+            {
+                ResumeGame();
+            }
+            else
+            {
+                PauseGame();
+            }
+        }
+        
+        // Check game over condition
+        if (!isGameOver && playerHealth != null && playerHealth.GetCurrentHealth() <= 0)
+        {
+            GameOver();
+        }
+    }
+    
+    public void PauseGame()
+    {
+        isPaused = true;
+        Time.timeScale = 0f; // Freeze game
+        
+        if (pauseMenuPanel != null)
+        {
+            pauseMenuPanel.SetActive(true);
+        }
+        
+        if (hudPanel != null)
+        {
+            hudPanel.SetActive(false);
+        }
+        
+        Debug.Log("Game Paused");
+    }
+    
+    public void ResumeGame()
+    {
+        isPaused = false;
+        Time.timeScale = 1f; // Resume game
+        
+        if (pauseMenuPanel != null)
+        {
+            pauseMenuPanel.SetActive(false);
+        }
+        
+        if (hudPanel != null)
+        {
+            hudPanel.SetActive(true);
+        }
+        
+        Debug.Log("Game Resumed");
+    }
+    
+    public void GameOver()
+    {
+        if (isGameOver) return;
+        
+        isGameOver = true;
+        Time.timeScale = 0f;
+        
+        // Disable spawner
+        if (spawner != null)
+        {
+            spawner.enabled = false;
+        }
+        
+        // NEW: Cleanup all items
+        if (itemCleanup != null)
+        {
+            itemCleanup.OnGameOver();
+        }
+        
+        // Show game over panel
+        if (gameOverPanel != null)
+        {
+            gameOverPanel.SetActive(true);
+        }
+        
+        if (hudPanel != null)
+        {
+            hudPanel.SetActive(false);
+        }
+        
+        Debug.Log("Game Over!");
+        
+        // Save stats (PlayerPrefs backup - leaderboard handled by GameOverPanel)
+        SaveGameStats();
+    }
+    
+    public void RestartGame()
+    {
+        // NEW: Cleanup items before restart
+        if (itemCleanup != null)
+        {
+            itemCleanup.OnRestart();
+        }
+        
+        Time.timeScale = 1f;
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+    }
+    
+    public void QuitToMainMenu()
+    {
+        // NEW: Cleanup items before scene change
+        if (itemCleanup != null)
+        {
+            itemCleanup.OnSceneChange();
+        }
+        
+        Time.timeScale = 1f;
+        // Load main menu scene (ganti "MainMenu" dengan nama scene Anda)
+        SceneManager.LoadScene("MainMenu");
+    }
+    
+    public void QuitGame()
+    {
+        Debug.Log("Quitting game...");
+        Application.Quit();
+    }
+    
+    private void SaveGameStats()
+    {
+        if (spawner == null) return;
+        
+        int currentWave = spawner.GetCurrentWave();
+        int totalKills = spawner.GetTotalZombiesSpawned() - spawner.GetActiveZombies();
+        float survivalTime = spawner.GetGameTime();
+        
+        // Save to PlayerPrefs (backup)
+        int highestWave = PlayerPrefs.GetInt("HighestWave", 0);
+        if (currentWave > highestWave)
+        {
+            PlayerPrefs.SetInt("HighestWave", currentWave);
+        }
+        
+        int totalKillsAllTime = PlayerPrefs.GetInt("TotalKills", 0);
+        PlayerPrefs.SetInt("TotalKills", totalKillsAllTime + totalKills);
+        
+        float longestSurvival = PlayerPrefs.GetFloat("LongestSurvival", 0f);
+        if (survivalTime > longestSurvival)
+        {
+            PlayerPrefs.SetFloat("LongestSurvival", survivalTime);
+        }
+        
+        PlayerPrefs.Save();
+        
+        Debug.Log($"Stats Saved - Wave: {currentWave}, Kills: {totalKills}, Time: {survivalTime:F1}s");
+    }
+    
+    // Getters
+    public bool IsPaused()
+    {
+        return isPaused;
+    }
+    
+    public bool IsGameOver()
+    {
+        return isGameOver;
+    }
+    
+    public ZombieSpawner GetSpawner()
+    {
+        return spawner;
+    }
+    
+    public GameStats GetGameStats()
+    {
+        return gameStats;
+    }
+}

@@ -1,0 +1,250 @@
+﻿using UnityEngine;
+
+public class WeaponController : MonoBehaviour
+{
+    [Header("Current Weapon")]
+    [SerializeField] private WeaponData currentWeapon;
+    
+    [Header("Components")]
+    [SerializeField] private Animator animator;
+    [SerializeField] private Transform firePoint; // Titik tembak (optional, untuk visual effect)
+    
+    [Header("Weapon Inventory")]
+    [SerializeField] private WeaponData handgunData;
+    [SerializeField] private WeaponData rifleData;
+    [SerializeField] private WeaponData shotgunData;
+    
+    [Header("Ammo System")]
+    [SerializeField] private int currentAmmo;
+    [SerializeField] private bool hasRifle = false;
+    [SerializeField] private bool hasShotgun = false;
+    
+    private float lastFireTime = -999f;
+    private bool isReloading = false;
+    
+    void Start()
+    {
+        // Default weapon: Handgun
+        if (currentWeapon == null && handgunData != null)
+        {
+            currentWeapon = handgunData;
+        }
+        
+        if (currentWeapon != null)
+        {
+            currentAmmo = currentWeapon.magazineSize;
+            
+            // Set WeaponType parameter di animator saat start
+            if (animator != null)
+            {
+                animator.SetFloat("WeaponType", (float)currentWeapon.weaponType);
+            }
+        }
+    }
+    
+    void Update()
+    {
+        HandleWeaponInput();
+        HandleWeaponSwitch();
+    }
+    
+    private void HandleWeaponInput()
+    {
+        if (currentWeapon == null || isReloading)
+        {
+            return;
+        }
+        
+        // Check fire input
+        bool fireInput = currentWeapon.isAutomatic 
+            ? Input.GetButton("Fire1") // Hold untuk automatic
+            : Input.GetButtonDown("Fire1"); // Click untuk semi-auto
+        
+        // Alternative: pakai key tertentu
+        // fireInput = Input.GetKeyDown(KeyCode.Space);
+        
+        if (fireInput && CanFire())
+        {
+            Fire();
+        }
+        
+        // Reload
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            Reload();
+        }
+    }
+    
+    private void HandleWeaponSwitch()
+    {
+        // Switch weapon dengan number keys
+        if (Input.GetKeyDown(KeyCode.Alpha1) && handgunData != null)
+        {
+            SwitchWeapon(handgunData);
+        }
+        else if (Input.GetKeyDown(KeyCode.Alpha2) && hasRifle && rifleData != null)
+        {
+            SwitchWeapon(rifleData);
+        }
+        else if (Input.GetKeyDown(KeyCode.Alpha3) && hasShotgun && shotgunData != null)
+        {
+            SwitchWeapon(shotgunData);
+        }
+    }
+    
+    private bool CanFire()
+    {
+        return currentAmmo > 0 && Time.time >= lastFireTime + currentWeapon.fireRate;
+    }
+    
+    private void Fire()
+    {
+        lastFireTime = Time.time;
+        currentAmmo--;
+        
+        // Trigger animation berdasarkan weapon type
+        if (animator != null)
+        {
+            animator.SetTrigger(currentWeapon.shootAnimationTrigger);
+        }
+        
+        // Shoot bullets (shotgun bisa multiple bullets)
+        for (int i = 0; i < currentWeapon.bulletsPerShot; i++)
+        {
+            ShootBullet(i);
+        }
+        
+        // Auto reload jika ammo habis
+        if (currentAmmo <= 0)
+        {
+            Reload();
+        }
+    }
+    
+    private void ShootBullet(int bulletIndex)
+    {
+        // Hitung arah tembakan (menghadap mouse atau arah player)
+        Vector2 shootDirection = GetShootDirection();
+        
+        // Tambahkan spread untuk shotgun
+        if (currentWeapon.bulletsPerShot > 1)
+        {
+            float spreadOffset = Random.Range(-currentWeapon.spreadAngle, currentWeapon.spreadAngle);
+            shootDirection = Quaternion.Euler(0, 0, spreadOffset) * shootDirection;
+        }
+        
+        // Raycast untuk detect hit
+        RaycastHit2D hit = Physics2D.Raycast(transform.position, shootDirection, currentWeapon.range);
+        
+        if (hit.collider != null)
+        {
+            // Debug visual (optional)
+            Debug.DrawLine(transform.position, hit.point, Color.red, 0.1f);
+            
+            // Cek apakah kena zombie
+            if (hit.collider.CompareTag("Enemy"))
+            {
+                ZombieHealth zombieHealth = hit.collider.GetComponent<ZombieHealth>();
+                if (zombieHealth != null)
+                {
+                    zombieHealth.TakeDamage(currentWeapon.damage);
+                }
+            }
+        }
+        else
+        {
+            // Debug visual untuk shot yang tidak kena target
+            Debug.DrawLine(transform.position, transform.position + (Vector3)shootDirection * currentWeapon.range, Color.yellow, 0.1f);
+        }
+    }
+    
+    private Vector2 GetShootDirection()
+    {
+        // Opsi 1: Arah ke mouse (untuk top-down shooter)
+        Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        Vector2 direction = (mousePos - transform.position).normalized;
+        
+        // Opsi 2: Arah rotasi player (gunakan ini jika player sudah rotate ke arah gerak)
+        // Vector2 direction = transform.right; // atau transform.up, tergantung orientasi sprite
+        
+        return direction;
+    }
+    
+    private void Reload()
+    {
+        if (isReloading || currentAmmo == currentWeapon.magazineSize)
+        {
+            return;
+        }
+        
+        StartCoroutine(ReloadCoroutine());
+    }
+    
+    private System.Collections.IEnumerator ReloadCoroutine()
+    {
+        isReloading = true;
+        
+        // Trigger reload animation (optional)
+        if (animator != null)
+        {
+            animator.SetTrigger("Reload");
+        }
+        
+        yield return new WaitForSeconds(currentWeapon.reloadTime);
+        
+        currentAmmo = currentWeapon.magazineSize;
+        isReloading = false;
+    }
+    
+    public void SwitchWeapon(WeaponData newWeapon)
+    {
+        if (newWeapon == null)
+        {
+            return;
+        }
+        
+        // Hanya skip jika weapon benar-benar sama DAN ammo penuh
+        // (Allow re-equip untuk reset state)
+        bool isSameWeapon = (currentWeapon == newWeapon);
+        
+        currentWeapon = newWeapon;
+        currentAmmo = currentWeapon.magazineSize;
+        isReloading = false;
+        
+        // Update animator state berdasarkan weapon type
+        // (Selalu update, bahkan jika weapon sama, untuk ensure correct state)
+        if (animator != null)
+        {
+            animator.SetFloat("WeaponType", (float)currentWeapon.weaponType);
+        }
+    }
+    
+    // Method untuk unlock weapon (dipanggil saat loot)
+    public void UnlockRifle()
+    {
+        hasRifle = true;
+        SwitchWeapon(rifleData);
+    }
+    
+    public void UnlockShotgun()
+    {
+        hasShotgun = true;
+        SwitchWeapon(shotgunData);
+    }
+    
+    // Getters
+    public WeaponData GetCurrentWeapon()
+    {
+        return currentWeapon;
+    }
+    
+    public int GetCurrentAmmo()
+    {
+        return currentAmmo;
+    }
+    
+    public bool IsReloading()
+    {
+        return isReloading;
+    }
+}

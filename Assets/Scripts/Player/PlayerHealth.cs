@@ -1,0 +1,184 @@
+using UnityEngine;
+using UnityEngine.UI;
+using TMPro;
+
+public class PlayerHealth : MonoBehaviour
+{
+    [Header("Health Settings")]
+    [SerializeField] private int maxHealth = 100;
+    [SerializeField] private int currentHealth;
+
+    [Header("UI (Optional)")]
+    [SerializeField] private Slider healthBar; // Opsional: UI Slider untuk health bar
+    [SerializeField] private TextMeshProUGUI healthText; // Opsional: UI Text untuk tampilkan angka health
+
+    [Header("Damage Feedback")]
+    [SerializeField] private bool showDamageLog = true;
+    [SerializeField] private SpriteRenderer spriteRenderer; // Untuk damage flash effect
+    [SerializeField] private Color damageFlashColor = Color.red;
+    [SerializeField] private float flashDuration = 0.1f;
+
+    private Color originalColor;
+    private bool isDead = false;
+
+    void Start()
+    {
+        // Set health awal
+        currentHealth = maxHealth;
+        
+        // Simpan warna asli sprite
+        if (spriteRenderer != null)
+        {
+            originalColor = spriteRenderer.color;
+        }
+
+        // Update UI
+        UpdateHealthUI();
+    }
+
+    public void TakeDamage(int damage)
+    {
+        // Jangan terima damage jika sudah mati
+        if (isDead)
+        {
+            return;
+        }
+
+        // Kurangi health
+        currentHealth -= damage;
+        
+        // Clamp health agar tidak negatif
+        currentHealth = Mathf.Max(currentHealth, 0);
+
+        // Play player hit SFX
+        if (SFXManager.Instance != null)
+        {
+            SFXManager.Instance.PlayPlayerHit();
+        }
+
+        if (showDamageLog)
+        {
+            Debug.Log($"Player took {damage} damage! Current health: {currentHealth}/{maxHealth}");
+        }
+
+        // Update UI
+        UpdateHealthUI();
+
+        // Flash effect
+        if (spriteRenderer != null)
+        {
+            StartCoroutine(DamageFlash());
+        }
+
+        // Cek apakah player mati
+        if (currentHealth <= 0)
+        {
+            Die();
+        }
+    }
+
+    public void Heal(int amount)
+    {
+        if (isDead)
+        {
+            return;
+        }
+
+        currentHealth += amount;
+        currentHealth = Mathf.Min(currentHealth, maxHealth);
+
+        // Play medkit use SFX
+        if (SFXManager.Instance != null)
+        {
+            SFXManager.Instance.PlayMedkitUse();
+        }
+
+        Debug.Log($"Player healed {amount}. Current health: {currentHealth}/{maxHealth}");
+        UpdateHealthUI();
+    }
+
+    private void UpdateHealthUI()
+    {
+        // Update health bar jika ada
+        if (healthBar != null)
+        {
+            healthBar.maxValue = maxHealth;
+            healthBar.value = currentHealth;
+        }
+
+        // Update health text jika ada
+        if (healthText != null)
+        {
+            healthText.text = $"{currentHealth}/{maxHealth}";
+        }
+    }
+
+    private System.Collections.IEnumerator DamageFlash()
+    {
+        // Flash merah
+        spriteRenderer.color = damageFlashColor;
+        yield return new WaitForSeconds(flashDuration);
+        spriteRenderer.color = originalColor;
+    }
+
+    private void Die()
+    {
+        isDead = true;
+        
+        // Play player death SFX
+        if (SFXManager.Instance != null)
+        {
+            SFXManager.Instance.PlayPlayerDeath();
+        }
+        
+        Debug.Log("Player died!");
+
+        // Tambahkan logic kematian di sini
+        // Misalnya: trigger animation, disable movement, show game over screen, dll
+        
+        // Contoh: disable movement component
+        PlayerMovement playerMovement = GetComponent<PlayerMovement>();
+        if (playerMovement != null)
+        {
+            playerMovement.enabled = false;
+        }
+
+        // Optional: Trigger death animation
+        Animator animator = GetComponent<Animator>();
+        if (animator != null)
+        {
+            animator.SetTrigger("isDead");
+        }
+    }
+
+    // Public getters untuk akses dari script lain
+    public int GetCurrentHealth()
+    {
+        return currentHealth;
+    }
+
+    public int GetMaxHealth()
+    {
+        return maxHealth;
+    }
+
+    public bool IsDead()
+    {
+        return isDead;
+    }
+
+    // Method untuk reset health (untuk restart game, dll)
+    public void ResetHealth()
+    {
+        currentHealth = maxHealth;
+        isDead = false;
+        UpdateHealthUI();
+
+        // Enable movement lagi
+        PlayerMovement playerMovement = GetComponent<PlayerMovement>();
+        if (playerMovement != null)
+        {
+            playerMovement.enabled = true;
+        }
+    }
+}

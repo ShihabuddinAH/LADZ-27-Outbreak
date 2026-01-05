@@ -1,0 +1,209 @@
+﻿using UnityEngine;
+
+public enum ItemType
+{
+    Medkit,
+    AmmoHandgun,
+    AmmoRifle,
+    AmmoShotgun
+}
+
+public class ItemPickup : MonoBehaviour
+{
+    [Header("Item Settings")]
+    [SerializeField] private ItemType itemType;
+    [SerializeField] private int amount = 1; // Untuk Medkit = 1, Untuk Ammo = 1 magazine
+    
+    [Header("Visual")]
+    [SerializeField] private SpriteRenderer spriteRenderer;
+    
+    [Header("Pickup Settings")]
+    [SerializeField] private float pickupRadius = 2f;
+    [SerializeField] private bool autoPickup = true; // Auto pickup saat player masuk range
+    [SerializeField] private KeyCode pickupKey = KeyCode.E;
+    
+    [Header("Info (Read-Only)")]
+    [SerializeField] private string displayInfo = "1 magazine = 1 pickup for ammo items";
+    
+    private bool playerInRange = false;
+    private PlayerInventory playerInventory;
+    private WeaponController playerWeaponController;
+    
+    void Awake()
+    {
+        // Setup collider sebagai trigger
+        Collider2D col = GetComponent<Collider2D>();
+        if (col != null)
+        {
+            col.isTrigger = true;
+        }
+        
+        // Set layer ke "Pickup" atau "Ignore Raycast"
+        int pickupLayer = LayerMask.NameToLayer("Pickup");
+        if (pickupLayer == -1)
+        {
+            pickupLayer = LayerMask.NameToLayer("Ignore Raycast");
+        }
+        
+        if (pickupLayer != -1)
+        {
+            gameObject.layer = pickupLayer;
+        }
+    }
+    
+    void Update()
+    {
+        if (!autoPickup && playerInRange && Input.GetKeyDown(pickupKey))
+        {
+            PickupItem();
+        }
+    }
+    
+    private void OnTriggerEnter2D(Collider2D other)
+    {
+        if (other.CompareTag("Player"))
+        {
+            playerInRange = true;
+            playerInventory = other.GetComponent<PlayerInventory>();
+            playerWeaponController = other.GetComponent<WeaponController>();
+            
+            if (autoPickup)
+            {
+                PickupItem();
+            }
+        }
+    }
+    
+    private void OnTriggerExit2D(Collider2D other)
+    {
+        if (other.CompareTag("Player"))
+        {
+            playerInRange = false;
+            playerInventory = null;
+            playerWeaponController = null;
+        }
+    }
+    
+    private void PickupItem()
+    {
+        if (playerInventory == null && playerWeaponController == null)
+        {
+            return;
+        }
+        
+        bool pickedUp = false;
+        
+        // Process berdasarkan tipe item
+        switch (itemType)
+        {
+            case ItemType.Medkit:
+                if (playerInventory != null)
+                {
+                    playerInventory.AddMedkit(amount);
+                    pickedUp = true;
+                    Debug.Log($"[ItemPickup] Picked up {amount} Medkit(s)");
+                    
+                    // Flash UI - using singleton
+                    if (InventoryUI.Instance != null)
+                    {
+                        InventoryUI.Instance.FlashMedkitIcon();
+                    }
+                }
+                break;
+                
+            case ItemType.AmmoHandgun:
+                if (playerWeaponController != null)
+                {
+                    playerWeaponController.AddMagazine(WeaponType.Handgun, amount);
+                    pickedUp = true;
+                    Debug.Log($"[ItemPickup] Picked up {amount} Handgun Magazine(s)");
+                    
+                    // Flash UI - using singleton
+                    if (InventoryUI.Instance != null)
+                    {
+                        InventoryUI.Instance.FlashHandgunAmmoIcon();
+                    }
+                }
+                break;
+                
+            case ItemType.AmmoRifle:
+                if (playerWeaponController != null)
+                {
+                    playerWeaponController.AddMagazine(WeaponType.Rifle, amount);
+                    pickedUp = true;
+                    Debug.Log($"[ItemPickup] Picked up {amount} Rifle Magazine(s)");
+                    
+                    // Flash UI - using singleton
+                    if (InventoryUI.Instance != null)
+                    {
+                        InventoryUI.Instance.FlashRifleAmmoIcon();
+                    }
+                }
+                break;
+                
+            case ItemType.AmmoShotgun:
+                if (playerWeaponController != null)
+                {
+                    playerWeaponController.AddMagazine(WeaponType.Shotgun, amount);
+                    pickedUp = true;
+                    Debug.Log($"[ItemPickup] Picked up {amount} Shotgun Magazine(s)");
+                    
+                    // Flash UI - using singleton
+                    if (InventoryUI.Instance != null)
+                    {
+                        InventoryUI.Instance.FlashShotgunAmmoIcon();
+                    }
+                }
+                break;
+        }
+        
+        // Destroy item jika berhasil dipickup
+        if (pickedUp)
+        {
+            Destroy(gameObject);
+        }
+    }
+    
+    private void OnDrawGizmosSelected()
+    {
+        // Visualisasi pickup radius
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireSphere(transform.position, pickupRadius);
+    }
+    
+    // Display pickup prompt untuk manual pickup
+    private void OnGUI()
+    {
+        if (!autoPickup && playerInRange)
+        {
+            Vector3 screenPos = Camera.main.WorldToScreenPoint(transform.position + Vector3.up * 1f);
+            string itemName = GetItemDisplayName();
+            
+            GUI.Label(new Rect(screenPos.x - 75, Screen.height - screenPos.y - 20, 150, 20), 
+                $"Press {pickupKey} to pickup {itemName}", 
+                new GUIStyle() 
+                { 
+                    alignment = TextAnchor.MiddleCenter, 
+                    normal = new GUIStyleState() { textColor = Color.white },
+                    fontSize = 12
+                });
+        }
+    }
+    
+    private string GetItemDisplayName()
+    {
+        switch (itemType)
+        {
+            case ItemType.Medkit:
+                return "Medkit";
+            case ItemType.AmmoHandgun:
+                return "Handgun Ammo";
+            case ItemType.AmmoRifle:
+                return "Rifle Ammo";
+            case ItemType.AmmoShotgun:
+                return "Shotgun Ammo";
+            default:
+                return "Item";
+        }
+    }
+}

@@ -1,0 +1,423 @@
+﻿using UnityEngine;
+using TMPro;
+
+/// <summary>
+/// ONE-CLICK DIAGNOSTIC untuk cari masalah UI Update
+/// Automatically detects common issues
+/// </summary>
+public class UIUpdateDiagnostic : MonoBehaviour
+{
+    [Header("Auto-Run on Start")]
+    [SerializeField] private bool runOnStart = true;
+    
+    [Header("Diagnostic Keys")]
+    [SerializeField] private KeyCode runDiagnosticKey = KeyCode.F10;
+    [SerializeField] private KeyCode testUIUpdateKey = KeyCode.F9;
+    
+    private InventoryUI inventoryUI;
+    private PlayerInventory playerInventory;
+    private WeaponController weaponController;
+    
+    void Start()
+    {
+        if (runOnStart)
+        {
+            Invoke("RunFullDiagnostic", 1f); // Delay 1s untuk pastikan semua loaded
+        }
+    }
+    
+    void Update()
+    {
+        if (Input.GetKeyDown(runDiagnosticKey))
+        {
+            RunFullDiagnostic();
+        }
+        
+        if (Input.GetKeyDown(testUIUpdateKey))
+        {
+            TestUIUpdate();
+        }
+    }
+    
+    public void RunFullDiagnostic()
+    {
+        Debug.Log("========================================");
+        Debug.Log("?? UI UPDATE DIAGNOSTIC - STARTING...");
+        Debug.Log("========================================");
+        
+        // Find references
+        inventoryUI = FindObjectOfType<InventoryUI>();
+        playerInventory = FindObjectOfType<PlayerInventory>();
+        weaponController = FindObjectOfType<WeaponController>();
+        
+        int issuesFound = 0;
+        
+        // Test 1: InventoryUI exists
+        issuesFound += CheckInventoryUIExists();
+        
+        // Test 2: Singleton working
+        issuesFound += CheckSingletonWorking();
+        
+        // Test 3: References assigned
+        issuesFound += CheckUIReferences();
+        
+        // Test 4: Script enabled
+        issuesFound += CheckScriptEnabled();
+        
+        // Test 5: GameObject active
+        issuesFound += CheckGameObjectActive();
+        
+        // Test 6: PlayerInventory & WeaponController
+        issuesFound += CheckPlayerComponents();
+        
+        // Test 7: Text component types
+        issuesFound += CheckTextComponentTypes();
+        
+        // Test 8: Starting values
+        issuesFound += CheckStartingValues();
+        
+        // Summary
+        Debug.Log("========================================");
+        if (issuesFound == 0)
+        {
+            Debug.Log("? <color=green>NO ISSUES FOUND! UI should work!</color>");
+            Debug.Log("?? If UI still stuck at 'x 00', player probably has 0 magazines (NORMAL!)");
+            Debug.Log("   ? Press F9 to test UI update");
+            Debug.Log("   ? Press N to add magazines (cheat)");
+        }
+        else
+        {
+            Debug.LogError($"? <color=red>FOUND {issuesFound} ISSUE(S)! Fix them above ?</color>");
+        }
+        Debug.Log("========================================");
+    }
+    
+    private int CheckInventoryUIExists()
+    {
+        Debug.Log("\n--- TEST 1: InventoryUI Exists ---");
+        
+        if (inventoryUI == null)
+        {
+            Debug.LogError("? InventoryUI NOT FOUND in scene!");
+            Debug.LogError("   FIX: Add InventoryUI script to a GameObject");
+            return 1;
+        }
+        
+        Debug.Log($"? InventoryUI found: {inventoryUI.gameObject.name}");
+        return 0;
+    }
+    
+    private int CheckSingletonWorking()
+    {
+        Debug.Log("\n--- TEST 2: Singleton Pattern ---");
+        
+        if (InventoryUI.Instance == null)
+        {
+            Debug.LogError("? InventoryUI.Instance is NULL!");
+            Debug.LogError("   FIX: Restart Play Mode (Awake() not called yet)");
+            return 1;
+        }
+        
+        if (InventoryUI.Instance != inventoryUI)
+        {
+            Debug.LogWarning("?? Multiple InventoryUI instances detected!");
+            Debug.LogWarning("   FIX: Remove duplicate InventoryUI objects");
+            return 1;
+        }
+        
+        Debug.Log("? Singleton working correctly");
+        return 0;
+    }
+    
+    private int CheckUIReferences()
+    {
+        Debug.Log("\n--- TEST 3: UI References ---");
+        
+        if (inventoryUI == null) return 1;
+        
+        int nullCount = 0;
+        
+        // Use reflection to check private fields
+        var type = typeof(InventoryUI);
+        var flags = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance;
+        
+        string[] fieldNames = new string[]
+        {
+            "medkitText", "medkitIcon",
+            "handgunAmmoText", "handgunAmmoIcon",
+            "rifleAmmoText", "rifleAmmoIcon",
+            "shotgunAmmoText", "shotgunAmmoIcon"
+        };
+        
+        foreach (string fieldName in fieldNames)
+        {
+            var field = type.GetField(fieldName, flags);
+            if (field != null)
+            {
+                var value = field.GetValue(inventoryUI);
+                if (value == null)
+                {
+                    Debug.LogError($"? {fieldName} is NULL!");
+                    nullCount++;
+                }
+                else
+                {
+                    Debug.Log($"? {fieldName}: OK");
+                }
+            }
+        }
+        
+        if (nullCount > 0)
+        {
+            Debug.LogError($"   FIX: Assign {nullCount} missing references in Inspector");
+            return 1;
+        }
+        
+        return 0;
+    }
+    
+    private int CheckScriptEnabled()
+    {
+        Debug.Log("\n--- TEST 4: Script Enabled ---");
+        
+        if (inventoryUI == null) return 1;
+        
+        if (!inventoryUI.enabled)
+        {
+            Debug.LogError("? InventoryUI script is DISABLED!");
+            Debug.LogError("   FIX: Enable the script checkbox in Inspector");
+            return 1;
+        }
+        
+        Debug.Log("? Script enabled");
+        return 0;
+    }
+    
+    private int CheckGameObjectActive()
+    {
+        Debug.Log("\n--- TEST 5: GameObject Active ---");
+        
+        if (inventoryUI == null) return 1;
+        
+        if (!inventoryUI.gameObject.activeInHierarchy)
+        {
+            Debug.LogError("? InventoryUI GameObject is INACTIVE!");
+            Debug.LogError("   FIX: Activate the GameObject in Hierarchy");
+            return 1;
+        }
+        
+        Debug.Log("? GameObject active");
+        return 0;
+    }
+    
+    private int CheckPlayerComponents()
+    {
+        Debug.Log("\n--- TEST 6: Player Components ---");
+        
+        int issues = 0;
+        
+        if (playerInventory == null)
+        {
+            Debug.LogError("? PlayerInventory NOT FOUND!");
+            Debug.LogError("   FIX: Add PlayerInventory script to Player");
+            issues++;
+        }
+        else
+        {
+            Debug.Log($"? PlayerInventory found");
+        }
+        
+        if (weaponController == null)
+        {
+            Debug.LogError("? WeaponController NOT FOUND!");
+            Debug.LogError("   FIX: Add WeaponController script to Player");
+            issues++;
+        }
+        else
+        {
+            Debug.Log($"? WeaponController found");
+        }
+        
+        return issues > 0 ? 1 : 0;
+    }
+    
+    private int CheckTextComponentTypes()
+    {
+        Debug.Log("\n--- TEST 7: Text Component Types ---");
+        
+        if (inventoryUI == null) return 1;
+        
+        var type = typeof(InventoryUI);
+        var flags = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance;
+        
+        string[] textFields = new string[]
+        {
+            "medkitText", "handgunAmmoText", "rifleAmmoText", "shotgunAmmoText"
+        };
+        
+        int wrongType = 0;
+        
+        foreach (string fieldName in textFields)
+        {
+            var field = type.GetField(fieldName, flags);
+            if (field != null)
+            {
+                var value = field.GetValue(inventoryUI);
+                if (value != null)
+                {
+                    if (value is TextMeshProUGUI)
+                    {
+                        Debug.Log($"? {fieldName}: TextMeshProUGUI (Correct!)");
+                    }
+                    else
+                    {
+                        Debug.LogError($"? {fieldName}: {value.GetType().Name} (Wrong type!)");
+                        Debug.LogError($"   FIX: Convert to TextMeshProUGUI");
+                        wrongType++;
+                    }
+                }
+            }
+        }
+        
+        return wrongType > 0 ? 1 : 0;
+    }
+    
+    private int CheckStartingValues()
+    {
+        Debug.Log("\n--- TEST 8: Starting Values ---");
+        
+        if (playerInventory != null)
+        {
+            int medkits = playerInventory.GetCurrentMedkits();
+            Debug.Log($"?? Medkits: {medkits} {(medkits == 0 ? "(NORMAL - player starts with 0)" : "")}");
+        }
+        
+        if (weaponController != null)
+        {
+            int handgunMags = weaponController.GetMagazineCountForType(WeaponType.Handgun);
+            int rifleMags = weaponController.GetMagazineCountForType(WeaponType.Rifle);
+            int shotgunMags = weaponController.GetMagazineCountForType(WeaponType.Shotgun);
+            
+            Debug.Log($"?? Handgun magazines: {handgunMags} {(handgunMags == 0 ? "(NORMAL - player starts with 0)" : "")}");
+            Debug.Log($"?? Rifle magazines: {rifleMags}");
+            Debug.Log($"?? Shotgun magazines: {shotgunMags}");
+            
+            if (handgunMags == 0 && rifleMags == 0 && shotgunMags == 0)
+            {
+                Debug.Log("?? <color=yellow>All magazines = 0. This is NORMAL starting state!</color>");
+                Debug.Log("   UI showing 'x 00' is CORRECT behavior!");
+                Debug.Log("   ? Loot items or press F9 to test UI update");
+            }
+        }
+        
+        return 0; // Not an issue
+    }
+    
+    public void TestUIUpdate()
+    {
+        Debug.Log("\n========================================");
+        Debug.Log("?? TESTING UI UPDATE...");
+        Debug.Log("========================================");
+        
+        if (weaponController == null)
+        {
+            weaponController = FindObjectOfType<WeaponController>();
+        }
+        
+        if (weaponController == null)
+        {
+            Debug.LogError("? Cannot test: WeaponController not found!");
+            return;
+        }
+        
+        // Get current value
+        int beforeHandgun = weaponController.GetMagazineCountForType(WeaponType.Handgun);
+        
+        // Add magazines
+        Debug.Log($"?? Before: Handgun magazines = {beforeHandgun}");
+        weaponController.AddMagazine(WeaponType.Handgun, 5);
+        
+        // Get new value
+        int afterHandgun = weaponController.GetMagazineCountForType(WeaponType.Handgun);
+        Debug.Log($"?? After: Handgun magazines = {afterHandgun}");
+        
+        // Check if UI updated
+        if (inventoryUI == null)
+        {
+            inventoryUI = FindObjectOfType<InventoryUI>();
+        }
+        
+        if (inventoryUI != null)
+        {
+            // Force update
+            inventoryUI.ForceUpdateUI();
+            
+            // Get UI text
+            var type = typeof(InventoryUI);
+            var flags = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance;
+            var field = type.GetField("handgunAmmoText", flags);
+            
+            if (field != null)
+            {
+                var textComponent = field.GetValue(inventoryUI) as TextMeshProUGUI;
+                if (textComponent != null)
+                {
+                    string uiText = textComponent.text;
+                    string expectedText = $"x {afterHandgun:00}";
+                    
+                    Debug.Log($"??? UI Text: '{uiText}'");
+                    Debug.Log($"?? Expected: '{expectedText}'");
+                    
+                    if (uiText == expectedText)
+                    {
+                        Debug.Log("? <color=green>UI UPDATE WORKING!</color>");
+                    }
+                    else
+                    {
+                        Debug.LogError("? <color=red>UI NOT UPDATED!</color>");
+                        Debug.LogError("   Data changed but UI stuck!");
+                    }
+                }
+            }
+        }
+        
+        Debug.Log("========================================");
+    }
+    
+    void OnGUI()
+    {
+        // Draw instructions
+        GUIStyle style = new GUIStyle(GUI.skin.box);
+        style.normal.background = MakeTex(2, 2, new Color(0, 0, 0, 0.7f));
+        
+        GUIStyle textStyle = new GUIStyle(GUI.skin.label);
+        textStyle.normal.textColor = Color.cyan;
+        textStyle.fontSize = 12;
+        
+        float width = 300;
+        float height = 80;
+        float x = Screen.width - width - 10;
+        float y = Screen.height - height - 10;
+        
+        GUILayout.BeginArea(new Rect(x, y, width, height), style);
+        GUILayout.Label("=== UI DIAGNOSTIC ===", textStyle);
+        GUILayout.Label($"[{runDiagnosticKey}] Run Full Diagnostic", textStyle);
+        GUILayout.Label($"[{testUIUpdateKey}] Test UI Update", textStyle);
+        GUILayout.Label("[N] Add Magazines (Cheat)", textStyle);
+        GUILayout.EndArea();
+    }
+    
+    private Texture2D MakeTex(int width, int height, Color col)
+    {
+        Color[] pix = new Color[width * height];
+        for (int i = 0; i < pix.Length; i++)
+        {
+            pix[i] = col;
+        }
+        
+        Texture2D result = new Texture2D(width, height);
+        result.SetPixels(pix);
+        result.Apply();
+        return result;
+    }
+}

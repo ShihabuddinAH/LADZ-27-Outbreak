@@ -1,0 +1,165 @@
+﻿using UnityEngine;
+
+public enum ItemType
+{
+    Medkit,
+    AmmoHandgun,
+    AmmoRifle,
+    AmmoShotgun
+}
+
+public class ItemPickup : MonoBehaviour
+{
+    [Header("Item Settings")]
+    [SerializeField] private ItemType itemType;
+    [SerializeField] private int amount = 1;
+    
+    [Header("Pickup Settings")]
+    [SerializeField] private bool autoPickup = true;
+    [SerializeField] private KeyCode pickupKey = KeyCode.E;
+    
+    [Header("Lifetime")]
+    [SerializeField] private float lifetime = 60f;
+    [SerializeField] private bool useLifetime = true;
+    
+    private bool playerInRange = false;
+    
+    void Start()
+    {
+        if (useLifetime && lifetime > 0)
+        {
+            Destroy(gameObject, lifetime);
+        }
+        
+        // Setup collider
+        Collider2D col = GetComponent<Collider2D>();
+        if (col != null)
+        {
+            col.isTrigger = true;
+        }
+    }
+    
+    void Update()
+    {
+        if (!autoPickup && playerInRange && Input.GetKeyDown(pickupKey))
+        {
+            PickupItem();
+        }
+    }
+    
+    private void OnTriggerEnter2D(Collider2D other)
+    {
+        if (other.CompareTag("Player"))
+        {
+            playerInRange = true;
+            
+            if (autoPickup)
+            {
+                PickupItem();
+            }
+        }
+    }
+    
+    private void OnTriggerExit2D(Collider2D other)
+    {
+        if (other.CompareTag("Player"))
+        {
+            playerInRange = false;
+        }
+    }
+    
+    private void PickupItem()
+    {
+        bool pickedUp = false;
+        
+        switch (itemType)
+        {
+            case ItemType.Medkit:
+                pickedUp = PickupMedkit();
+                break;
+                
+            case ItemType.AmmoHandgun:
+                pickedUp = PickupAmmo(WeaponType.Handgun);
+                break;
+                
+            case ItemType.AmmoRifle:
+                pickedUp = PickupAmmo(WeaponType.Rifle);
+                break;
+                
+            case ItemType.AmmoShotgun:
+                pickedUp = PickupAmmo(WeaponType.Shotgun);
+                break;
+        }
+        
+        if (pickedUp)
+        {
+            // Play pickup SFX
+            if (SFXManager.Instance != null)
+            {
+                SFXManager.Instance.PlayPickup();
+            }
+            
+            Debug.Log($"[ItemPickup] Picked up {itemType} x{amount}");
+            Destroy(gameObject);
+        }
+    }
+    
+    private bool PickupMedkit()
+    {
+        // Coba dapatkan PlayerInventory via singleton atau FindFirstObjectByType
+        PlayerInventory inventory = FindFirstObjectByType<PlayerInventory>();
+        
+        if (inventory != null)
+        {
+            inventory.AddMedkit(amount);
+            
+            if (InventoryUI.Instance != null)
+                InventoryUI.Instance.FlashMedkitIcon();
+            
+            return true;
+        }
+        
+        Debug.LogWarning("[ItemPickup] PlayerInventory not found!");
+        return false;
+    }
+    
+    private bool PickupAmmo(WeaponType weaponType)
+    {
+        // PENTING: Gunakan WeaponController.Instance (singleton) sebagai primary
+        WeaponController weapon = WeaponController.Instance;
+        
+        // Fallback: cari di scene jika singleton null
+        if (weapon == null)
+        {
+            weapon = FindFirstObjectByType<WeaponController>();
+        }
+        
+        if (weapon != null)
+        {
+            weapon.AddMagazine(weaponType, amount);
+            Debug.Log($"[ItemPickup] Added {amount} magazine(s) of {weaponType}. New reserve: {weapon.GetReserveAmmoForType(weaponType)}");
+            
+            // Flash UI
+            if (InventoryUI.Instance != null)
+            {
+                switch (weaponType)
+                {
+                    case WeaponType.Handgun:
+                        InventoryUI.Instance.FlashHandgunAmmoIcon();
+                        break;
+                    case WeaponType.Rifle:
+                        InventoryUI.Instance.FlashRifleAmmoIcon();
+                        break;
+                    case WeaponType.Shotgun:
+                        InventoryUI.Instance.FlashShotgunAmmoIcon();
+                        break;
+                }
+            }
+            
+            return true;
+        }
+        
+        Debug.LogWarning("[ItemPickup] WeaponController not found!");
+        return false;
+    }
+}

@@ -1,0 +1,128 @@
+﻿using UnityEngine;
+using System; // Tambah ini untuk Action/Events
+
+public class PlayerInventory : MonoBehaviour
+{
+    // NEW: Event untuk UI updates
+    public event Action<int> OnMedkitChanged; // newMedkitCount
+    
+    [Header("Medkit Inventory")]
+    [SerializeField] private int maxMedkits = 5;
+    [SerializeField] private int currentMedkits = 0;
+    [SerializeField] private int healAmount = 50; // Berapa HP yang di-restore per medkit
+    
+    [Header("Input Settings")]
+    [SerializeField] private KeyCode healKey = KeyCode.Q;
+    
+    [Header("Heal Settings")]
+    [SerializeField] private bool canHealAtFullHealth = false; // Bisa heal saat HP full atau tidak
+    
+    [Header("Debug")]
+    [SerializeField] private bool showDebugLogs = false;
+    
+    private PlayerHealth playerHealth;
+    
+    void Start()
+    {
+        playerHealth = GetComponent<PlayerHealth>();
+        
+        if (playerHealth == null)
+        {
+            Debug.LogError("PlayerInventory: PlayerHealth component not found!");
+        }
+        
+        // Force UI update on start
+        if (InventoryUI.Instance != null)
+        {
+            InventoryUI.Instance.ForceUpdateUI();
+        }
+    }
+    
+    void Update()
+    {
+        // Handle heal input
+        if (Input.GetKeyDown(healKey))
+        {
+            UseMedkit();
+        }
+    }
+    
+    public void AddMedkit(int amount)
+    {
+        int previousCount = currentMedkits;
+        currentMedkits += amount;
+        currentMedkits = Mathf.Min(currentMedkits, maxMedkits);
+        
+        if (showDebugLogs)
+        {
+            Debug.Log($"[PlayerInventory] Medkit added! {previousCount} -> {currentMedkits}/{maxMedkits}");
+        }
+        
+        // NEW: Invoke event on medkit change
+        OnMedkitChanged?.Invoke(currentMedkits);
+    }
+    
+    public void UseMedkit()
+    {
+        if (playerHealth == null)
+        {
+            Debug.LogWarning("Cannot heal: PlayerHealth not found!");
+            return;
+        }
+        
+        // Cek apakah punya medkit
+        if (currentMedkits <= 0)
+        {
+            Debug.Log("No medkits available!");
+            return;
+        }
+        
+        // Cek apakah sudah full HP
+        if (!canHealAtFullHealth && playerHealth.GetCurrentHealth() >= playerHealth.GetMaxHealth())
+        {
+            Debug.Log("Already at full health!");
+            return;
+        }
+        
+        // Cek apakah sudah mati
+        if (playerHealth.IsDead())
+        {
+            Debug.Log("Cannot heal while dead!");
+            return;
+        }
+        
+        // Use medkit
+        currentMedkits--;
+        playerHealth.Heal(healAmount);
+        
+        Debug.Log($"Used medkit! Healed {healAmount} HP. Medkits remaining: {currentMedkits}");
+        
+        // NEW: Invoke event on medkit use
+        OnMedkitChanged?.Invoke(currentMedkits);
+    }
+    
+    // Getters
+    public int GetCurrentMedkits()
+    {
+        return currentMedkits;
+    }
+    
+    public int GetMaxMedkits()
+    {
+        return maxMedkits;
+    }
+    
+    public int GetHealAmount()
+    {
+        return healAmount;
+    }
+    
+    // Setter (untuk cheat/debug)
+    public void SetMedkits(int amount)
+    {
+        currentMedkits = Mathf.Clamp(amount, 0, maxMedkits);
+        
+        // NEW: Invoke event
+        OnMedkitChanged?.Invoke(currentMedkits);
+    }
+}

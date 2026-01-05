@@ -1,0 +1,434 @@
+﻿using UnityEngine;
+using System.Collections.Generic;
+
+/// <summary>
+/// SFX Manager dengan Priority System dan Dynamic Pool
+/// Mencegah SFX hilang saat game intensitas tinggi
+/// </summary>
+public class SFXManager : MonoBehaviour
+{
+    [Header("UI SFX")]
+    [SerializeField] private AudioClip buttonClickSFX;
+    [SerializeField] private AudioClip buttonHoverSFX;
+    
+    [Header("Weapon SFX - Shoot")]
+    [SerializeField] private AudioClip handgunShootSFX;
+    [SerializeField] private AudioClip rifleShootSFX;
+    [SerializeField] private AudioClip shotgunShootSFX;
+    
+    [Header("Weapon SFX - Reload")]
+    [SerializeField] private AudioClip handgunReloadSFX;
+    [SerializeField] private AudioClip rifleReloadSFX;
+    [SerializeField] private AudioClip shotgunReloadSFX;
+    
+    [Header("Player SFX")]
+    [SerializeField] private AudioClip playerHitSFX;
+    [SerializeField] private AudioClip playerDeathSFX;
+    
+    [Header("Zombie SFX")]
+    [SerializeField] private AudioClip zombieAttackSFX;
+    [SerializeField] private AudioClip zombieHitSFX;
+    [SerializeField] private AudioClip zombieDeathSFX;
+    [SerializeField] private AudioClip zombieIdleRunSFX;
+    
+    [Header("Item SFX")]
+    [SerializeField] private AudioClip pickupSFX;
+    [SerializeField] private AudioClip medkitUseSFX;
+    
+    [Header("Pool Settings")]
+    [SerializeField] private int initialPoolSize = 15; // Diperbesar dari 10
+    [SerializeField] private int maxPoolSize = 30; // Max pool untuk expand
+    [SerializeField] private bool allowPoolExpansion = true; // Auto-expand jika penuh
+    
+    [Header("Priority Settings")]
+    [SerializeField] private float defaultVolume = 0.7f;
+    [SerializeField] private bool usePrioritySystem = true; // Pakai priority untuk override
+    
+    // Priority levels (higher = more important)
+    private enum SFXPriority
+    {
+        Low = 0,        // UI sounds
+        Medium = 1,     // Zombie hit, item pickup
+        High = 2,       // Weapon shoot, zombie attack
+        Critical = 3    // Player hit/death
+    }
+    
+    private class AudioSourceWrapper
+    {
+        public AudioSource source;
+        public SFXPriority currentPriority;
+        public float playStartTime;
+    }
+    
+    private List<AudioSourceWrapper> audioSourcePool;
+    private static SFXManager instance;
+    private float currentVolume;
+    
+    public static SFXManager Instance => instance;
+    
+    void Awake()
+    {
+        if (instance == null)
+        {
+            instance = this;
+            DontDestroyOnLoad(gameObject);
+            
+            currentVolume = PlayerPrefs.GetFloat("SFXVolume", defaultVolume);
+            InitializePool();
+            
+            Debug.Log($"[SFXManager] Initialized with pool size: {initialPoolSize}");
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+    }
+    
+    private void InitializePool()
+    {
+        audioSourcePool = new List<AudioSourceWrapper>();
+        
+        for (int i = 0; i < initialPoolSize; i++)
+        {
+            CreateNewAudioSource();
+        }
+    }
+    
+    private AudioSourceWrapper CreateNewAudioSource()
+    {
+        GameObject go = new GameObject($"SFX_AudioSource_{audioSourcePool.Count}");
+        go.transform.SetParent(transform);
+        
+        AudioSource source = go.AddComponent<AudioSource>();
+        source.playOnAwake = false;
+        source.loop = false;
+        source.volume = currentVolume;
+        
+        AudioSourceWrapper wrapper = new AudioSourceWrapper
+        {
+            source = source,
+            currentPriority = SFXPriority.Low,
+            playStartTime = 0f
+        };
+        
+        audioSourcePool.Add(wrapper);
+        return wrapper;
+    }
+    
+    #region Core SFX Methods with Priority
+    
+    /// <summary>
+    /// Play SFX dengan priority system
+    /// </summary>
+    private void PlaySFXWithPriority(AudioClip clip, float volumeScale, SFXPriority priority, bool isLooping = false)
+    {
+        if (clip == null) return;
+        
+        AudioSourceWrapper wrapper = GetAvailableSource(priority);
+        if (wrapper != null)
+        {
+            wrapper.source.clip = clip;
+            wrapper.source.volume = currentVolume * volumeScale;
+            wrapper.source.loop = isLooping;
+            wrapper.currentPriority = priority;
+            wrapper.playStartTime = Time.unscaledTime;
+            wrapper.source.Play();
+        }
+        else
+        {
+            Debug.LogWarning($"[SFXManager] No available AudioSource for {clip.name} (Priority: {priority})");
+        }
+    }
+    
+    /// <summary>
+    /// Play SFX public method
+    /// </summary>
+    public void PlaySFX(AudioClip clip, float volumeScale = 1f)
+    {
+        PlaySFXWithPriority(clip, volumeScale, SFXPriority.Medium, false);
+    }
+    
+    /// <summary>
+    /// Play SFX looping (untuk zombie idle/run)
+    /// </summary>
+    public AudioSource PlaySFXLooping(AudioClip clip, float volumeScale = 1f)
+    {
+        if (clip == null) return null;
+        
+        AudioSourceWrapper wrapper = GetAvailableSource(SFXPriority.Low);
+        if (wrapper != null)
+        {
+            wrapper.source.clip = clip;
+            wrapper.source.volume = currentVolume * volumeScale;
+            wrapper.source.loop = true;
+            wrapper.currentPriority = SFXPriority.Low;
+            wrapper.playStartTime = Time.unscaledTime;
+            wrapper.source.Play();
+            return wrapper.source;
+        }
+        return null;
+    }
+    
+    /// <summary>
+    /// Play SFX di posisi tertentu (3D sound)
+    /// </summary>
+    public void PlaySFXAtPosition(AudioClip clip, Vector3 position, float volumeScale = 1f)
+    {
+        if (clip == null) return;
+        AudioSource.PlayClipAtPoint(clip, position, currentVolume * volumeScale);
+    }
+    
+    /// <summary>
+    /// Get audio source dengan priority system
+    /// </summary>
+    private AudioSourceWrapper GetAvailableSource(SFXPriority requestedPriority)
+    {
+        // 1. Cari source yang tidak playing
+        foreach (AudioSourceWrapper wrapper in audioSourcePool)
+        {
+            if (!wrapper.source.isPlaying)
+            {
+                return wrapper;
+            }
+        }
+        
+        // 2. Jika pool penuh dan auto-expand enabled, expand pool
+        if (allowPoolExpansion && audioSourcePool.Count < maxPoolSize)
+        {
+            Debug.Log($"[SFXManager] Pool expanding: {audioSourcePool.Count} -> {audioSourcePool.Count + 1}");
+            return CreateNewAudioSource();
+        }
+        
+        // 3. Jika tidak bisa expand, cari source dengan priority LEBIH RENDAH untuk di-override
+        if (usePrioritySystem)
+        {
+            AudioSourceWrapper lowestPriorityWrapper = null;
+            SFXPriority lowestPriority = SFXPriority.Critical;
+            float oldestTime = float.MaxValue;
+            
+            foreach (AudioSourceWrapper wrapper in audioSourcePool)
+            {
+                // Skip looping sounds
+                if (wrapper.source.loop)
+                    continue;
+                
+                // Cari yang priority lebih rendah ATAU sama tapi lebih lama
+                if (wrapper.currentPriority < requestedPriority ||
+                    (wrapper.currentPriority == requestedPriority && wrapper.playStartTime < oldestTime))
+                {
+                    if (wrapper.currentPriority < lowestPriority ||
+                        (wrapper.currentPriority == lowestPriority && wrapper.playStartTime < oldestTime))
+                    {
+                        lowestPriority = wrapper.currentPriority;
+                        oldestTime = wrapper.playStartTime;
+                        lowestPriorityWrapper = wrapper;
+                    }
+                }
+            }
+            
+            // Jika priority requested LEBIH TINGGI dari yang tersedia, override
+            if (lowestPriorityWrapper != null && lowestPriority < requestedPriority)
+            {
+                lowestPriorityWrapper.source.Stop();
+                return lowestPriorityWrapper;
+            }
+        }
+        
+        // 4. Fallback: gunakan source pertama yang non-looping
+        foreach (AudioSourceWrapper wrapper in audioSourcePool)
+        {
+            if (!wrapper.source.loop)
+            {
+                wrapper.source.Stop();
+                return wrapper;
+            }
+        }
+        
+        // 5. Last resort: override pertama
+        if (audioSourcePool.Count > 0)
+        {
+            audioSourcePool[0].source.Stop();
+            return audioSourcePool[0];
+        }
+        
+        return null;
+    }
+    
+    #endregion
+    
+    #region UI SFX
+    
+    public void PlayButtonClick()
+    {
+        PlaySFXWithPriority(buttonClickSFX, 1f, SFXPriority.Low, false);
+    }
+    
+    public void PlayButtonHover()
+    {
+        PlaySFXWithPriority(buttonHoverSFX, 0.5f, SFXPriority.Low, false);
+    }
+    
+    #endregion
+    
+    #region Weapon SFX
+    
+    public void PlayWeaponShoot(WeaponType weaponType)
+    {
+        AudioClip clip = weaponType switch
+        {
+            WeaponType.Handgun => handgunShootSFX,
+            WeaponType.Rifle => rifleShootSFX,
+            WeaponType.Shotgun => shotgunShootSFX,
+            _ => null
+        };
+        
+        if (clip != null)
+        {
+            PlaySFXWithPriority(clip, 1f, SFXPriority.High, false);
+        }
+    }
+    
+    public void PlayWeaponReload(WeaponType weaponType)
+    {
+        AudioClip clip = weaponType switch
+        {
+            WeaponType.Handgun => handgunReloadSFX,
+            WeaponType.Rifle => rifleReloadSFX,
+            WeaponType.Shotgun => shotgunReloadSFX,
+            _ => null
+        };
+        
+        if (clip != null)
+        {
+            PlaySFXWithPriority(clip, 1f, SFXPriority.High, false);
+        }
+    }
+    
+    public void PlayHandgunShoot() => PlaySFX(handgunShootSFX);
+    public void PlayRifleShoot() => PlaySFX(rifleShootSFX);
+    public void PlayShotgunShoot() => PlaySFX(shotgunShootSFX);
+    
+    public void PlayHandgunReload() => PlaySFX(handgunReloadSFX);
+    public void PlayRifleReload() => PlaySFX(rifleReloadSFX);
+    public void PlayShotgunReload() => PlaySFX(shotgunReloadSFX);
+    
+    #endregion
+    
+    #region Player SFX
+    
+    public void PlayPlayerHit()
+    {
+        PlaySFXWithPriority(playerHitSFX, 1f, SFXPriority.Critical, false);
+    }
+    
+    public void PlayPlayerDeath()
+    {
+        PlaySFXWithPriority(playerDeathSFX, 1f, SFXPriority.Critical, false);
+    }
+    
+    #endregion
+    
+    #region Zombie SFX
+    
+    public void PlayZombieAttack()
+    {
+        PlaySFXWithPriority(zombieAttackSFX, 1f, SFXPriority.High, false);
+    }
+    
+    public void PlayZombieHit()
+    {
+        PlaySFXWithPriority(zombieHitSFX, 0.8f, SFXPriority.Medium, false);
+    }
+    
+    public void PlayZombieDeath()
+    {
+        PlaySFXWithPriority(zombieDeathSFX, 1f, SFXPriority.Medium, false);
+    }
+    
+    public AudioSource PlayZombieIdleRun(float volumeScale = 0.3f)
+    {
+        return PlaySFXLooping(zombieIdleRunSFX, volumeScale);
+    }
+    
+    #endregion
+    
+    #region Item SFX
+    
+    public void PlayPickup()
+    {
+        PlaySFXWithPriority(pickupSFX, 1f, SFXPriority.Medium, false);
+    }
+    
+    public void PlayMedkitUse()
+    {
+        PlaySFXWithPriority(medkitUseSFX, 1f, SFXPriority.High, false);
+    }
+    
+    #endregion
+    
+    #region Volume Control
+    
+    public void SetVolume(float volume)
+    {
+        currentVolume = Mathf.Clamp01(volume);
+        
+        foreach (AudioSourceWrapper wrapper in audioSourcePool)
+        {
+            if (!wrapper.source.isPlaying)
+            {
+                wrapper.source.volume = currentVolume;
+            }
+        }
+        
+        PlayerPrefs.SetFloat("SFXVolume", currentVolume);
+        PlayerPrefs.Save();
+    }
+    
+    public float GetVolume()
+    {
+        return currentVolume;
+    }
+    
+    public void SetMute(bool mute)
+    {
+        foreach (AudioSourceWrapper wrapper in audioSourcePool)
+        {
+            wrapper.source.mute = mute;
+        }
+    }
+    
+    public void StopAll()
+    {
+        foreach (AudioSourceWrapper wrapper in audioSourcePool)
+        {
+            if (wrapper.source.isPlaying)
+            {
+                wrapper.source.Stop();
+                wrapper.source.loop = false;
+            }
+        }
+    }
+    
+    #endregion
+    
+    #region Debug
+    
+    [ContextMenu("Print Pool Status")]
+    private void PrintPoolStatus()
+    {
+        int playing = 0;
+        int idle = 0;
+        
+        foreach (AudioSourceWrapper wrapper in audioSourcePool)
+        {
+            if (wrapper.source.isPlaying)
+                playing++;
+            else
+                idle++;
+        }
+        
+        Debug.Log($"[SFXManager] Pool Status: Total={audioSourcePool.Count}, Playing={playing}, Idle={idle}");
+    }
+    
+    #endregion
+}

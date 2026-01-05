@@ -1,0 +1,322 @@
+﻿using UnityEngine;
+
+public class ZombieMovement : MonoBehaviour
+{
+    [Header("Movement Settings")]
+    [SerializeField] private float kecepatan = 2f; // Kecepatan zombie mengejar
+    [SerializeField] private float jarakBerhenti = 1.5f; // Jarak minimum untuk berhenti mengejar
+
+    [Header("Detection Settings")]
+    [SerializeField] private float detectionRange = 10f; // Jarak deteksi player
+    [SerializeField] private bool showDetectionRadius = true; // Tampilkan detection radius di Scene view
+
+    [Header("Attack Settings")]
+    [SerializeField] private float attackRange = 1.5f; // Jarak untuk menyerang
+    [SerializeField] private float attackCooldown = 1.5f; // Cooldown antara serangan (detik)
+    [SerializeField] private int attackDamage = 10; // Damage yang diberikan ke player
+    
+    [Header("Components")]
+    [SerializeField] private Animator animator; // Animator zombie
+
+    [Header("DEBUG - Intensive Logging")]
+    [SerializeField] private bool enableDetailedDebug = true;
+
+    private Transform target; // Target player
+    private bool isChasing = false; // Flag untuk mengecek apakah sudah ter-trigger untuk mengejar
+    private float lastAttackTime = 0f; // Waktu serangan terakhir
+
+    void Start()
+    {
+        // SUPER DETAILED DEBUG CHECK AT START
+        if (enableDetailedDebug)
+        {
+            Debug.Log("========== ZOMBIE INITIALIZATION ==========");
+            Debug.Log($"Zombie Name: {gameObject.name}");
+            
+            if (animator == null)
+            {
+                Debug.LogError($"❌❌❌ [{gameObject.name}] ANIMATOR IS NULL! Please assign Animator in Inspector!");
+            }
+            else
+            {
+                Debug.Log($"✅ [{gameObject.name}] Animator found: {animator.name}");
+                
+                if (animator.runtimeAnimatorController == null)
+                {
+                    Debug.LogError($"❌❌❌ [{gameObject.name}] Animator Controller is NOT ASSIGNED!");
+                }
+                else
+                {
+                    Debug.Log($"✅ [{gameObject.name}] Animator Controller: {animator.runtimeAnimatorController.name}");
+                    
+                    // Check parameters
+                    bool hasIsAttack = false;
+                    bool hasIsRunning = false;
+                    
+                    foreach (var param in animator.parameters)
+                    {
+                        Debug.Log($"   Parameter found: {param.name} (Type: {param.type})");
+                        if (param.name == "isAttack")
+                        {
+                            hasIsAttack = true;
+                            if (param.type != AnimatorControllerParameterType.Trigger)
+                            {
+                                Debug.LogError($"❌ 'isAttack' is {param.type}, should be TRIGGER!");
+                            }
+                            else
+                            {
+                                Debug.Log($"✅ 'isAttack' is correctly set as TRIGGER");
+                            }
+                        }
+                        if (param.name == "isRunning")
+                        {
+                            hasIsRunning = true;
+                            if (param.type != AnimatorControllerParameterType.Bool)
+                            {
+                                Debug.LogWarning($"⚠️ 'isRunning' is {param.type}, should be BOOL");
+                            }
+                        }
+                    }
+                    
+                    if (!hasIsAttack)
+                    {
+                        Debug.LogError($"❌❌❌ [{gameObject.name}] 'isAttack' parameter NOT FOUND in Animator!");
+                    }
+                    if (!hasIsRunning)
+                    {
+                        Debug.LogError($"❌❌❌ [{gameObject.name}] 'isRunning' parameter NOT FOUND in Animator!");
+                    }
+                }
+            }
+            Debug.Log("==========================================");
+        }
+    }
+
+    void Update()
+    {
+        // Cari pemain jika target belum diset
+        if (target == null)
+        {
+            GameObject player = GameObject.FindGameObjectWithTag("Player");
+            if (player != null)
+            {
+                target = player.transform;
+                if (enableDetailedDebug)
+                {
+                    Debug.Log($"[{gameObject.name}] Player target found: {player.name}");
+                }
+            }
+            return;
+        }
+
+        // Hitung jarak antara zombie dan pemain
+        float jarak = Vector3.Distance(transform.position, target.position);
+
+        // Cek apakah player masuk detection range (trigger chase)
+        if (!isChasing && jarak <= detectionRange)
+        {
+            // Trigger chase mode
+            isChasing = true;
+            Debug.Log(gameObject.name + " detected player! Start chasing...");
+        }
+
+        // Jika sudah ter-trigger, terus kejar player
+        if (isChasing)
+        {
+            // Cek apakah dalam jarak serang
+            if (jarak <= attackRange)
+            {
+                TryAttackPlayer();
+            }
+            else
+            {
+                ChasePlayer(jarak);
+            }
+        }
+        else
+        {
+            // Idle jika belum ter-trigger
+            if (animator != null)
+            {
+                animator.SetBool("isRunning", false);
+            }
+        }
+    }
+
+    private void ChasePlayer(float jarak)
+    {
+        // Jika jarak lebih besar dari jarak berhenti, kejar pemain
+        if (jarak > jarakBerhenti)
+        {
+            // Set animasi berjalan jika ada animator
+            if (animator != null)
+            {
+                animator.SetBool("isRunning", true);
+            }
+
+            // Gerakkan zombie menuju pemain
+            Vector3 arah = (target.position - transform.position).normalized;
+            transform.position += arah * kecepatan * Time.deltaTime;
+
+            // Rotasi zombie menghadap pemain
+            RotateTowardsTarget(arah);
+        }
+        else
+        {
+            // Set animasi idle jika dekat dengan pemain
+            if (animator != null)
+            {
+                animator.SetBool("isRunning", false);
+            }
+            
+            // Tetap menghadap player meskipun tidak bergerak
+            Vector3 arah = (target.position - transform.position).normalized;
+            RotateTowardsTarget(arah);
+        }
+    }
+
+    private void TryAttackPlayer()
+    {
+        // Berhenti bergerak
+        if (animator != null)
+        {
+            animator.SetBool("isRunning", false);
+        }
+
+        // Tetap menghadap player
+        Vector3 arah = (target.position - transform.position).normalized;
+        RotateTowardsTarget(arah);
+
+        // Cek apakah sudah melewati cooldown
+        if (Time.time >= lastAttackTime + attackCooldown)
+        {
+            PerformAttack();
+            lastAttackTime = Time.time;
+        }
+        else if (enableDetailedDebug)
+        {
+            Debug.Log($"[{gameObject.name}] Waiting for cooldown... {(lastAttackTime + attackCooldown - Time.time):F2}s remaining");
+        }
+    }
+
+    private void PerformAttack()
+    {
+        Debug.Log($"========== ATTACK SEQUENCE START ==========");
+        Debug.Log($"[{gameObject.name}] PerformAttack() called at time: {Time.time}");
+        
+        // Trigger animasi attack jika ada
+        if (animator == null)
+        {
+            Debug.LogError($"❌❌❌ [{gameObject.name}] ANIMATOR IS NULL! Cannot trigger attack animation!");
+        }
+        else
+        {
+            Debug.Log($"[{gameObject.name}] Animator exists, attempting to trigger 'isAttack'...");
+            
+            // Check current state before triggering
+            if (enableDetailedDebug)
+            {
+                AnimatorClipInfo[] clipInfo = animator.GetCurrentAnimatorClipInfo(0);
+                if (clipInfo.Length > 0)
+                {
+                    Debug.Log($"[{gameObject.name}] Current animation: {clipInfo[0].clip.name}");
+                }
+                
+                AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
+                Debug.Log($"[{gameObject.name}] Current state hash: {stateInfo.fullPathHash}");
+                Debug.Log($"[{gameObject.name}] State normalized time: {stateInfo.normalizedTime}");
+            }
+            
+            animator.SetTrigger("isAttack");
+            Debug.Log($"✅ [{gameObject.name}] SetTrigger('isAttack') CALLED!");
+            
+            // Verify trigger was set
+            if (enableDetailedDebug)
+            {
+                bool triggerSet = animator.GetBool("isAttack"); // This might not work for triggers
+                Debug.Log($"[{gameObject.name}] Trigger state check (may not be accurate): {triggerSet}");
+            }
+        }
+
+        Debug.Log($"[{gameObject.name}] attacking player!");
+
+        // Berikan damage ke player
+        DealDamageToPlayer();
+        
+        Debug.Log($"========== ATTACK SEQUENCE END ==========");
+    }
+
+    private void DealDamageToPlayer()
+    {
+        if (target != null)
+        {
+            // Cari komponen PlayerHealth di player
+            PlayerHealth playerHealth = target.GetComponent<PlayerHealth>();
+            if (playerHealth != null)
+            {
+                playerHealth.TakeDamage(attackDamage);
+                Debug.Log($"[{gameObject.name}] Dealt {attackDamage} damage to player!");
+            }
+            else
+            {
+                Debug.LogWarning($"[{gameObject.name}] PlayerHealth component not found on player!");
+            }
+        }
+    }
+
+    void RotateTowardsTarget(Vector3 arah)
+    {
+        // Hitung sudut rotasi berdasarkan arah
+        float angle = Mathf.Atan2(arah.y, arah.x) * Mathf.Rad2Deg;
+        transform.rotation = Quaternion.Euler(0f, 0f, angle);
+    }
+
+    // Method untuk reset chase state (opsional, untuk gameplay mechanic tertentu)
+    public void ResetChaseState()
+    {
+        isChasing = false;
+        Debug.Log(gameObject.name + " chase reset!");
+    }
+
+    // MANUAL TEST METHOD - Panggil dari Inspector atau ZombieAnimatorDebug
+    [ContextMenu("FORCE TRIGGER ATTACK ANIMATION")]
+    public void ForceAttackAnimation()
+    {
+        Debug.Log($"========== MANUAL ATTACK TRIGGER ==========");
+        if (animator == null)
+        {
+            Debug.LogError("Animator is NULL!");
+            return;
+        }
+        
+        Debug.Log($"Manually triggering attack on {gameObject.name}...");
+        animator.SetTrigger("isAttack");
+        Debug.Log("SetTrigger('isAttack') called!");
+        Debug.Log($"==========================================");
+    }
+
+    // Visualisasi detection range di Scene view (hanya untuk development)
+    private void OnDrawGizmosSelected()
+    {
+        if (showDetectionRadius)
+        {
+            // Warna hijau untuk detection range
+            Gizmos.color = Color.green;
+            Gizmos.DrawWireSphere(transform.position, detectionRange);
+
+            // Warna kuning untuk attack range
+            Gizmos.color = Color.yellow;
+            Gizmos.DrawWireSphere(transform.position, attackRange);
+
+            // Warna merah untuk jarak berhenti
+            Gizmos.color = Color.red;
+            Gizmos.DrawWireSphere(transform.position, jarakBerhenti);
+
+            // Label
+#if UNITY_EDITOR
+            UnityEditor.Handles.Label(transform.position + Vector3.up * 2f,
+                $"Detection: {detectionRange}m\nAttack: {attackRange}m\nStop: {jarakBerhenti}m");
+#endif
+        }
+    }
+}

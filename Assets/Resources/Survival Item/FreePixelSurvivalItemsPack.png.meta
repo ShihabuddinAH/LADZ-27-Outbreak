@@ -1,0 +1,2717 @@
+fileFormatVersion: 2
+guid: 3b30c173b7441b54ba196fb01d657092
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -7918916653166848682
+    second: FreePixelSurvivalItemsPack_0
+  - first:
+      213: 3784204493965221598
+    second: FreePixelSurvivalItemsPack_1
+  - first:
+      213: -4976464169843630597
+    second: FreePixelSurvivalItemsPack_2
+  - first:
+      213: 9168890042482224530
+    second: FreePixelSurvivalItemsPack_3
+  - first:
+      213: 737792286618725622
+    second: FreePixelSurvivalItemsPack_4
+  - first:
+      213: 2096434728838163780
+    second: FreePixelSurvivalItemsPack_5
+  - first:
+      213: 4718399671442208254
+    second: FreePixelSurvivalItemsPack_6
+  - first:
+      213: -1756260058106830470
+    second: FreePixelSurvivalItemsPack_7
+  - first:
+      213: -8837216929870849806
+    second: FreePixelSurvivalItemsPack_8
+  - first:
+      213: -2992892486885591368
+    second: FreePixelSurvivalItemsPack_9
+  - first:
+      213: 916250425198365951
+    second: FreePixelSurvivalItemsPack_10
+  - first:
+      213: 6136546672695723046
+    second: FreePixelSurvivalItemsPack_11
+  - first:
+      213: -4442286462111065842
+    second: FreePixelSurvivalItemsPack_12
+  - first:
+      213: 3126601566796726165
+    second: FreePixelSurvivalItemsPack_13
+  - first:
+      213: 3055029594944415641
+    second: FreePixelSurvivalItemsPack_14
+  - first:
+      213: -7859792580071567245
+    second: FreePixelSurvivalItemsPack_15
+  - first:
+      213: -7526017884332300125
+    second: FreePixelSurvivalItemsPack_16
+  - first:
+      213: 2949437384781715978
+    second: FreePixelSurvivalItemsPack_17
+  - first:
+      213: 2284909153314217827
+    second: FreePixelSurvivalItemsPack_18
+  - first:
+      213: -686610366837665192
+    second: FreePixelSurvivalItemsPack_19
+  - first:
+      213: -7144165642651074889
+    second: FreePixelSurvivalItemsPack_20
+  - first:
+      213: 2427947389102073570
+    second: FreePixelSurvivalItemsPack_21
+  - first:
+      213: 1291962363538490476
+    second: FreePixelSurvivalItemsPack_22
+  - first:
+      213: -3955514077165192117
+    second: FreePixelSurvivalItemsPack_23
+  - first:
+      213: 3388244259996454058
+    second: FreePixelSurvivalItemsPack_24
+  - first:
+      213: -871317474004686587
+    second: FreePixelSurvivalItemsPack_25
+  - first:
+      213: 7015527861734438386
+    second: FreePixelSurvivalItemsPack_26
+  - first:
+      213: -7588564075528622874
+    second: FreePixelSurvivalItemsPack_27
+  - first:
+      213: 6339553374012917082
+    second: FreePixelSurvivalItemsPack_28
+  - first:
+      213: -6464133954183538022
+    second: FreePixelSurvivalItemsPack_29
+  - first:
+      213: 7415927568336855508
+    second: FreePixelSurvivalItemsPack_30
+  - first:
+      213: 1214814300446889093
+    second: FreePixelSurvivalItemsPack_31
+  - first:
+      213: -1496044024791932718
+    second: FreePixelSurvivalItemsPack_32
+  - first:
+      213: -2521278913668800354
+    second: FreePixelSurvivalItemsPack_33
+  - first:
+      213: -3695527449187594475
+    second: FreePixelSurvivalItemsPack_34
+  - first:
+      213: 4298825424906702645
+    second: FreePixelSurvivalItemsPack_35
+  - first:
+      213: 702308170393589428
+    second: FreePixelSurvivalItemsPack_36
+  - first:
+      213: -8597884315731082982
+    second: FreePixelSurvivalItemsPack_37
+  - first:
+      213: -1945255356397229692
+    second: FreePixelSurvivalItemsPack_38
+  - first:
+      213: -2422737279076601353
+    second: FreePixelSurvivalItemsPack_39
+  - first:
+      213: -530968367064806941
+    second: FreePixelSurvivalItemsPack_40
+  - first:
+      213: -6887001109309685184
+    second: FreePixelSurvivalItemsPack_41
+  - first:
+      213: -6359767760185993351
+    second: FreePixelSurvivalItemsPack_42
+  - first:
+      213: 6097775499862639252
+    second: FreePixelSurvivalItemsPack_43
+  - first:
+      213: -1445115164948348246
+    second: FreePixelSurvivalItemsPack_44
+  - first:
+      213: 1269344840514807977
+    second: FreePixelSurvivalItemsPack_45
+  - first:
+      213: -9003722071589173420
+    second: FreePixelSurvivalItemsPack_46
+  - first:
+      213: 1047125985129776375
+    second: FreePixelSurvivalItemsPack_47
+  - first:
+      213: -2157525074178661102
+    second: FreePixelSurvivalItemsPack_48
+  - first:
+      213: -6478847656803732612
+    second: FreePixelSurvivalItemsPack_49
+  - first:
+      213: -6540890097020579027
+    second: FreePixelSurvivalItemsPack_50
+  - first:
+      213: -1575979821959103902
+    second: FreePixelSurvivalItemsPack_51
+  - first:
+      213: 5619205615887363086
+    second: FreePixelSurvivalItemsPack_52
+  - first:
+      213: -4714375607300068047
+    second: FreePixelSurvivalItemsPack_53
+  - first:
+      213: -5165140017574170701
+    second: FreePixelSurvivalItemsPack_54
+  - first:
+      213: 3622226409803373391
+    second: FreePixelSurvivalItemsPack_55
+  - first:
+      213: 5956306627468051202
+    second: FreePixelSurvivalItemsPack_56
+  - first:
+      213: 8887360339384453698
+    second: FreePixelSurvivalItemsPack_57
+  - first:
+      213: 668554329813580208
+    second: FreePixelSurvivalItemsPack_58
+  - first:
+      213: -8436202516622000605
+    second: FreePixelSurvivalItemsPack_59
+  - first:
+      213: -29534618090555252
+    second: FreePixelSurvivalItemsPack_60
+  - first:
+      213: -5957383766226455136
+    second: FreePixelSurvivalItemsPack_61
+  - first:
+      213: -6810599047094290605
+    second: FreePixelSurvivalItemsPack_62
+  - first:
+      213: -4117036701053202730
+    second: FreePixelSurvivalItemsPack_63
+  - first:
+      213: 3412254627276846319
+    second: FreePixelSurvivalItemsPack_64
+  - first:
+      213: -9055769694988703590
+    second: FreePixelSurvivalItemsPack_65
+  - first:
+      213: -5113885490921183848
+    second: FreePixelSurvivalItemsPack_66
+  - first:
+      213: 719027898403900405
+    second: FreePixelSurvivalItemsPack_67
+  - first:
+      213: -1264070214325559123
+    second: FreePixelSurvivalItemsPack_68
+  - first:
+      213: 983734276766299935
+    second: FreePixelSurvivalItemsPack_69
+  - first:
+      213: 926329279542914751
+    second: FreePixelSurvivalItemsPack_70
+  - first:
+      213: 4877444524811970413
+    second: FreePixelSurvivalItemsPack_71
+  - first:
+      213: 998332435361526213
+    second: FreePixelSurvivalItemsPack_72
+  - first:
+      213: -5712625023143584999
+    second: FreePixelSurvivalItemsPack_73
+  - first:
+      213: 8277989742703430165
+    second: FreePixelSurvivalItemsPack_74
+  - first:
+      213: -8510408540939966691
+    second: FreePixelSurvivalItemsPack_75
+  - first:
+      213: 819520671240542121
+    second: FreePixelSurvivalItemsPack_76
+  - first:
+      213: -8963426980357510803
+    second: FreePixelSurvivalItemsPack_77
+  - first:
+      213: 1168180961248645181
+    second: FreePixelSurvivalItemsPack_78
+  - first:
+      213: 1679185019359601688
+    second: FreePixelSurvivalItemsPack_79
+  - first:
+      213: 439812898891826046
+    second: FreePixelSurvivalItemsPack_80
+  - first:
+      213: 4280809056154966400
+    second: FreePixelSurvivalItemsPack_81
+  - first:
+      213: -5267891079516132272
+    second: FreePixelSurvivalItemsPack_82
+  - first:
+      213: -6677533058425665089
+    second: FreePixelSurvivalItemsPack_83
+  - first:
+      213: 5053683824292884912
+    second: FreePixelSurvivalItemsPack_84
+  - first:
+      213: 2126717271491233323
+    second: FreePixelSurvivalItemsPack_85
+  - first:
+      213: 3251980889330054010
+    second: FreePixelSurvivalItemsPack_86
+  - first:
+      213: -7341142709451617971
+    second: FreePixelSurvivalItemsPack_87
+  - first:
+      213: -3596293682918410939
+    second: FreePixelSurvivalItemsPack_88
+  - first:
+      213: -2993216982169188834
+    second: FreePixelSurvivalItemsPack_89
+  - first:
+      213: -6060357441953540425
+    second: FreePixelSurvivalItemsPack_90
+  - first:
+      213: 7514159107111783584
+    second: FreePixelSurvivalItemsPack_91
+  - first:
+      213: -8227320303284079040
+    second: FreePixelSurvivalItemsPack_92
+  - first:
+      213: 5094406102882820400
+    second: FreePixelSurvivalItemsPack_93
+  - first:
+      213: 7164386886407453167
+    second: FreePixelSurvivalItemsPack_94
+  - first:
+      213: -7010113064303952711
+    second: FreePixelSurvivalItemsPack_95
+  - first:
+      213: -5414589585975498963
+    second: FreePixelSurvivalItemsPack_96
+  - first:
+      213: -1388545628139628267
+    second: FreePixelSurvivalItemsPack_97
+  - first:
+      213: 7212017511405087948
+    second: FreePixelSurvivalItemsPack_98
+  - first:
+      213: 5338606087617375788
+    second: FreePixelSurvivalItemsPack_99
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: FreePixelSurvivalItemsPack_0
+      rect:
+        serializedVersion: 2
+        x: 5
+        y: 292
+        width: 23
+        height: 23
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 655901a924b5a1290800000000000000
+      internalID: -7918916653166848682
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FreePixelSurvivalItemsPack_1
+      rect:
+        serializedVersion: 2
+        x: 37
+        y: 293
+        width: 22
+        height: 22
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ededb3c00f1348430800000000000000
+      internalID: 3784204493965221598
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FreePixelSurvivalItemsPack_2
+      rect:
+        serializedVersion: 2
+        x: 69
+        y: 292
+        width: 23
+        height: 23
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bfdd207343c00fab0800000000000000
+      internalID: -4976464169843630597
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FreePixelSurvivalItemsPack_3
+      rect:
+        serializedVersion: 2
+        x: 102
+        y: 293
+        width: 20
+        height: 20
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 29de4ce2ae07e3f70800000000000000
+      internalID: 9168890042482224530
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FreePixelSurvivalItemsPack_4
+      rect:
+        serializedVersion: 2
+        x: 130
+        y: 290
+        width: 28
+        height: 26
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6fcaee9fc2a2d3a00800000000000000
+      internalID: 737792286618725622
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FreePixelSurvivalItemsPack_5
+      rect:
+        serializedVersion: 2
+        x: 161
+        y: 291
+        width: 29
+        height: 23
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 44de03b4748081d10800000000000000
+      internalID: 2096434728838163780
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FreePixelSurvivalItemsPack_6
+      rect:
+        serializedVersion: 2
+        x: 197
+        y: 291
+        width: 22
+        height: 24
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ef5f1a4808f1b7140800000000000000
+      internalID: 4718399671442208254
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FreePixelSurvivalItemsPack_7
+      rect:
+        serializedVersion: 2
+        x: 230
+        y: 290
+        width: 20
+        height: 26
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a71e55f38c280a7e0800000000000000
+      internalID: -1756260058106830470
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FreePixelSurvivalItemsPack_8
+      rect:
+        serializedVersion: 2
+        x: 259
+        y: 290
+        width: 26
+        height: 26
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2f8dafb1606eb5580800000000000000
+      internalID: -8837216929870849806
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FreePixelSurvivalItemsPack_9
+      rect:
+        serializedVersion: 2
+        x: 294
+        y: 290
+        width: 21
+        height: 24
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8b6bf34e32c1776d0800000000000000
+      internalID: -2992892486885591368
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FreePixelSurvivalItemsPack_10
+      rect:
+        serializedVersion: 2
+        x: 3
+        y: 259
+        width: 25
+        height: 26
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ffccf3f38ec27bc00800000000000000
+      internalID: 916250425198365951
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FreePixelSurvivalItemsPack_11
+      rect:
+        serializedVersion: 2
+        x: 38
+        y: 260
+        width: 19
+        height: 24
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 62442ad9fa4692550800000000000000
+      internalID: 6136546672695723046
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FreePixelSurvivalItemsPack_12
+      rect:
+        serializedVersion: 2
+        x: 71
+        y: 262
+        width: 18
+        height: 19
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e09d75bbff3d952c0800000000000000
+      internalID: -4442286462111065842
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FreePixelSurvivalItemsPack_13
+      rect:
+        serializedVersion: 2
+        x: 104
+        y: 258
+        width: 16
+        height: 29
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 59f391f3f8be36b20800000000000000
+      internalID: 3126601566796726165
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FreePixelSurvivalItemsPack_14
+      rect:
+        serializedVersion: 2
+        x: 132
+        y: 258
+        width: 25
+        height: 27
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 997a7f8fa35a56a20800000000000000
+      internalID: 3055029594944415641
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FreePixelSurvivalItemsPack_15
+      rect:
+        serializedVersion: 2
+        x: 164
+        y: 260
+        width: 24
+        height: 23
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 37055989a486ce290800000000000000
+      internalID: -7859792580071567245
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FreePixelSurvivalItemsPack_16
+      rect:
+        serializedVersion: 2
+        x: 195
+        y: 257
+        width: 26
+        height: 29
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3a8e227db963e8790800000000000000
+      internalID: -7526017884332300125
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FreePixelSurvivalItemsPack_17
+      rect:
+        serializedVersion: 2
+        x: 228
+        y: 259
+        width: 23
+        height: 26
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a0adb27bca18ee820800000000000000
+      internalID: 2949437384781715978
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FreePixelSurvivalItemsPack_18
+      rect:
+        serializedVersion: 2
+        x: 257
+        y: 258
+        width: 29
+        height: 24
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 36f155bd4c0a5bf10800000000000000
+      internalID: 2284909153314217827
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FreePixelSurvivalItemsPack_19
+      rect:
+        serializedVersion: 2
+        x: 294
+        y: 260
+        width: 20
+        height: 22
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8525a89528ba876f0800000000000000
+      internalID: -686610366837665192
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FreePixelSurvivalItemsPack_20
+      rect:
+        serializedVersion: 2
+        x: 6
+        y: 228
+        width: 21
+        height: 22
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7be7b3d0333dadc90800000000000000
+      internalID: -7144165642651074889
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FreePixelSurvivalItemsPack_21
+      rect:
+        serializedVersion: 2
+        x: 38
+        y: 228
+        width: 21
+        height: 22
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2e624cc594dc1b120800000000000000
+      internalID: 2427947389102073570
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FreePixelSurvivalItemsPack_22
+      rect:
+        serializedVersion: 2
+        x: 71
+        y: 230
+        width: 18
+        height: 19
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c64c2edace8fde110800000000000000
+      internalID: 1291962363538490476
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FreePixelSurvivalItemsPack_23
+      rect:
+        serializedVersion: 2
+        x: 103
+        y: 230
+        width: 18
+        height: 19
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b4cf28e67e03b19c0800000000000000
+      internalID: -3955514077165192117
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FreePixelSurvivalItemsPack_24
+      rect:
+        serializedVersion: 2
+        x: 135
+        y: 230
+        width: 18
+        height: 19
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: aac4859e336750f20800000000000000
+      internalID: 3388244259996454058
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FreePixelSurvivalItemsPack_25
+      rect:
+        serializedVersion: 2
+        x: 169
+        y: 227
+        width: 18
+        height: 24
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5092c53bf5578e3f0800000000000000
+      internalID: -871317474004686587
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FreePixelSurvivalItemsPack_26
+      rect:
+        serializedVersion: 2
+        x: 196
+        y: 225
+        width: 24
+        height: 29
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2f5798e9b692c5160800000000000000
+      internalID: 7015527861734438386
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FreePixelSurvivalItemsPack_27
+      rect:
+        serializedVersion: 2
+        x: 230
+        y: 228
+        width: 20
+        height: 22
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6ec63d2ed2100b690800000000000000
+      internalID: -7588564075528622874
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FreePixelSurvivalItemsPack_28
+      rect:
+        serializedVersion: 2
+        x: 262
+        y: 228
+        width: 20
+        height: 23
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a554bac843e9af750800000000000000
+      internalID: 6339553374012917082
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FreePixelSurvivalItemsPack_29
+      rect:
+        serializedVersion: 2
+        x: 294
+        y: 226
+        width: 20
+        height: 27
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a9a5958ca68ca46a0800000000000000
+      internalID: -6464133954183538022
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FreePixelSurvivalItemsPack_30
+      rect:
+        serializedVersion: 2
+        x: 8
+        y: 197
+        width: 18
+        height: 22
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4d1aeb605daaae660800000000000000
+      internalID: 7415927568336855508
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FreePixelSurvivalItemsPack_31
+      rect:
+        serializedVersion: 2
+        x: 33
+        y: 198
+        width: 30
+        height: 20
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 584933e7b23ebd010800000000000000
+      internalID: 1214814300446889093
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FreePixelSurvivalItemsPack_32
+      rect:
+        serializedVersion: 2
+        x: 68
+        y: 198
+        width: 21
+        height: 19
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2d06ee5c2ebfc3be0800000000000000
+      internalID: -1496044024791932718
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FreePixelSurvivalItemsPack_33
+      rect:
+        serializedVersion: 2
+        x: 99
+        y: 194
+        width: 25
+        height: 27
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e90a613bf2e920dd0800000000000000
+      internalID: -2521278913668800354
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FreePixelSurvivalItemsPack_34
+      rect:
+        serializedVersion: 2
+        x: 131
+        y: 195
+        width: 24
+        height: 25
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 51fc77d5d59d6bcc0800000000000000
+      internalID: -3695527449187594475
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FreePixelSurvivalItemsPack_35
+      rect:
+        serializedVersion: 2
+        x: 166
+        y: 196
+        width: 20
+        height: 24
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 53f4bf2a2fe78ab30800000000000000
+      internalID: 4298825424906702645
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FreePixelSurvivalItemsPack_36
+      rect:
+        serializedVersion: 2
+        x: 197
+        y: 195
+        width: 22
+        height: 26
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4b61a2b5f891fb900800000000000000
+      internalID: 702308170393589428
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FreePixelSurvivalItemsPack_37
+      rect:
+        serializedVersion: 2
+        x: 226
+        y: 195
+        width: 26
+        height: 26
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a1142f4b4cd2ea880800000000000000
+      internalID: -8597884315731082982
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FreePixelSurvivalItemsPack_38
+      rect:
+        serializedVersion: 2
+        x: 259
+        y: 194
+        width: 26
+        height: 27
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 489648c4f801105e0800000000000000
+      internalID: -1945255356397229692
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FreePixelSurvivalItemsPack_39
+      rect:
+        serializedVersion: 2
+        x: 294
+        y: 198
+        width: 23
+        height: 20
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7f1fa88e745b06ed0800000000000000
+      internalID: -2422737279076601353
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FreePixelSurvivalItemsPack_40
+      rect:
+        serializedVersion: 2
+        x: 5
+        y: 160
+        width: 21
+        height: 31
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3e90226551f91a8f0800000000000000
+      internalID: -530968367064806941
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FreePixelSurvivalItemsPack_41
+      rect:
+        serializedVersion: 2
+        x: 34
+        y: 163
+        width: 28
+        height: 26
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 04200efdaf47c60a0800000000000000
+      internalID: -6887001109309685184
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FreePixelSurvivalItemsPack_42
+      rect:
+        serializedVersion: 2
+        x: 70
+        y: 164
+        width: 20
+        height: 26
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 977d128eae09db7a0800000000000000
+      internalID: -6359767760185993351
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FreePixelSurvivalItemsPack_43
+      rect:
+        serializedVersion: 2
+        x: 101
+        y: 165
+        width: 22
+        height: 22
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 492846d7286af9450800000000000000
+      internalID: 6097775499862639252
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FreePixelSurvivalItemsPack_44
+      rect:
+        serializedVersion: 2
+        x: 130
+        y: 163
+        width: 28
+        height: 26
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: aa249bdf96be1fbe0800000000000000
+      internalID: -1445115164948348246
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FreePixelSurvivalItemsPack_45
+      rect:
+        serializedVersion: 2
+        x: 160
+        y: 162
+        width: 32
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9a82c5c386e9d9110800000000000000
+      internalID: 1269344840514807977
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FreePixelSurvivalItemsPack_46
+      rect:
+        serializedVersion: 2
+        x: 197
+        y: 160
+        width: 21
+        height: 31
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 457459aca7a5c0380800000000000000
+      internalID: -9003722071589173420
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FreePixelSurvivalItemsPack_47
+      rect:
+        serializedVersion: 2
+        x: 226
+        y: 166
+        width: 26
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7f4cdba1983288e00800000000000000
+      internalID: 1047125985129776375
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FreePixelSurvivalItemsPack_48
+      rect:
+        serializedVersion: 2
+        x: 258
+        y: 166
+        width: 26
+        height: 19
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2152597406eee02e0800000000000000
+      internalID: -2157525074178661102
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FreePixelSurvivalItemsPack_49
+      rect:
+        serializedVersion: 2
+        x: 290
+        y: 164
+        width: 27
+        height: 23
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c73775ee1628616a0800000000000000
+      internalID: -6478847656803732612
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FreePixelSurvivalItemsPack_50
+      rect:
+        serializedVersion: 2
+        x: 4
+        y: 131
+        width: 24
+        height: 24
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d23d734ac171a35a0800000000000000
+      internalID: -6540890097020579027
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FreePixelSurvivalItemsPack_51
+      rect:
+        serializedVersion: 2
+        x: 40
+        y: 132
+        width: 16
+        height: 24
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 26ab1faa3bef02ae0800000000000000
+      internalID: -1575979821959103902
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FreePixelSurvivalItemsPack_52
+      rect:
+        serializedVersion: 2
+        x: 71
+        y: 134
+        width: 18
+        height: 19
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e0ca8de5cbd6bfd40800000000000000
+      internalID: 5619205615887363086
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FreePixelSurvivalItemsPack_53
+      rect:
+        serializedVersion: 2
+        x: 101
+        y: 134
+        width: 20
+        height: 19
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 13dec1dec5c239eb0800000000000000
+      internalID: -4714375607300068047
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FreePixelSurvivalItemsPack_54
+      rect:
+        serializedVersion: 2
+        x: 130
+        y: 133
+        width: 27
+        height: 23
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3bf2655258cb158b0800000000000000
+      internalID: -5165140017574170701
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FreePixelSurvivalItemsPack_55
+      rect:
+        serializedVersion: 2
+        x: 164
+        y: 132
+        width: 24
+        height: 24
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f4b5e547abbb44230800000000000000
+      internalID: 3622226409803373391
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FreePixelSurvivalItemsPack_56
+      rect:
+        serializedVersion: 2
+        x: 203
+        y: 133
+        width: 13
+        height: 23
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 203c98fd15d09a250800000000000000
+      internalID: 5956306627468051202
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FreePixelSurvivalItemsPack_57
+      rect:
+        serializedVersion: 2
+        x: 232
+        y: 135
+        width: 16
+        height: 17
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 24ac7e3342f365b70800000000000000
+      internalID: 8887360339384453698
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FreePixelSurvivalItemsPack_58
+      rect:
+        serializedVersion: 2
+        x: 266
+        y: 133
+        width: 13
+        height: 21
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0b9769dee9e274900800000000000000
+      internalID: 668554329813580208
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FreePixelSurvivalItemsPack_59
+      rect:
+        serializedVersion: 2
+        x: 295
+        y: 132
+        width: 17
+        height: 24
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 32e3d7f02869cea80800000000000000
+      internalID: -8436202516622000605
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FreePixelSurvivalItemsPack_60
+      rect:
+        serializedVersion: 2
+        x: 4
+        y: 99
+        width: 24
+        height: 24
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c88b22cdb62179ff0800000000000000
+      internalID: -29534618090555252
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FreePixelSurvivalItemsPack_61
+      rect:
+        serializedVersion: 2
+        x: 36
+        y: 100
+        width: 24
+        height: 24
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0a5b467370f135da0800000000000000
+      internalID: -5957383766226455136
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FreePixelSurvivalItemsPack_62
+      rect:
+        serializedVersion: 2
+        x: 74
+        y: 101
+        width: 12
+        height: 22
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 357b4523044eb71a0800000000000000
+      internalID: -6810599047094290605
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FreePixelSurvivalItemsPack_63
+      rect:
+        serializedVersion: 2
+        x: 102
+        y: 101
+        width: 20
+        height: 21
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6de4a72fee85dd6c0800000000000000
+      internalID: -4117036701053202730
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FreePixelSurvivalItemsPack_64
+      rect:
+        serializedVersion: 2
+        x: 130
+        y: 99
+        width: 27
+        height: 23
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fe4f40e2183ca5f20800000000000000
+      internalID: 3412254627276846319
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FreePixelSurvivalItemsPack_65
+      rect:
+        serializedVersion: 2
+        x: 165
+        y: 102
+        width: 22
+        height: 17
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a9863722171735280800000000000000
+      internalID: -9055769694988703590
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FreePixelSurvivalItemsPack_66
+      rect:
+        serializedVersion: 2
+        x: 197
+        y: 103
+        width: 22
+        height: 17
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8956e939d34d709b0800000000000000
+      internalID: -5113885490921183848
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FreePixelSurvivalItemsPack_67
+      rect:
+        serializedVersion: 2
+        x: 230
+        y: 103
+        width: 20
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5fbc5f360108af900800000000000000
+      internalID: 719027898403900405
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FreePixelSurvivalItemsPack_68
+      rect:
+        serializedVersion: 2
+        x: 260
+        y: 104
+        width: 25
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: da029ff56de157ee0800000000000000
+      internalID: -1264070214325559123
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FreePixelSurvivalItemsPack_69
+      rect:
+        serializedVersion: 2
+        x: 293
+        y: 104
+        width: 22
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f17f708dc1de6ad00800000000000000
+      internalID: 983734276766299935
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FreePixelSurvivalItemsPack_70
+      rect:
+        serializedVersion: 2
+        x: 5
+        y: 68
+        width: 23
+        height: 24
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fbee234629bfadc00800000000000000
+      internalID: 926329279542914751
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FreePixelSurvivalItemsPack_71
+      rect:
+        serializedVersion: 2
+        x: 36
+        y: 68
+        width: 23
+        height: 22
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d67671914f920b340800000000000000
+      internalID: 4877444524811970413
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FreePixelSurvivalItemsPack_72
+      rect:
+        serializedVersion: 2
+        x: 71
+        y: 71
+        width: 19
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5c179718f0acadd00800000000000000
+      internalID: 998332435361526213
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FreePixelSurvivalItemsPack_73
+      rect:
+        serializedVersion: 2
+        x: 104
+        y: 70
+        width: 16
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 91bd488eecda8b0b0800000000000000
+      internalID: -5712625023143584999
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FreePixelSurvivalItemsPack_74
+      rect:
+        serializedVersion: 2
+        x: 134
+        y: 68
+        width: 22
+        height: 20
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 51a4a24ffc351e270800000000000000
+      internalID: 8277989742703430165
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FreePixelSurvivalItemsPack_75
+      rect:
+        serializedVersion: 2
+        x: 165
+        y: 70
+        width: 21
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d17a2d7a584f4e980800000000000000
+      internalID: -8510408540939966691
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FreePixelSurvivalItemsPack_76
+      rect:
+        serializedVersion: 2
+        x: 196
+        y: 69
+        width: 25
+        height: 20
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9a7d16f55b58f5b00800000000000000
+      internalID: 819520671240542121
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FreePixelSurvivalItemsPack_77
+      rect:
+        serializedVersion: 2
+        x: 228
+        y: 69
+        width: 25
+        height: 20
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d6963a1d6a28b9380800000000000000
+      internalID: -8963426980357510803
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FreePixelSurvivalItemsPack_78
+      rect:
+        serializedVersion: 2
+        x: 260
+        y: 69
+        width: 25
+        height: 20
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d30999c1566363010800000000000000
+      internalID: 1168180961248645181
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FreePixelSurvivalItemsPack_79
+      rect:
+        serializedVersion: 2
+        x: 291
+        y: 69
+        width: 25
+        height: 20
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 814261fd0e9ad4710800000000000000
+      internalID: 1679185019359601688
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FreePixelSurvivalItemsPack_80
+      rect:
+        serializedVersion: 2
+        x: 2
+        y: 36
+        width: 29
+        height: 22
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e73051650878a1600800000000000000
+      internalID: 439812898891826046
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FreePixelSurvivalItemsPack_81
+      rect:
+        serializedVersion: 2
+        x: 34
+        y: 34
+        width: 27
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0895467e72d786b30800000000000000
+      internalID: 4280809056154966400
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FreePixelSurvivalItemsPack_82
+      rect:
+        serializedVersion: 2
+        x: 72
+        y: 39
+        width: 20
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 05cedf149f0b4e6b0800000000000000
+      internalID: -5267891079516132272
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FreePixelSurvivalItemsPack_83
+      rect:
+        serializedVersion: 2
+        x: 101
+        y: 37
+        width: 22
+        height: 19
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fb94c9cff03a453a0800000000000000
+      internalID: -6677533058425665089
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FreePixelSurvivalItemsPack_84
+      rect:
+        serializedVersion: 2
+        x: 135
+        y: 39
+        width: 18
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0b17d12a9aa422640800000000000000
+      internalID: 5053683824292884912
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FreePixelSurvivalItemsPack_85
+      rect:
+        serializedVersion: 2
+        x: 166
+        y: 39
+        width: 19
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b264ce0371e938d10800000000000000
+      internalID: 2126717271491233323
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FreePixelSurvivalItemsPack_86
+      rect:
+        serializedVersion: 2
+        x: 198
+        y: 36
+        width: 22
+        height: 23
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a7370ec936b512d20800000000000000
+      internalID: 3251980889330054010
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FreePixelSurvivalItemsPack_87
+      rect:
+        serializedVersion: 2
+        x: 229
+        y: 38
+        width: 21
+        height: 20
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d4900bdc9950f1a90800000000000000
+      internalID: -7341142709451617971
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FreePixelSurvivalItemsPack_88
+      rect:
+        serializedVersion: 2
+        x: 261
+        y: 38
+        width: 21
+        height: 20
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 545baa903f5671ec0800000000000000
+      internalID: -3596293682918410939
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FreePixelSurvivalItemsPack_89
+      rect:
+        serializedVersion: 2
+        x: 295
+        y: 36
+        width: 18
+        height: 23
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e1683227305f576d0800000000000000
+      internalID: -2993216982169188834
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FreePixelSurvivalItemsPack_90
+      rect:
+        serializedVersion: 2
+        x: 3
+        y: 3
+        width: 24
+        height: 24
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7b6d674040945eba0800000000000000
+      internalID: -6060357441953540425
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FreePixelSurvivalItemsPack_91
+      rect:
+        serializedVersion: 2
+        x: 36
+        y: 4
+        width: 22
+        height: 22
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0ac0a2d65e7a74860800000000000000
+      internalID: 7514159107111783584
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FreePixelSurvivalItemsPack_92
+      rect:
+        serializedVersion: 2
+        x: 68
+        y: 4
+        width: 23
+        height: 23
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 046b46d36cfa2dd80800000000000000
+      internalID: -8227320303284079040
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FreePixelSurvivalItemsPack_93
+      rect:
+        serializedVersion: 2
+        x: 103
+        y: 7
+        width: 17
+        height: 17
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 031a9e7fb57f2b640800000000000000
+      internalID: 5094406102882820400
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FreePixelSurvivalItemsPack_94
+      rect:
+        serializedVersion: 2
+        x: 138
+        y: 5
+        width: 12
+        height: 22
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fe978c52ae30d6360800000000000000
+      internalID: 7164386886407453167
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FreePixelSurvivalItemsPack_95
+      rect:
+        serializedVersion: 2
+        x: 169
+        y: 5
+        width: 14
+        height: 21
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9bc76d62f4317be90800000000000000
+      internalID: -7010113064303952711
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FreePixelSurvivalItemsPack_96
+      rect:
+        serializedVersion: 2
+        x: 202
+        y: 6
+        width: 12
+        height: 19
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d27a66395738bd4b0800000000000000
+      internalID: -5414589585975498963
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FreePixelSurvivalItemsPack_97
+      rect:
+        serializedVersion: 2
+        x: 230
+        y: 6
+        width: 21
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 519d058ab15eabce0800000000000000
+      internalID: -1388545628139628267
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FreePixelSurvivalItemsPack_98
+      rect:
+        serializedVersion: 2
+        x: 261
+        y: 5
+        width: 23
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ccc623937bb361460800000000000000
+      internalID: 7212017511405087948
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FreePixelSurvivalItemsPack_99
+      rect:
+        serializedVersion: 2
+        x: 290
+        y: 5
+        width: 28
+        height: 21
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c2eeb2893f9861a40800000000000000
+      internalID: 5338606087617375788
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      FreePixelSurvivalItemsPack_0: -7918916653166848682
+      FreePixelSurvivalItemsPack_1: 3784204493965221598
+      FreePixelSurvivalItemsPack_10: 916250425198365951
+      FreePixelSurvivalItemsPack_11: 6136546672695723046
+      FreePixelSurvivalItemsPack_12: -4442286462111065842
+      FreePixelSurvivalItemsPack_13: 3126601566796726165
+      FreePixelSurvivalItemsPack_14: 3055029594944415641
+      FreePixelSurvivalItemsPack_15: -7859792580071567245
+      FreePixelSurvivalItemsPack_16: -7526017884332300125
+      FreePixelSurvivalItemsPack_17: 2949437384781715978
+      FreePixelSurvivalItemsPack_18: 2284909153314217827
+      FreePixelSurvivalItemsPack_19: -686610366837665192
+      FreePixelSurvivalItemsPack_2: -4976464169843630597
+      FreePixelSurvivalItemsPack_20: -7144165642651074889
+      FreePixelSurvivalItemsPack_21: 2427947389102073570
+      FreePixelSurvivalItemsPack_22: 1291962363538490476
+      FreePixelSurvivalItemsPack_23: -3955514077165192117
+      FreePixelSurvivalItemsPack_24: 3388244259996454058
+      FreePixelSurvivalItemsPack_25: -871317474004686587
+      FreePixelSurvivalItemsPack_26: 7015527861734438386
+      FreePixelSurvivalItemsPack_27: -7588564075528622874
+      FreePixelSurvivalItemsPack_28: 6339553374012917082
+      FreePixelSurvivalItemsPack_29: -6464133954183538022
+      FreePixelSurvivalItemsPack_3: 9168890042482224530
+      FreePixelSurvivalItemsPack_30: 7415927568336855508
+      FreePixelSurvivalItemsPack_31: 1214814300446889093
+      FreePixelSurvivalItemsPack_32: -1496044024791932718
+      FreePixelSurvivalItemsPack_33: -2521278913668800354
+      FreePixelSurvivalItemsPack_34: -3695527449187594475
+      FreePixelSurvivalItemsPack_35: 4298825424906702645
+      FreePixelSurvivalItemsPack_36: 702308170393589428
+      FreePixelSurvivalItemsPack_37: -8597884315731082982
+      FreePixelSurvivalItemsPack_38: -1945255356397229692
+      FreePixelSurvivalItemsPack_39: -2422737279076601353
+      FreePixelSurvivalItemsPack_4: 737792286618725622
+      FreePixelSurvivalItemsPack_40: -530968367064806941
+      FreePixelSurvivalItemsPack_41: -6887001109309685184
+      FreePixelSurvivalItemsPack_42: -6359767760185993351
+      FreePixelSurvivalItemsPack_43: 6097775499862639252
+      FreePixelSurvivalItemsPack_44: -1445115164948348246
+      FreePixelSurvivalItemsPack_45: 1269344840514807977
+      FreePixelSurvivalItemsPack_46: -9003722071589173420
+      FreePixelSurvivalItemsPack_47: 1047125985129776375
+      FreePixelSurvivalItemsPack_48: -2157525074178661102
+      FreePixelSurvivalItemsPack_49: -6478847656803732612
+      FreePixelSurvivalItemsPack_5: 2096434728838163780
+      FreePixelSurvivalItemsPack_50: -6540890097020579027
+      FreePixelSurvivalItemsPack_51: -1575979821959103902
+      FreePixelSurvivalItemsPack_52: 5619205615887363086
+      FreePixelSurvivalItemsPack_53: -4714375607300068047
+      FreePixelSurvivalItemsPack_54: -5165140017574170701
+      FreePixelSurvivalItemsPack_55: 3622226409803373391
+      FreePixelSurvivalItemsPack_56: 5956306627468051202
+      FreePixelSurvivalItemsPack_57: 8887360339384453698
+      FreePixelSurvivalItemsPack_58: 668554329813580208
+      FreePixelSurvivalItemsPack_59: -8436202516622000605
+      FreePixelSurvivalItemsPack_6: 4718399671442208254
+      FreePixelSurvivalItemsPack_60: -29534618090555252
+      FreePixelSurvivalItemsPack_61: -5957383766226455136
+      FreePixelSurvivalItemsPack_62: -6810599047094290605
+      FreePixelSurvivalItemsPack_63: -4117036701053202730
+      FreePixelSurvivalItemsPack_64: 3412254627276846319
+      FreePixelSurvivalItemsPack_65: -9055769694988703590
+      FreePixelSurvivalItemsPack_66: -5113885490921183848
+      FreePixelSurvivalItemsPack_67: 719027898403900405
+      FreePixelSurvivalItemsPack_68: -1264070214325559123
+      FreePixelSurvivalItemsPack_69: 983734276766299935
+      FreePixelSurvivalItemsPack_7: -1756260058106830470
+      FreePixelSurvivalItemsPack_70: 926329279542914751
+      FreePixelSurvivalItemsPack_71: 4877444524811970413
+      FreePixelSurvivalItemsPack_72: 998332435361526213
+      FreePixelSurvivalItemsPack_73: -5712625023143584999
+      FreePixelSurvivalItemsPack_74: 8277989742703430165
+      FreePixelSurvivalItemsPack_75: -8510408540939966691
+      FreePixelSurvivalItemsPack_76: 819520671240542121
+      FreePixelSurvivalItemsPack_77: -8963426980357510803
+      FreePixelSurvivalItemsPack_78: 1168180961248645181
+      FreePixelSurvivalItemsPack_79: 1679185019359601688
+      FreePixelSurvivalItemsPack_8: -8837216929870849806
+      FreePixelSurvivalItemsPack_80: 439812898891826046
+      FreePixelSurvivalItemsPack_81: 4280809056154966400
+      FreePixelSurvivalItemsPack_82: -5267891079516132272
+      FreePixelSurvivalItemsPack_83: -6677533058425665089
+      FreePixelSurvivalItemsPack_84: 5053683824292884912
+      FreePixelSurvivalItemsPack_85: 2126717271491233323
+      FreePixelSurvivalItemsPack_86: 3251980889330054010
+      FreePixelSurvivalItemsPack_87: -7341142709451617971
+      FreePixelSurvivalItemsPack_88: -3596293682918410939
+      FreePixelSurvivalItemsPack_89: -2993216982169188834
+      FreePixelSurvivalItemsPack_9: -2992892486885591368
+      FreePixelSurvivalItemsPack_90: -6060357441953540425
+      FreePixelSurvivalItemsPack_91: 7514159107111783584
+      FreePixelSurvivalItemsPack_92: -8227320303284079040
+      FreePixelSurvivalItemsPack_93: 5094406102882820400
+      FreePixelSurvivalItemsPack_94: 7164386886407453167
+      FreePixelSurvivalItemsPack_95: -7010113064303952711
+      FreePixelSurvivalItemsPack_96: -5414589585975498963
+      FreePixelSurvivalItemsPack_97: -1388545628139628267
+      FreePixelSurvivalItemsPack_98: 7212017511405087948
+      FreePixelSurvivalItemsPack_99: 5338606087617375788
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

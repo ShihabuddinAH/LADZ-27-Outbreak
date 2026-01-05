@@ -1,0 +1,229 @@
+﻿using UnityEngine;
+using UnityEngine.SceneManagement;
+
+/// <summary>
+/// Music Manager with Singleton Pattern
+/// Persists across scenes dan kontrol BGM secara global
+/// </summary>
+public class MusicManager : MonoBehaviour
+{
+    [Header("BGM Clips")]
+    [SerializeField] private AudioClip mainMenuBGM;
+    [SerializeField] private AudioClip gameplayBGM;
+    
+    [Header("Settings")]
+    [SerializeField] private float volume = 0.5f;
+    [SerializeField] private bool enableCrossfade = true;
+    [SerializeField] private float crossfadeDuration = 1.5f;
+    
+    private AudioSource audioSource;
+    private static MusicManager instance;
+    private string currentScene;
+    
+    public static MusicManager Instance => instance;
+    
+    void Awake()
+    {
+        // Singleton pattern dengan DontDestroyOnLoad
+        if (instance == null)
+        {
+            instance = this;
+            DontDestroyOnLoad(gameObject);
+            
+            // Setup AudioSource
+            audioSource = GetComponent<AudioSource>();
+            if (audioSource == null)
+            {
+                audioSource = gameObject.AddComponent<AudioSource>();
+            }
+            
+            audioSource.loop = true;
+            audioSource.playOnAwake = false;
+            audioSource.volume = volume;
+            
+            Debug.Log("[MusicManager] Initialized");
+        }
+        else
+        {
+            Destroy(gameObject);
+            return;
+        }
+    }
+    
+    void Start()
+    {
+        // Subscribe to scene loaded event
+        SceneManager.sceneLoaded += OnSceneLoaded;
+        
+        // Play initial BGM based on current scene
+        currentScene = SceneManager.GetActiveScene().name;
+        PlayBGMForScene(currentScene);
+    }
+    
+    void OnDestroy()
+    {
+        if (instance == this)
+        {
+            SceneManager.sceneLoaded -= OnSceneLoaded;
+        }
+    }
+    
+    /// <summary>
+    /// Dipanggil saat scene loaded
+    /// </summary>
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        string sceneName = scene.name;
+        
+        // Jangan play ulang jika masih scene yang sama
+        if (sceneName == currentScene)
+            return;
+        
+        currentScene = sceneName;
+        PlayBGMForScene(sceneName);
+    }
+    
+    /// <summary>
+    /// Play BGM berdasarkan nama scene
+    /// </summary>
+    private void PlayBGMForScene(string sceneName)
+    {
+        AudioClip targetClip = null;
+        
+        // Determine BGM based on scene name
+        if (sceneName.Contains("MainMenu") || sceneName == "MainMenu")
+        {
+            targetClip = mainMenuBGM;
+        }
+        else if (sceneName.Contains("Game") || sceneName.Contains("Endless") || sceneName == "EndlessScene")
+        {
+            targetClip = gameplayBGM;
+        }
+        
+        // Play BGM
+        if (targetClip != null)
+        {
+            if (enableCrossfade && audioSource.isPlaying && audioSource.clip != targetClip)
+            {
+                // Crossfade to new BGM
+                StartCoroutine(CrossfadeTo(targetClip, crossfadeDuration));
+            }
+            else
+            {
+                // Direct play
+                audioSource.clip = targetClip;
+                audioSource.Play();
+                Debug.Log($"[MusicManager] Playing BGM: {targetClip.name} for scene: {sceneName}");
+            }
+        }
+        else
+        {
+            // No BGM for this scene, stop current
+            if (audioSource.isPlaying)
+            {
+                audioSource.Stop();
+            }
+        }
+    }
+    
+    /// <summary>
+    /// Crossfade dari BGM saat ini ke BGM baru
+    /// </summary>
+    private System.Collections.IEnumerator CrossfadeTo(AudioClip newClip, float duration)
+    {
+        float elapsed = 0f;
+        float startVolume = audioSource.volume;
+        
+        // Fade out
+        while (elapsed < duration / 2f)
+        {
+            elapsed += Time.unscaledDeltaTime;
+            audioSource.volume = Mathf.Lerp(startVolume, 0f, elapsed / (duration / 2f));
+            yield return null;
+        }
+        
+        // Switch clip
+        audioSource.clip = newClip;
+        audioSource.Play();
+        
+        Debug.Log($"[MusicManager] Crossfading to: {newClip.name}");
+        
+        // Fade in
+        elapsed = 0f;
+        while (elapsed < duration / 2f)
+        {
+            elapsed += Time.unscaledDeltaTime;
+            audioSource.volume = Mathf.Lerp(0f, volume, elapsed / (duration / 2f));
+            yield return null;
+        }
+        
+        audioSource.volume = volume;
+    }
+    
+    /// <summary>
+    /// Set volume untuk BGM
+    /// </summary>
+    public void SetVolume(float newVolume)
+    {
+        volume = Mathf.Clamp01(newVolume);
+        if (audioSource != null)
+        {
+            audioSource.volume = volume;
+        }
+        
+        // Save to PlayerPrefs
+        PlayerPrefs.SetFloat("MusicVolume", volume);
+        PlayerPrefs.Save();
+    }
+    
+    /// <summary>
+    /// Get current volume
+    /// </summary>
+    public float GetVolume()
+    {
+        return volume;
+    }
+    
+    /// <summary>
+    /// Mute/Unmute BGM
+    /// </summary>
+    public void SetMute(bool mute)
+    {
+        if (audioSource != null)
+        {
+            audioSource.mute = mute;
+        }
+    }
+    
+    /// <summary>
+    /// Play specific BGM
+    /// </summary>
+    public void PlayBGM(AudioClip clip)
+    {
+        if (clip == null || audioSource == null) return;
+        
+        if (audioSource.clip == clip && audioSource.isPlaying)
+            return;
+        
+        if (enableCrossfade && audioSource.isPlaying)
+        {
+            StartCoroutine(CrossfadeTo(clip, crossfadeDuration));
+        }
+        else
+        {
+            audioSource.clip = clip;
+            audioSource.Play();
+        }
+    }
+    
+    /// <summary>
+    /// Stop BGM
+    /// </summary>
+    public void StopBGM()
+    {
+        if (audioSource != null && audioSource.isPlaying)
+        {
+            audioSource.Stop();
+        }
+    }
+}

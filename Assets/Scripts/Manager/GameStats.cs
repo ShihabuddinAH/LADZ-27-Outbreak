@@ -1,0 +1,184 @@
+using UnityEngine;
+using System;
+
+/// <summary>
+/// Manager untuk tracking score, kills, dan stats game.
+/// </summary>
+public class GameStats : MonoBehaviour
+{
+    [Header("Score Settings")]
+    [SerializeField] private int pointsPerKill = 5; // 5 points per zombie killed
+    [SerializeField] private int bonusPerWave = 50; // Bonus saat complete wave
+    
+    [Header("Current Game Stats")]
+    [SerializeField] private int currentScore = 0;
+    [SerializeField] private int totalKills = 0;
+    [SerializeField] private float survivalTime = 0f;
+    [SerializeField] private int currentWave = 0;
+    
+    [Header("References")]
+    [SerializeField] private ZombieSpawner spawner;
+    
+    private static GameStats instance;
+    private int lastWaveTracked = 0;
+    private int lastTotalSpawned = 0; // TAMBAHAN: Track last spawned count
+    
+    // Event untuk notify UI update
+    public event Action<int> OnScoreChanged;
+    public event Action<int> OnKillsChanged;
+    public event Action<float> OnTimeChanged;
+    public event Action<int> OnWaveChanged;
+    
+    public static GameStats Instance
+    {
+        get { return instance; }
+    }
+    
+    void Awake()
+    {
+        // Singleton pattern
+        instance = this;
+    }
+    
+    void Start()
+    {
+        // Auto-find spawner
+        if (spawner == null)
+        {
+            spawner = FindFirstObjectByType<ZombieSpawner>();
+        }
+        
+        ResetStats();
+    }
+    
+    void Update()
+    {
+        // Null check untuk GameManager
+        if (GameManager.Instance == null) return;
+        
+        // Update survival time
+        if (!GameManager.Instance.IsGameOver() && !GameManager.Instance.IsPaused())
+        {
+            survivalTime += Time.deltaTime;
+            OnTimeChanged?.Invoke(survivalTime);
+        }
+        
+        // Update kills dan wave dari spawner
+        if (spawner != null)
+        {
+            UpdateKillsFromSpawner();
+            UpdateWaveFromSpawner();
+        }
+    }
+    
+    private void UpdateKillsFromSpawner()
+    {
+        if (spawner == null) return;
+        
+        int totalSpawned = spawner.GetTotalZombiesSpawned();
+        int activeZombies = spawner.GetActiveZombies();
+        
+        // FIX: Only calculate kills if zombies have been spawned
+        if (totalSpawned == 0)
+        {
+            // No zombies spawned yet, keep kills at 0
+            return;
+        }
+        
+        int newKills = totalSpawned - activeZombies;
+        
+        // FIX: Ensure kills never go negative
+        if (newKills < 0)
+        {
+            newKills = 0;
+        }
+        
+        // Only update if kills actually changed AND we have spawned zombies
+        if (newKills != totalKills && totalSpawned > 0)
+        {
+            int killsGained = newKills - totalKills;
+            
+            // FIX: Only add score for positive kill gains
+            if (killsGained > 0)
+            {
+                totalKills = newKills;
+                AddScore(killsGained * pointsPerKill);
+                OnKillsChanged?.Invoke(totalKills);
+                
+                Debug.Log($"Kill registered! Total kills: {totalKills}, Score gained: +{killsGained * pointsPerKill}");
+            }
+        }
+    }
+    
+    private void UpdateWaveFromSpawner()
+    {
+        int wave = spawner.GetCurrentWave();
+        
+        if (wave != currentWave)
+        {
+            // Wave baru dimulai
+            if (wave > lastWaveTracked)
+            {
+                // Berikan bonus untuk complete wave sebelumnya
+                if (lastWaveTracked > 0)
+                {
+                    AddScore(bonusPerWave);
+                    Debug.Log($"Wave {lastWaveTracked} complete! Bonus: +{bonusPerWave} points");
+                }
+                
+                lastWaveTracked = wave;
+            }
+            
+            currentWave = wave;
+            OnWaveChanged?.Invoke(currentWave);
+        }
+    }
+    
+    public void AddScore(int points)
+    {
+        if (points <= 0) return; // FIX: Ignore negative or zero scores
+        
+        currentScore += points;
+        OnScoreChanged?.Invoke(currentScore);
+        
+        Debug.Log($"Score added: +{points}, Total score: {currentScore}");
+    }
+    
+    public void AddKill()
+    {
+        totalKills++;
+        AddScore(pointsPerKill);
+        OnKillsChanged?.Invoke(totalKills);
+    }
+    
+    public void ResetStats()
+    {
+        currentScore = 0;
+        totalKills = 0;
+        survivalTime = 0f;
+        currentWave = 0;
+        lastWaveTracked = 0;
+        lastTotalSpawned = 0; // TAMBAHAN
+        
+        OnScoreChanged?.Invoke(currentScore);
+        OnKillsChanged?.Invoke(totalKills);
+        OnTimeChanged?.Invoke(survivalTime);
+        OnWaveChanged?.Invoke(currentWave);
+        
+        Debug.Log("GameStats reset to 0");
+    }
+    
+    // Getters
+    public int GetScore() => currentScore;
+    public int GetKills() => totalKills;
+    public float GetSurvivalTime() => survivalTime;
+    public int GetCurrentWave() => currentWave;
+    
+    // Format time untuk display
+    public string GetFormattedTime()
+    {
+        int minutes = Mathf.FloorToInt(survivalTime / 60f);
+        int seconds = Mathf.FloorToInt(survivalTime % 60f);
+        return $"{minutes:00}:{seconds:00}";
+    }
+}

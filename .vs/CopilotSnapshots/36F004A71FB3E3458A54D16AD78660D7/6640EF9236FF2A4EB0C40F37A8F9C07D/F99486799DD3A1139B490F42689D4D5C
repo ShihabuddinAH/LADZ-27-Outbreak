@@ -1,0 +1,129 @@
+﻿using UnityEngine;
+
+public enum ItemType
+{
+    Medkit,
+    AmmoHandgun,
+    AmmoRifle,
+    AmmoShotgun
+}
+
+public class ItemPickup : MonoBehaviour
+{
+    [Header("Item Settings")]
+    [SerializeField] private ItemType itemType;
+    [SerializeField] private int amount = 1;
+    
+    [Header("Pickup Settings")]
+    [SerializeField] private bool autoPickup = true;
+    [SerializeField] private KeyCode pickupKey = KeyCode.E;
+    
+    [Header("Lifetime")]
+    [SerializeField] private float lifetime = 60f; // Auto-destroy setelah 60 detik
+    [SerializeField] private bool useLifetime = true;
+    
+    private bool playerInRange = false;
+    private PlayerInventory playerInventory;
+    private WeaponController playerWeaponController;
+    
+    void Start()
+    {
+        // Auto-destroy setelah lifetime
+        if (useLifetime && lifetime > 0)
+        {
+            Destroy(gameObject, lifetime);
+        }
+    }
+    
+    void Update()
+    {
+        if (!autoPickup && playerInRange && Input.GetKeyDown(pickupKey))
+        {
+            PickupItem();
+        }
+    }
+    
+    private void OnTriggerEnter2D(Collider2D other)
+    {
+        if (other.CompareTag("Player"))
+        {
+            playerInRange = true;
+            playerInventory = other.GetComponent<PlayerInventory>();
+            playerWeaponController = other.GetComponent<WeaponController>();
+            
+            if (autoPickup)
+            {
+                PickupItem();
+            }
+        }
+    }
+    
+    private void OnTriggerExit2D(Collider2D other)
+    {
+        if (other.CompareTag("Player"))
+        {
+            playerInRange = false;
+            playerInventory = null;
+            playerWeaponController = null;
+        }
+    }
+    
+    private void PickupItem()
+    {
+        if (playerInventory == null && playerWeaponController == null) return;
+        
+        bool pickedUp = false;
+        
+        switch (itemType)
+        {
+            case ItemType.Medkit:
+                if (playerInventory != null)
+                {
+                    playerInventory.AddMedkit(amount);
+                    pickedUp = true;
+                    
+                    if (InventoryUI.Instance != null)
+                        InventoryUI.Instance.FlashMedkitIcon();
+                }
+                break;
+                
+            case ItemType.AmmoHandgun:
+                if (playerWeaponController != null)
+                {
+                    playerWeaponController.AddMagazine(WeaponType.Handgun, amount);
+                    pickedUp = true;
+                    
+                    if (InventoryUI.Instance != null)
+                        InventoryUI.Instance.FlashHandgunAmmoIcon();
+                }
+                break;
+                
+            case ItemType.AmmoRifle:
+                if (playerWeaponController != null)
+                {
+                    playerWeaponController.AddMagazine(WeaponType.Rifle, amount);
+                    pickedUp = true;
+                    
+                    if (InventoryUI.Instance != null)
+                        InventoryUI.Instance.FlashRifleAmmoIcon();
+                }
+                break;
+                
+            case ItemType.AmmoShotgun:
+                if (playerWeaponController != null)
+                {
+                    playerWeaponController.AddMagazine(WeaponType.Shotgun, amount);
+                    pickedUp = true;
+                    
+                    if (InventoryUI.Instance != null)
+                        InventoryUI.Instance.FlashShotgunAmmoIcon();
+                }
+                break;
+        }
+        
+        if (pickedUp)
+        {
+            Destroy(gameObject);
+        }
+    }
+}

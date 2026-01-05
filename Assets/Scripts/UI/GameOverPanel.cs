@@ -1,0 +1,204 @@
+using UnityEngine;
+using UnityEngine.UI;
+using UnityEngine.SceneManagement;
+using TMPro;
+
+public class GameOverPanel : MonoBehaviour
+{
+    [Header("Stats Display")]
+    [SerializeField] private TextMeshProUGUI finalScoreText;
+    [SerializeField] private TextMeshProUGUI finalKillsText;
+    [SerializeField] private TextMeshProUGUI finalTimeText;
+    [SerializeField] private TextMeshProUGUI finalWaveText;
+    
+    [Header("Leaderboard Input")]
+    [SerializeField] private GameObject nameInputPanel;
+    [SerializeField] private TMP_InputField nameInput;
+    [SerializeField] private Button submitButton;
+    [SerializeField] private TextMeshProUGUI rankText;
+    
+    [Header("Buttons")]
+    [SerializeField] private Button restartButton;
+    [SerializeField] private Button quitButton;
+    
+    [Header("Settings")]
+    [SerializeField] private bool alwaysShowInput = true;
+    
+    [Header("Format")]
+    [SerializeField] private string scoreFormat = "SCORE: {0}";
+    [SerializeField] private string killsFormat = "KILLS: {0}";
+    [SerializeField] private string timeFormat = "TIME: {0}";
+    [SerializeField] private string waveFormat = "WAVE: {0}";
+    
+    private bool hasSubmitted = false;
+    private int currentScore = 0;
+    private int currentRank = 0;
+    
+    void Awake()
+    {
+        if (submitButton != null)
+            submitButton.onClick.AddListener(OnSubmitName);
+        
+        if (restartButton != null)
+            restartButton.onClick.AddListener(OnRestart);
+        
+        if (quitButton != null)
+            quitButton.onClick.AddListener(OnQuit);
+    }
+    
+    void OnEnable()
+    {
+        hasSubmitted = false;
+        
+        if (submitButton != null)
+            submitButton.interactable = true;
+        
+        UpdateStats();
+        CalculateRank();
+        
+        if (alwaysShowInput)
+        {
+            ShowInputPanel();
+        }
+    }
+    
+    private void UpdateStats()
+    {
+        if (GameStats.Instance == null) return;
+        
+        currentScore = GameStats.Instance.GetScore();
+        
+        if (finalScoreText != null)
+            finalScoreText.text = string.Format(scoreFormat, currentScore);
+        
+        if (finalKillsText != null)
+            finalKillsText.text = string.Format(killsFormat, GameStats.Instance.GetKills());
+        
+        if (finalTimeText != null)
+            finalTimeText.text = string.Format(timeFormat, GameStats.Instance.GetFormattedTime());
+        
+        if (finalWaveText != null)
+            finalWaveText.text = string.Format(waveFormat, GameStats.Instance.GetCurrentWave());
+    }
+    
+    private void CalculateRank()
+    {
+        if (LeaderboardManager.Instance != null)
+        {
+            currentRank = LeaderboardManager.Instance.GetRank(currentScore);
+            
+            // Cek apakah masuk Top 7
+            bool isTop7 = LeaderboardManager.Instance.WillShowInLeaderboard(currentScore, 7);
+            
+            if (rankText != null)
+            {
+                if (isTop7)
+                {
+                    rankText.text = $"YOU ARE TOP 7! RANK #{currentRank}";
+                    rankText.color = Color.yellow;
+                }
+                else
+                {
+                    rankText.text = $"RANK #{currentRank}";
+                    rankText.color = Color.white;
+                }
+            }
+            
+            Debug.Log($"[GameOverPanel] Score: {currentScore}, Rank: #{currentRank}, Top7: {isTop7}");
+        }
+        else
+        {
+            currentRank = 1;
+            if (rankText != null)
+            {
+                rankText.text = $"RANK #{currentRank}";
+                rankText.color = Color.white;
+            }
+        }
+    }
+    
+    private void ShowInputPanel()
+    {
+        if (nameInputPanel == null)
+        {
+            Debug.LogWarning("[GameOverPanel] nameInputPanel is NULL!");
+            return;
+        }
+        
+        nameInputPanel.SetActive(true);
+        
+        if (nameInput != null)
+        {
+            nameInput.text = "";
+            nameInput.Select();
+            nameInput.ActivateInputField();
+        }
+    }
+    
+    public void OnSubmitName()
+    {
+        if (hasSubmitted) return;
+        
+        string playerName = "Anonymous";
+        
+        if (nameInput != null)
+        {
+            playerName = nameInput.text.Trim();
+            if (string.IsNullOrEmpty(playerName))
+                playerName = "Anonymous";
+            if (playerName.Length > 20)
+                playerName = playerName.Substring(0, 20);
+        }
+        
+        hasSubmitted = true;
+        
+        if (submitButton != null)
+            submitButton.interactable = false;
+        
+        // Save to leaderboard
+        if (LeaderboardManager.Instance != null && GameStats.Instance != null)
+        {
+            LeaderboardManager.Instance.AddEntry(
+                playerName,
+                GameStats.Instance.GetScore(),
+                GameStats.Instance.GetKills(),
+                GameStats.Instance.GetSurvivalTime(),
+                GameStats.Instance.GetCurrentWave()
+            );
+        }
+        
+        // Hide input panel
+        if (nameInputPanel != null)
+            nameInputPanel.SetActive(false);
+        
+        // Update rank text
+        if (rankText != null)
+        {
+            bool isTop7 = currentRank <= 7;
+            if (isTop7)
+            {
+                rankText.text = $"SAVED! RANK #{currentRank}";
+                rankText.color = Color.green;
+            }
+            else
+            {
+                rankText.text = $"SAVED! RANK #{currentRank}";
+                rankText.color = Color.green;
+            }
+        }
+        
+        Debug.Log($"[GameOverPanel] Score saved! Player: {playerName}, Rank: #{currentRank}");
+    }
+    
+    public void OnRestart()
+    {
+        Time.timeScale = 1f;
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+    }
+    
+    public void OnQuit()
+    {
+        Time.timeScale = 1f;
+        SceneManager.LoadScene("MainMenu");
+    }
+}

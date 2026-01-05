@@ -1,0 +1,356 @@
+﻿# SETUP GUIDE - Player & Zombie GameObject
+## Dokumentasi Lengkap Komponen yang Dibutuhkan
+
+---
+
+## 🎮 PLAYER GAMEOBJECT SETUP
+
+### ✅ Required Components:
+
+#### 1. **Transform**
+- Position: (x, y, 0)
+- Rotation: (0, 0, 0)
+- Scale: (1, 1, 1) atau sesuai kebutuhan
+
+#### 2. **Sprite Renderer**
+- Sprite: Assign sprite karakter player
+- Order in Layer: 1 (atau lebih tinggi dari background)
+- Flip X/Y: Sesuaikan jika perlu
+
+#### 3. **Animator**
+- Controller: Assign Animator Controller player
+- Avatar: None (untuk 2D)
+- Apply Root Motion: ❌ (unchecked)
+
+   **Required Parameters di Animator Controller:**
+   - `isRunning` (Bool) - untuk animasi jalan
+   - `isHit` (Trigger) - untuk animasi terkena hit
+   - `isDead` (Trigger) - untuk animasi mati (optional)
+
+#### 4. **Collider 2D** (pilih salah satu)
+- **Box Collider 2D** atau **Capsule Collider 2D**
+- Is Trigger: ❌ (unchecked) - agar bisa bertabrakan dengan dinding
+- Size: Sesuaikan dengan ukuran sprite
+
+#### 5. **Rigidbody 2D** (OPTIONAL, tapi disarankan)
+- Body Type: Dynamic
+- Gravity Scale: 0 (untuk top-down game)
+- Constraints: Freeze Rotation Z ✅
+- Interpolate: Interpolate (untuk movement yang smooth)
+
+#### 6. **Scripts (C#)**
+- ✅ `PlayerMovement.cs`
+- ✅ `PlayerHealth.cs` (yang baru dibuat)
+
+#### 7. **Tag & Layer**
+- Tag: **"Player"** ⚠️ PENTING!
+- Layer: Default atau buat layer "Player"
+
+---
+
+## 🧟 ZOMBIE GAMEOBJECT SETUP
+
+### ✅ Required Components:
+
+#### 1. **Transform**
+- Position: (x, y, 0)
+- Rotation: (0, 0, 0)
+- Scale: (1, 1, 1) atau sesuai kebutuhan
+
+#### 2. **Sprite Renderer**
+- Sprite: Assign sprite karakter zombie
+- Order in Layer: 1 (sama dengan player)
+- Flip X/Y: Sesuaikan jika perlu
+
+#### 3. **Animator**
+- Controller: Assign Animator Controller zombie
+- Avatar: None (untuk 2D)
+- Apply Root Motion: ❌ (unchecked)
+
+   **Required Parameters di Animator Controller:**
+   - `isRunning` (Bool) - untuk animasi jalan/chase
+   - `isAttack` (Trigger) ⚠️ PENTING! - untuk animasi attack
+   
+   **Required States di Animator:**
+   - **Idle** (default state)
+   - **Run/Walk** (chase animation)
+   - **Attack** (attack animation)
+   
+   **Required Transitions (PILIH SALAH SATU METODE):**
+   
+   ### METODE 1: Manual Transitions (Recommended)
+   ```
+   Entry → Idle
+   Idle → Run (Condition: isRunning == true)
+   Run → Idle (Condition: isRunning == false)
+   Idle → Attack (Condition: isAttack trigger)
+   Run → Attack (Condition: isAttack trigger)
+   Attack → Idle (Has Exit Time ✅, Exit Time: 0.9-1.0)
+   ```
+   
+   ### METODE 2: Any State (Jika kamu pakai ini)
+   ```
+   Entry → Idle
+   Idle → Run (Condition: isRunning == true)
+   Run → Idle (Condition: isRunning == false)
+   Any State → Attack (Condition: isAttack trigger)
+   Attack → Idle (Has Exit Time ✅, Exit Time: 0.9-1.0)
+   ```
+   
+   **⚠️ SETTINGS PENTING untuk Any State → Attack:**
+   - ✅ Condition: isAttack (Trigger)
+   - ✅ Can Transition To Self: ❌ UNCHECKED (PENTING!)
+   - ✅ Transition Duration: 0 atau 0.1
+   - ✅ Transition Offset: 0
+   - ✅ Interruption Source: None atau Current State
+   - ✅ Ordered Interruption: ❌ (unchecked)
+
+#### 4. **Collider 2D** (pilih salah satu)
+- **Box Collider 2D** atau **Capsule Collider 2D**
+- Is Trigger: ❌ (unchecked) - agar bisa bertabrakan
+- Size: Sesuaikan dengan ukuran sprite
+
+#### 5. **Rigidbody 2D** (OPTIONAL, tapi disarankan)
+- Body Type: Dynamic
+- Gravity Scale: 0 (untuk top-down game)
+- Constraints: Freeze Rotation Z ✅
+- Interpolate: Interpolate
+
+#### 6. **Scripts (C#)**
+- ✅ `ZombieMovement.cs`
+- ✅ `ZombieAnimatorDebug.cs` (untuk testing - optional)
+
+#### 7. **Tag & Layer**
+- Tag: "Enemy" atau "Zombie" (optional)
+- Layer: Default atau buat layer "Enemy"
+
+---
+
+## 📋 INSPECTOR SETTINGS
+
+### Player - PlayerMovement Component:
+```
+Kecepatan: 5
+Sprite Renderer: [drag SpriteRenderer component]
+Animator: [drag Animator component]
+Use Diagonal Rotation: ✅ (checked)
+```
+
+### Player - PlayerHealth Component:
+```
+Max Health: 100
+Current Health: (auto-filled)
+Health Bar: [drag UI Slider if exists] (optional)
+Health Text: [drag UI Text if exists] (optional)
+Show Damage Log: ✅
+Sprite Renderer: [drag SpriteRenderer component]
+Damage Flash Color: Red (255, 0, 0, 255)
+Flash Duration: 0.1
+```
+
+### Zombie - ZombieMovement Component:
+```
+Kecepatan: 2
+Jarak Berhenti: 1.5
+Detection Range: 10
+Show Detection Radius: ✅
+Attack Range: 1.5
+Attack Cooldown: 1.5
+Attack Damage: 10
+Animator: [drag Animator component] ⚠️ WAJIB!
+```
+
+---
+
+## 🎬 ANIMATOR CONTROLLER SETUP
+
+### Player Animator Controller:
+
+#### Parameters:
+- `isRunning` → **Bool**
+- `isHit` → **Trigger**
+- `isDead` → **Trigger** (optional)
+
+#### States:
+1. **Idle** - animation idle player
+2. **Run** - animation jalan player
+3. **Hit** - animation terkena damage (optional)
+4. **Dead** - animation mati (optional)
+
+---
+
+### Zombie Animator Controller (DENGAN ANY STATE):
+
+#### Parameters:
+- `isRunning` → **Bool** ⚠️ WAJIB
+- `isAttack` → **Trigger** ⚠️ WAJIB (bukan Bool!)
+
+#### States & Transitions:
+```
+┌─────────┐
+│  Entry  │
+└────┬────┘
+     │
+     v
+┌─────────┐  isRunning = true   ┌──────┐
+│  Idle   │ ──────────────────> │ Run  │
+└─────────┘ <────────────────── └──────┘
+             isRunning = false
+     
+     
+┌──────────────┐
+│  Any State   │ ─────── isAttack (trigger) ────────┐
+└──────────────┘                                     │
+                                                     │
+                                                     v
+                              ┌──────────────────────────────────────┐
+                              │            Attack                     │
+                              │  (Has Exit Time ✅)                   │
+                              │  (Exit Time: 0.9 - 1.0)              │
+                              └───────────────┬──────────────────────┘
+                                              │
+                                              │ (Auto return)
+                                              │
+                                              v
+                                         Back to Idle
+```
+
+**⚠️ SETTINGS PENTING untuk "Any State → Attack":**
+
+Klik transition "Any State → Attack", lalu set:
+- ✅ Conditions: isAttack (Trigger)
+- ✅ **Can Transition To Self: ❌ UNCHECKED** (INI PENTING!)
+- ✅ Has Exit Time: ❌ (unchecked)
+- ✅ Fixed Duration: ❌ (unchecked)
+- ✅ Transition Duration (s): 0 atau 0.1
+- ✅ Transition Offset: 0
+- ✅ Interruption Source: **None** atau **Current State**
+- ✅ Ordered Interruption: ❌ (unchecked)
+
+**⚠️ SETTINGS PENTING untuk "Attack → Idle":**
+- ✅ Has Exit Time: **CHECKED**
+- ✅ Exit Time: **0.9** atau **1.0** (biar animasi selesai dulu)
+- ✅ Fixed Duration: ❌ (unchecked)
+- ✅ Transition Duration: **0** atau **0.1** (biar cepat kembali ke Idle)
+- ✅ Conditions: (KOSONG - tidak perlu condition)
+
+---
+
+## 🔧 TROUBLESHOOTING
+
+### ❌ Animasi Attack Tidak Jalan (Pakai Any State)?
+
+**MASALAH UMUM dengan Any State:**
+1. ❌ **Can Transition To Self = Checked** → Harus UNCHECKED!
+2. ❌ **Interruption Source salah** → Set ke None atau Current State
+3. ❌ **Attack → Idle tidak ada Has Exit Time** → Harus checked!
+4. ❌ **Transition Duration terlalu lama** → Set ke 0
+
+**Cek ini:**
+1. ✅ Klik transition "Any State → Attack" di Animator
+2. ✅ Scroll ke bawah, cari **"Can Transition To Self"**
+3. ✅ **UNCHECK** checkbox ini (jangan centang!)
+4. ✅ Set **Interruption Source** ke "None"
+5. ✅ Set **Transition Duration** ke 0
+
+**Cek Attack State:**
+1. ✅ Double-click state "Attack"
+2. ✅ Pastikan ada Animation Clip assigned
+3. ✅ Speed = 1 (normal speed)
+
+**Cek Attack → Idle Transition:**
+1. ✅ Klik transition "Attack → Idle"
+2. ✅ **Has Exit Time** harus CHECKED ✅
+3. ✅ Exit Time = 0.9 atau 1.0
+4. ✅ Transition Duration = 0 atau 0.1
+5. ✅ Conditions list KOSONG (hapus semua condition)
+
+### ❌ Zombie Tidak Detect Player?
+
+**Cek ini:**
+1. ✅ Player punya Tag "Player"?
+2. ✅ Detection Range cukup besar? (coba 10 atau lebih)
+3. ✅ Zombie dan Player di Layer yang sama atau bisa saling detect?
+
+### ❌ Player Tidak Kena Damage?
+
+**Cek ini:**
+1. ✅ Player punya component `PlayerHealth.cs`?
+2. ✅ Attack Range cukup dekat dengan jarak zombie ke player?
+3. ✅ Lihat Console, ada warning "PlayerHealth component not found"?
+
+### ❌ Animasi Attack Langsung Balik ke Idle?
+
+**Ini karena:**
+- Exit Time terlalu kecil (harus 0.9 - 1.0)
+- Atau Has Exit Time tidak di-check
+
+**Fix:**
+1. Klik transition "Attack → Idle"
+2. Check "Has Exit Time"
+3. Set Exit Time = 1.0 (biar animasi selesai sempurna)
+
+---
+
+## 📝 QUICK SETUP CHECKLIST
+
+### Player:
+- [ ] Sprite Renderer assigned
+- [ ] Animator assigned
+- [ ] Animator Controller assigned
+- [ ] Tag = "Player"
+- [ ] PlayerMovement.cs attached
+- [ ] PlayerHealth.cs attached
+- [ ] Animator parameters: isRunning (Bool), isHit (Trigger)
+
+### Zombie (DENGAN ANY STATE):
+- [ ] Sprite Renderer assigned
+- [ ] Animator assigned (⚠️ PENTING!)
+- [ ] Animator Controller assigned (⚠️ PENTING!)
+- [ ] ZombieMovement.cs attached
+- [ ] Animator field di ZombieMovement terisi (⚠️ PENTING!)
+- [ ] Animator parameters: isRunning (Bool), isAttack (Trigger)
+- [ ] Animator has states: Idle, Run, Attack
+- [ ] Transition: Any State → Attack (dengan isAttack trigger)
+- [ ] **Can Transition To Self = UNCHECKED** (⚠️ PENTING!)
+- [ ] Attack state Has Exit Time enabled
+- [ ] Attack → Idle transition Has Exit Time = 0.9-1.0
+
+---
+
+## 🎯 FINAL CHECK
+
+Run game dan cek Console untuk log:
+- "detected player! Start chasing..." → Zombie detect player ✅
+- "attacking player!" → Zombie nyoba attack ✅
+- "Triggering 'isAttack' animation!" → Animation trigger dipanggil ✅
+- "Player took X damage!" → Damage system jalan ✅
+
+Kalau semua log di atas muncul tapi animasi tetap tidak jalan:
+→ 100% masalahnya di "Can Transition To Self" atau "Has Exit Time"!
+
+---
+
+## 🚨 KESALAHAN UMUM DENGAN ANY STATE
+
+### ❌ SALAH:
+```
+Any State → Attack
+├─ Can Transition To Self: ☑ (CHECKED) ← INI MASALAHNYA!
+├─ Has Exit Time: ☑
+└─ Interruption Source: Next State
+```
+
+### ✅ BENAR:
+```
+Any State → Attack
+├─ Can Transition To Self: ☐ (UNCHECKED) ← HARUS SEPERTI INI!
+├─ Has Exit Time: ☐ (unchecked)
+├─ Transition Duration: 0
+└─ Interruption Source: None
+```
+
+---
+
+**Last Updated:** 2025
+**Author:** GitHub Copilot

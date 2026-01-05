@@ -1,0 +1,274 @@
+﻿# SETUP GUIDE - Player & Zombie GameObject
+## Dokumentasi Lengkap Komponen yang Dibutuhkan
+
+---
+
+## 🎮 PLAYER GAMEOBJECT SETUP
+
+### ✅ Required Components:
+
+#### 1. **Transform**
+- Position: (x, y, 0)
+- Rotation: (0, 0, 0)
+- Scale: (1, 1, 1) atau sesuai kebutuhan
+
+#### 2. **Sprite Renderer**
+- Sprite: Assign sprite karakter player
+- Order in Layer: 1 (atau lebih tinggi dari background)
+- Flip X/Y: Sesuaikan jika perlu
+
+#### 3. **Animator**
+- Controller: Assign Animator Controller player
+- Avatar: None (untuk 2D)
+- Apply Root Motion: ❌ (unchecked)
+
+   **Required Parameters di Animator Controller:**
+   - `isRunning` (Bool) - untuk animasi jalan
+   - `isHit` (Trigger) - untuk animasi terkena hit
+   - `isDead` (Trigger) - untuk animasi mati (optional)
+
+#### 4. **Collider 2D** (pilih salah satu)
+- **Box Collider 2D** atau **Capsule Collider 2D**
+- Is Trigger: ❌ (unchecked) - agar bisa bertabrakan dengan dinding
+- Size: Sesuaikan dengan ukuran sprite
+
+#### 5. **Rigidbody 2D** (OPTIONAL, tapi disarankan)
+- Body Type: Dynamic
+- Gravity Scale: 0 (untuk top-down game)
+- Constraints: Freeze Rotation Z ✅
+- Interpolate: Interpolate (untuk movement yang smooth)
+
+#### 6. **Scripts (C#)**
+- ✅ `PlayerMovement.cs`
+- ✅ `PlayerHealth.cs` (yang baru dibuat)
+
+#### 7. **Tag & Layer**
+- Tag: **"Player"** ⚠️ PENTING!
+- Layer: Default atau buat layer "Player"
+
+---
+
+## 🧟 ZOMBIE GAMEOBJECT SETUP
+
+### ✅ Required Components:
+
+#### 1. **Transform**
+- Position: (x, y, 0)
+- Rotation: (0, 0, 0)
+- Scale: (1, 1, 1) atau sesuai kebutuhan
+
+#### 2. **Sprite Renderer**
+- Sprite: Assign sprite karakter zombie
+- Order in Layer: 1 (sama dengan player)
+- Flip X/Y: Sesuaikan jika perlu
+
+#### 3. **Animator**
+- Controller: Assign Animator Controller zombie
+- Avatar: None (untuk 2D)
+- Apply Root Motion: ❌ (unchecked)
+
+   **Required Parameters di Animator Controller:**
+   - `isRunning` (Bool) - untuk animasi jalan/chase
+   - `isAttack` (Trigger) ⚠️ PENTING! - untuk animasi attack
+   
+   **Required States di Animator:**
+   - **Idle** (default state)
+   - **Run/Walk** (chase animation)
+   - **Attack** (attack animation)
+   
+   **Required Transitions:**
+   ```
+   Entry → Idle
+   Idle → Run (Condition: isRunning == true)
+   Run → Idle (Condition: isRunning == false)
+   Idle → Attack (Condition: isAttack trigger)
+   Run → Attack (Condition: isAttack trigger)
+   Attack → Idle (Has Exit Time ✅, Exit Time: 0.9-1.0)
+   ```
+
+#### 4. **Collider 2D** (pilih salah satu)
+- **Box Collider 2D** atau **Capsule Collider 2D**
+- Is Trigger: ❌ (unchecked) - agar bisa bertabrakan
+- Size: Sesuaikan dengan ukuran sprite
+
+#### 5. **Rigidbody 2D** (OPTIONAL, tapi disarankan)
+- Body Type: Dynamic
+- Gravity Scale: 0 (untuk top-down game)
+- Constraints: Freeze Rotation Z ✅
+- Interpolate: Interpolate
+
+#### 6. **Scripts (C#)**
+- ✅ `ZombieMovement.cs`
+- ✅ `ZombieAnimatorDebug.cs` (untuk testing - optional)
+
+#### 7. **Tag & Layer**
+- Tag: "Enemy" atau "Zombie" (optional)
+- Layer: Default atau buat layer "Enemy"
+
+---
+
+## 📋 INSPECTOR SETTINGS
+
+### Player - PlayerMovement Component:
+```
+Kecepatan: 5
+Sprite Renderer: [drag SpriteRenderer component]
+Animator: [drag Animator component]
+Use Diagonal Rotation: ✅ (checked)
+```
+
+### Player - PlayerHealth Component:
+```
+Max Health: 100
+Current Health: (auto-filled)
+Health Bar: [drag UI Slider if exists] (optional)
+Health Text: [drag UI Text if exists] (optional)
+Show Damage Log: ✅
+Sprite Renderer: [drag SpriteRenderer component]
+Damage Flash Color: Red (255, 0, 0, 255)
+Flash Duration: 0.1
+```
+
+### Zombie - ZombieMovement Component:
+```
+Kecepatan: 2
+Jarak Berhenti: 1.5
+Detection Range: 10
+Show Detection Radius: ✅
+Attack Range: 1.5
+Attack Cooldown: 1.5
+Attack Damage: 10
+Animator: [drag Animator component] ⚠️ WAJIB!
+```
+
+---
+
+## 🎬 ANIMATOR CONTROLLER SETUP
+
+### Player Animator Controller:
+
+#### Parameters:
+- `isRunning` → **Bool**
+- `isHit` → **Trigger**
+- `isDead` → **Trigger** (optional)
+
+#### States:
+1. **Idle** - animation idle player
+2. **Run** - animation jalan player
+3. **Hit** - animation terkena damage (optional)
+4. **Dead** - animation mati (optional)
+
+---
+
+### Zombie Animator Controller:
+
+#### Parameters:
+- `isRunning` → **Bool** ⚠️ WAJIB
+- `isAttack` → **Trigger** ⚠️ WAJIB (bukan Bool!)
+
+#### States & Transitions:
+```
+┌─────────┐
+│  Entry  │
+└────┬────┘
+     │
+     v
+┌─────────┐  isRunning = true   ┌──────┐
+│  Idle   │ ──────────────────> │ Run  │
+└─────────┘ <────────────────── └──────┘
+     │      isRunning = false       │
+     │                               │
+     │  isAttack (trigger)           │ isAttack (trigger)
+     │                               │
+     v                               v
+┌──────────────────────────────────────┐
+│            Attack                     │
+│  (Has Exit Time ✅)                   │
+│  (Exit Time: 0.9 - 1.0)              │
+└───────────────┬──────────────────────┘
+                │
+                │ (Auto return to Idle)
+                │
+                v
+           Back to Idle
+```
+
+**⚠️ PENTING untuk Attack State:**
+- ✅ Has Exit Time: **CHECKED**
+- Exit Time: **0.9** atau **1.0** (biar animasi selesai dulu)
+- Transition Duration: **0** atau **0.1** (biar cepat kembali ke Idle)
+
+---
+
+## 🔧 TROUBLESHOOTING
+
+### ❌ Animasi Attack Tidak Jalan?
+
+**Cek ini:**
+1. ✅ Animator component sudah di-assign di Inspector?
+2. ✅ Parameter `isAttack` ada di Animator Controller?
+3. ✅ Parameter `isAttack` tipenya **TRIGGER** (bukan Bool)?
+4. ✅ Ada transition dari Idle/Run → Attack dengan condition `isAttack`?
+5. ✅ Attack state ada animasi clip yang di-assign?
+6. ✅ Ada transition dari Attack → Idle dengan Has Exit Time?
+
+**Test Manual:**
+- Attach `ZombieAnimatorDebug.cs` ke zombie
+- Di Inspector, klik "Test Attack Animation"
+- Lihat apakah animasi jalan
+
+### ❌ Zombie Tidak Detect Player?
+
+**Cek ini:**
+1. ✅ Player punya Tag "Player"?
+2. ✅ Detection Range cukup besar? (coba 10 atau lebih)
+3. ✅ Zombie dan Player di Layer yang sama atau bisa saling detect?
+
+### ❌ Player Tidak Kena Damage?
+
+**Cek ini:**
+1. ✅ Player punya component `PlayerHealth.cs`?
+2. ✅ Attack Range cukup dekat dengan jarak zombie ke player?
+3. ✅ Lihat Console, ada warning "PlayerHealth component not found"?
+
+---
+
+## 📝 QUICK SETUP CHECKLIST
+
+### Player:
+- [ ] Sprite Renderer assigned
+- [ ] Animator assigned
+- [ ] Animator Controller assigned
+- [ ] Tag = "Player"
+- [ ] PlayerMovement.cs attached
+- [ ] PlayerHealth.cs attached
+- [ ] Animator parameters: isRunning (Bool), isHit (Trigger)
+
+### Zombie:
+- [ ] Sprite Renderer assigned
+- [ ] Animator assigned (⚠️ PENTING!)
+- [ ] Animator Controller assigned (⚠️ PENTING!)
+- [ ] ZombieMovement.cs attached
+- [ ] Animator field di ZombieMovement terisi (⚠️ PENTING!)
+- [ ] Animator parameters: isRunning (Bool), isAttack (Trigger)
+- [ ] Animator has states: Idle, Run, Attack
+- [ ] Transitions configured with isAttack trigger
+- [ ] Attack state Has Exit Time enabled
+
+---
+
+## 🎯 FINAL CHECK
+
+Run game dan cek Console untuk log:
+- "detected player! Start chasing..." → Zombie detect player ✅
+- "attacking player!" → Zombie nyoba attack ✅
+- "Triggering 'isAttack' animation!" → Animation trigger dipanggil ✅
+- "Player took X damage!" → Damage system jalan ✅
+
+Kalau semua log di atas muncul tapi animasi tetap tidak jalan:
+→ 100% masalahnya di Animator Controller setup!
+
+---
+
+**Last Updated:** 2025
+**Author:** GitHub Copilot

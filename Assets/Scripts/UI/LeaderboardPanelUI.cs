@@ -1,0 +1,337 @@
+using UnityEngine;
+using UnityEngine.UI;
+using TMPro;
+using System.Collections.Generic;
+
+public class LeaderboardPanelUI : MonoBehaviour
+{
+    [Header("Fixed Entry References")]
+    [SerializeField] private LeaderboardEntryUI[] entries = new LeaderboardEntryUI[10];
+    
+    [Header("Buttons")]
+    [SerializeField] private Button backButton;
+    [SerializeField] private Button clearButton;
+    
+    [Header("Delete Mode Settings")]
+    [SerializeField] private bool enableDeleteMode = true;
+    [SerializeField] private KeyCode deleteModifierKey = KeyCode.LeftShift;
+    [SerializeField] private KeyCode deleteActivationKey = KeyCode.D;
+    [SerializeField] private float deleteModeDuration = 10f; // Auto-hide setelah 10 detik
+    
+    [Header("Delete Mode UI")]
+    [SerializeField] private TextMeshProUGUI deleteModeText; // Optional: "DELETE MODE ACTIVE"
+    [SerializeField] private Color deleteModeColor = Color.red;
+    
+    [Header("Confirmation Dialog (Optional)")]
+    [SerializeField] private GameObject confirmDialog;
+    [SerializeField] private TextMeshProUGUI confirmText;
+    [SerializeField] private Button confirmYesButton;
+    [SerializeField] private Button confirmNoButton;
+    
+    private bool isDeleteModeActive = false;
+    private float deleteModeTimer = 0f;
+    private int pendingDeleteIndex = -1;
+    
+    [System.Serializable]
+    public class LeaderboardEntryUI
+    {
+        public TextMeshProUGUI rankText;
+        public TextMeshProUGUI nameText;
+        public TextMeshProUGUI scoreText;
+        public TextMeshProUGUI killsText;
+        public Button deleteButton;
+    }
+    
+    void Start()
+    {
+        if (backButton != null)
+            backButton.onClick.AddListener(OnBackButton);
+        
+        if (clearButton != null)
+        {
+            clearButton.onClick.AddListener(OnClearLeaderboard);
+            clearButton.gameObject.SetActive(false); // Hidden by default
+        }
+        
+        // Setup delete buttons
+        for (int i = 0; i < entries.Length; i++)
+        {
+            if (entries[i] != null && entries[i].deleteButton != null)
+            {
+                int index = i;
+                entries[i].deleteButton.onClick.AddListener(() => OnDeleteEntry(index));
+                entries[i].deleteButton.gameObject.SetActive(false); // Hidden by default
+            }
+        }
+        
+        // Setup confirmation dialog
+        if (confirmYesButton != null)
+            confirmYesButton.onClick.AddListener(OnConfirmDelete);
+        
+        if (confirmNoButton != null)
+            confirmNoButton.onClick.AddListener(OnCancelDelete);
+        
+        if (confirmDialog != null)
+            confirmDialog.SetActive(false);
+        
+        // Hide delete mode text
+        if (deleteModeText != null)
+            deleteModeText.gameObject.SetActive(false);
+    }
+    
+    void OnEnable()
+    {
+        // Reset delete mode saat panel dibuka
+        DeactivateDeleteMode();
+        RefreshLeaderboard();
+    }
+    
+    void OnDisable()
+    {
+        // Pastikan delete mode off saat panel ditutup
+        DeactivateDeleteMode();
+    }
+    
+    void Update()
+    {
+        // Cek input untuk aktivasi delete mode: Shift + D
+        if (enableDeleteMode && Input.GetKey(deleteModifierKey) && Input.GetKeyDown(deleteActivationKey))
+        {
+            if (isDeleteModeActive)
+            {
+                DeactivateDeleteMode();
+            }
+            else
+            {
+                ActivateDeleteMode();
+            }
+        }
+        
+        // Timer untuk auto-deactivate delete mode
+        if (isDeleteModeActive)
+        {
+            deleteModeTimer -= Time.unscaledDeltaTime; // unscaled karena mungkin Time.timeScale = 0
+            
+            if (deleteModeTimer <= 0f)
+            {
+                DeactivateDeleteMode();
+            }
+            
+            // Update countdown text
+            if (deleteModeText != null && deleteModeText.gameObject.activeSelf)
+            {
+                deleteModeText.text = $"DELETE MODE ({Mathf.CeilToInt(deleteModeTimer)}s)\nPress Shift+D to exit";
+            }
+        }
+    }
+    
+    private void ActivateDeleteMode()
+    {
+        isDeleteModeActive = true;
+        deleteModeTimer = deleteModeDuration;
+        
+        Debug.Log("[LeaderboardPanelUI] DELETE MODE ACTIVATED!");
+        
+        // Show delete buttons
+        ShowDeleteButtons(true);
+        
+        // Show clear button
+        if (clearButton != null)
+            clearButton.gameObject.SetActive(true);
+        
+        // Show delete mode indicator
+        if (deleteModeText != null)
+        {
+            deleteModeText.gameObject.SetActive(true);
+            deleteModeText.text = $"DELETE MODE ({Mathf.CeilToInt(deleteModeTimer)}s)\nPress Shift+D to exit";
+            deleteModeText.color = deleteModeColor;
+        }
+    }
+    
+    private void DeactivateDeleteMode()
+    {
+        isDeleteModeActive = false;
+        deleteModeTimer = 0f;
+        
+        Debug.Log("[LeaderboardPanelUI] Delete mode deactivated");
+        
+        // Hide delete buttons
+        ShowDeleteButtons(false);
+        
+        // Hide clear button
+        if (clearButton != null)
+            clearButton.gameObject.SetActive(false);
+        
+        // Hide delete mode indicator
+        if (deleteModeText != null)
+            deleteModeText.gameObject.SetActive(false);
+        
+        // Close confirmation dialog if open
+        if (confirmDialog != null)
+            confirmDialog.SetActive(false);
+        
+        pendingDeleteIndex = -1;
+    }
+    
+    private void ShowDeleteButtons(bool show)
+    {
+        if (LeaderboardManager.Instance == null) return;
+        
+        var leaderboardEntries = LeaderboardManager.Instance.GetTopEntries(entries.Length);
+        
+        for (int i = 0; i < entries.Length; i++)
+        {
+            if (entries[i] != null && entries[i].deleteButton != null)
+            {
+                // Hanya tampilkan jika ada data dan delete mode aktif
+                bool hasData = i < leaderboardEntries.Count;
+                entries[i].deleteButton.gameObject.SetActive(show && hasData);
+            }
+        }
+    }
+    
+    public void RefreshLeaderboard()
+    {
+        List<LeaderboardEntry> leaderboardEntries = new List<LeaderboardEntry>();
+        
+        if (LeaderboardManager.Instance != null)
+        {
+            int maxEntries = CountAssignedEntries();
+            leaderboardEntries = LeaderboardManager.Instance.GetTopEntries(maxEntries);
+        }
+        
+        int entryIndex = 0;
+        for (int i = 0; i < entries.Length; i++)
+        {
+            var entry = entries[i];
+            
+            if (entry == null || entry.nameText == null || entry.scoreText == null)
+                continue;
+            
+            if (entryIndex < leaderboardEntries.Count)
+            {
+                LeaderboardEntry data = leaderboardEntries[entryIndex];
+                UpdateEntry(entry, entryIndex + 1, data.playerName, data.score, data.kills, true);
+            }
+            else
+            {
+                UpdateEntry(entry, entryIndex + 1, "---", 0, 0, false);
+            }
+            
+            entryIndex++;
+        }
+        
+        // Update delete buttons visibility based on current mode
+        ShowDeleteButtons(isDeleteModeActive);
+    }
+    
+    private void UpdateEntry(LeaderboardEntryUI entry, int rank, string playerName, int score, int kills, bool hasData)
+    {
+        if (entry.rankText != null)
+            entry.rankText.text = $"#{rank}";
+        
+        if (entry.nameText != null)
+            entry.nameText.text = playerName;
+        
+        if (entry.scoreText != null)
+            entry.scoreText.text = hasData ? score.ToString() : "---";
+        
+        if (entry.killsText != null)
+            entry.killsText.text = hasData ? kills.ToString() : "---";
+    }
+    
+    private int CountAssignedEntries()
+    {
+        int count = 0;
+        foreach (var entry in entries)
+        {
+            if (entry != null && entry.nameText != null && entry.scoreText != null)
+                count++;
+        }
+        return count;
+    }
+    
+    private void OnDeleteEntry(int index)
+    {
+        if (!isDeleteModeActive) return; // Safety check
+        
+        pendingDeleteIndex = index;
+        
+        if (confirmDialog != null)
+        {
+            if (confirmText != null && entries[index] != null && entries[index].nameText != null)
+            {
+                confirmText.text = $"Delete entry:\n\"{entries[index].nameText.text}\"?";
+            }
+            confirmDialog.SetActive(true);
+        }
+        else
+        {
+            ConfirmDeleteEntry(index);
+        }
+    }
+    
+    private void OnConfirmDelete()
+    {
+        if (pendingDeleteIndex >= 0)
+        {
+            ConfirmDeleteEntry(pendingDeleteIndex);
+        }
+        
+        if (confirmDialog != null)
+            confirmDialog.SetActive(false);
+        
+        pendingDeleteIndex = -1;
+    }
+    
+    private void OnCancelDelete()
+    {
+        pendingDeleteIndex = -1;
+        
+        if (confirmDialog != null)
+            confirmDialog.SetActive(false);
+    }
+    
+    private void ConfirmDeleteEntry(int index)
+    {
+        if (LeaderboardManager.Instance != null)
+        {
+            bool deleted = LeaderboardManager.Instance.DeleteEntry(index);
+            
+            if (deleted)
+            {
+                Debug.Log($"[LeaderboardPanelUI] Entry #{index + 1} deleted");
+                RefreshLeaderboard();
+            }
+        }
+    }
+    
+    private void OnClearLeaderboard()
+    {
+        if (!isDeleteModeActive) return; // Safety check
+        
+        if (LeaderboardManager.Instance != null)
+        {
+            LeaderboardManager.Instance.ClearLeaderboard();
+            RefreshLeaderboard();
+            DeactivateDeleteMode(); // Keluar dari delete mode setelah clear
+        }
+    }
+    
+    private void OnBackButton()
+    {
+        DeactivateDeleteMode(); // Pastikan delete mode off
+        
+        MainMenuManager menuManager = FindFirstObjectByType<MainMenuManager>();
+        if (menuManager != null)
+        {
+            menuManager.ShowMainMenu();
+        }
+    }
+    
+    [ContextMenu("Refresh Leaderboard Now")]
+    public void ManualRefresh()
+    {
+        RefreshLeaderboard();
+    }
+}

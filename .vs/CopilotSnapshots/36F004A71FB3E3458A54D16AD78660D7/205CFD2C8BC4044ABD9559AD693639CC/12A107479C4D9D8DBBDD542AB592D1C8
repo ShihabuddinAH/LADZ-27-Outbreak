@@ -1,0 +1,557 @@
+﻿using UnityEngine;
+using System; // Tambah ini untuk Action/Events
+
+public class WeaponController : MonoBehaviour
+{
+    // NEW: Events untuk UI updates
+    public event Action<WeaponType, int> OnMagazineChanged; // WeaponType, newMagazineCount
+    public event Action<WeaponData> OnWeaponSwitched; // WeaponData
+    public event Action<int> OnCurrentAmmoChanged; // currentAmmo
+    
+    [Header("Current Weapon")]
+    [SerializeField] private WeaponData currentWeapon;
+    
+    [Header("Components")]
+    [SerializeField] private Animator animator;
+    [SerializeField] private Transform firePoint; // Titik tembak (optional, untuk visual effect)
+    [SerializeField] private LayerMask bulletHitLayers; // Layer yang bisa di-hit bullet (Enemy, Wall, dll)
+    
+    [Header("Bullet System")]
+    [SerializeField] private GameObject bulletPrefab; // Prefab bullet universal untuk semua weapon
+    [SerializeField] private bool usePhysicalBullets = true; // True = spawn bullet, False = raycast only
+    
+    [Header("Muzzle Flash System")]
+    [SerializeField] private GameObject handgunMuzzleFlash; // Muzzle flash untuk Handgun
+    [SerializeField] private GameObject rifleMuzzleFlash; // Muzzle flash untuk Rifle
+    [SerializeField] private GameObject shotgunMuzzleFlash; // Muzzle flash untuk Shotgun
+    
+    [Header("Weapon Inventory")]
+    [SerializeField] private WeaponData handgunData;
+    [SerializeField] private WeaponData rifleData;
+    [SerializeField] private WeaponData shotgunData;
+    
+    [Header("Ammo System")]
+    [SerializeField] private int currentAmmo;
+    [SerializeField] private bool hasRifle = false;
+    [SerializeField] private bool hasShotgun = false;
+    
+    [Header("Magazine System - NEW")]
+    [SerializeField] private bool infiniteAmmo = false; // Toggle untuk unlimited ammo (cheat/debug)
+    [SerializeField] private int handgunMagazines = 0; // Jumlah MAGAZINE untuk handgun (bukan peluru)
+    [SerializeField] private int rifleMagazines = 0; // Jumlah MAGAZINE untuk rifle
+    [SerializeField] private int shotgunMagazines = 0; // Jumlah MAGAZINE untuk shotgun
+    [SerializeField] private int maxMagazines = 99; // Max magazine per weapon type
+    
+    private float lastFireTime = -999f;
+    private bool isReloading = false;
+    
+    void Start()
+    {
+        // Default weapon: Handgun
+        if (currentWeapon == null && handgunData != null)
+        {
+            currentWeapon = handgunData;
+        }
+        
+        if (currentWeapon != null)
+        {
+            currentAmmo = currentWeapon.magazineSize;
+            
+            // Set WeaponType parameter di animator saat start
+            if (animator != null)
+            {
+                // Set initial weapon type dengan INT parameter
+                UpdateAnimatorWeaponType();
+            }
+        }
+    }
+    
+    void Update()
+    {
+        HandleWeaponInput();
+        HandleWeaponSwitch();
+    }
+    
+    private void HandleWeaponInput()
+    {
+        if (currentWeapon == null || isReloading)
+        {
+            return;
+        }
+        
+        // Check fire input
+        bool fireInput = currentWeapon.isAutomatic 
+            ? Input.GetButton("Fire1") // Hold untuk automatic
+            : Input.GetButtonDown("Fire1"); // Click untuk semi-auto
+        
+        // Alternative: pakai key tertentu
+        // fireInput = Input.GetKeyDown(KeyCode.Space);
+        
+        if (fireInput && CanFire())
+        {
+            Fire();
+        }
+        
+        // Reload
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            Reload();
+        }
+    }
+    
+    private void HandleWeaponSwitch()
+    {
+        // Switch weapon dengan number keys
+        if (Input.GetKeyDown(KeyCode.Alpha1) && handgunData != null)
+        {
+            SwitchWeapon(handgunData);
+        }
+        else if (Input.GetKeyDown(KeyCode.Alpha2) && hasRifle && rifleData != null)
+        {
+            SwitchWeapon(rifleData);
+        }
+        else if (Input.GetKeyDown(KeyCode.Alpha3) && hasShotgun && shotgunData != null)
+        {
+            SwitchWeapon(shotgunData);
+        }
+    }
+    
+    private bool CanFire()
+    {
+        return currentAmmo > 0 && Time.time >= lastFireTime + currentWeapon.fireRate;
+    }
+    
+    private void Fire()
+    {
+        lastFireTime = Time.time;
+        currentAmmo--;
+        
+        // NEW: Trigger event untuk UI update
+        OnCurrentAmmoChanged?.Invoke(currentAmmo);
+        
+        // Trigger animation berdasarkan weapon type
+        if (animator != null)
+        {
+            animator.SetTrigger(currentWeapon.shootAnimationTrigger);
+        }
+        
+        // Shoot bullets (shotgun bisa multiple bullets)
+        // Jika shotgun (multiple bullets), gunakan coroutine untuk slight delay
+        if (currentWeapon.bulletsPerShot > 1)
+        {
+            StartCoroutine(FireMultipleBullets());
+        }
+        else
+        {
+            // Single bullet, langsung spawn
+            ShootBullet(0);
+        }
+        
+        // Auto reload jika ammo habis
+        if (currentAmmo <= 0)
+        {
+            Reload();
+        }
+        
+        // NEW: Notify current ammo changed
+        OnCurrentAmmoChanged?.Invoke(currentAmmo);
+    }
+    
+    private System.Collections.IEnumerator FireMultipleBullets()
+    {
+        for (int i = 0; i < currentWeapon.bulletsPerShot; i++)
+        {
+            ShootBullet(i);
+            
+            // PENTING: Tiny delay antara bullets untuk avoid instantiation conflict
+            // Delay sangat kecil (0.01s = 10ms) sehingga tidak terasa oleh player
+            if (i < currentWeapon.bulletsPerShot - 1) // Skip delay di bullet terakhir
+            {
+                yield return new WaitForSeconds(0.01f);
+            }
+        }
+    }
+    
+    private void ShootBullet(int bulletIndex)
+    {
+        // Hitung arah tembakan (menghadapi mouse atau arah player)
+        Vector2 shootDirection = GetShootDirection();
+        
+        // Tambahkan spread untuk shotgun
+        if (currentWeapon.bulletsPerShot > 1)
+        {
+            float spreadOffset = UnityEngine.Random.Range(-currentWeapon.spreadAngle, currentWeapon.spreadAngle);
+            shootDirection = Quaternion.Euler(0, 0, spreadOffset) * shootDirection;
+        }
+        
+        // Tentukan spawn position (gunakan firePoint jika ada, jika tidak pakai transform.position)
+        Vector3 spawnPosition = firePoint != null ? firePoint.position : transform.position;
+        
+        // TAMBAHAN: Untuk shotgun, vary spawn position slightly untuk avoid overlap
+        if (currentWeapon.bulletsPerShot > 1)
+        {
+            // Offset kecil random untuk setiap bullet
+            Vector2 randomOffset = UnityEngine.Random.insideUnitCircle * 0.1f;
+            spawnPosition += new Vector3(randomOffset.x, randomOffset.y, 0);
+        }
+        
+        // Spawn muzzle flash berdasarkan weapon type (hanya spawn 1x per Fire(), bukan per bullet untuk shotgun)
+        if (bulletIndex == 0)
+        {
+            GameObject flashPrefab = GetMuzzleFlashPrefab();
+            
+            if (flashPrefab != null)
+            {
+                // Untuk muzzle flash, gunakan firePoint position original (tanpa offset)
+                Vector3 flashPosition = firePoint != null ? firePoint.position : transform.position;
+                GameObject muzzleFlash = Instantiate(flashPrefab, flashPosition, Quaternion.identity);
+                
+                if (muzzleFlash != null)
+                {
+                    // Rotate muzzle flash ke arah tembakan
+                    float angle = Mathf.Atan2(shootDirection.y, shootDirection.x) * Mathf.Rad2Deg;
+                    muzzleFlash.transform.rotation = Quaternion.Euler(0, 0, angle);
+                    
+                    Destroy(muzzleFlash, 0.2f);
+                }
+            }
+        }
+        
+        // OPSI 1: Gunakan Physical Bullet Prefab
+        if (usePhysicalBullets && bulletPrefab != null)
+        {
+            // Spawn bullet prefab
+            GameObject bulletObj = Instantiate(bulletPrefab, spawnPosition, Quaternion.identity);
+            
+            if (bulletObj != null)
+            {
+                // Initialize IMMEDIATELY setelah instantiate
+                Bullet bullet = bulletObj.GetComponent<Bullet>();
+                if (bullet != null)
+                {
+                    // UPDATED: Pass weapon range untuk calculate bullet lifetime
+                    bullet.Initialize(shootDirection, currentWeapon.damage, bulletHitLayers, currentWeapon.range);
+                }
+                else
+                {
+                    // Cleanup jika bullet component tidak ada
+                    Destroy(bulletObj);
+                }
+            }
+        }
+        // OPSI 2: Gunakan Raycast (instant hit, no bullet travel)
+        else
+        {
+            RaycastHit2D hit = Physics2D.Raycast(spawnPosition, shootDirection, currentWeapon.range, bulletHitLayers);
+            
+            if (hit.collider != null)
+            {
+                // Debug visual (optional)
+                Debug.DrawLine(spawnPosition, hit.point, Color.red, 0.1f);
+                
+                // Cek apakah kena zombie
+                if (hit.collider.CompareTag("Enemy"))
+                {
+                    ZombieHealth zombieHealth = hit.collider.GetComponent<ZombieHealth>();
+                    if (zombieHealth != null)
+                    {
+                        zombieHealth.TakeDamage(currentWeapon.damage);
+                    }
+                }
+            }
+            else
+            {
+                // Debug visual untuk shot yang tidak kena target
+                Debug.DrawLine(spawnPosition, spawnPosition + (Vector3)shootDirection * currentWeapon.range, Color.yellow, 0.1f);
+            }
+        }
+    }
+    
+    private GameObject GetMuzzleFlashPrefab()
+    {
+        if (currentWeapon == null)
+        {
+            return null;
+        }
+        
+        // Return muzzle flash berdasarkan weapon type
+        switch (currentWeapon.weaponType)
+        {
+            case WeaponType.Handgun:
+                return handgunMuzzleFlash;
+            case WeaponType.Rifle:
+                return rifleMuzzleFlash;
+            case WeaponType.Shotgun:
+                return shotgunMuzzleFlash;
+            default:
+                return null;
+        }
+    }
+    
+    private Vector2 GetShootDirection()
+    {
+        // Karena player sekarang sudah rotate ke arah mouse,
+        // kita bisa langsung pakai transform.right sebagai shoot direction
+        // transform.right = arah kanan dari rotasi player (arah sprite menghadap)
+        Vector2 direction = transform.right;
+        
+        // ALTERNATIF: Tetap pakai mouse position (lebih akurat)
+        // Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        // Vector2 direction = (mousePos - transform.position).normalized;
+        
+        return direction;
+    }
+    
+    private void Reload()
+    {
+        if (isReloading || currentAmmo == currentWeapon.magazineSize)
+        {
+            return;
+        }
+        
+        // NEW: Cek apakah punya magazine (kecuali infinite ammo mode)
+        if (!infiniteAmmo && GetMagazineCount() <= 0)
+        {
+            Debug.Log("No magazines available!");
+            return;
+        }
+        
+        StartCoroutine(ReloadCoroutine());
+    }
+    
+    private System.Collections.IEnumerator ReloadCoroutine()
+    {
+        isReloading = true;
+        
+        // Trigger reload animation (optional)
+        if (animator != null)
+        {
+            animator.SetTrigger("Reload");
+        }
+        
+        yield return new WaitForSeconds(currentWeapon.reloadTime);
+        
+        // NEW: Magazine-based reload
+        if (infiniteAmmo)
+        {
+            // Infinite mode: langsung full
+            currentAmmo = currentWeapon.magazineSize;
+        }
+        else
+        {
+            // Normal mode: pakai 1 magazine
+            int magazineCount = GetMagazineCount();
+            
+            if (magazineCount > 0)
+            {
+                // Reload full magazine
+                currentAmmo = currentWeapon.magazineSize;
+                
+                // Kurangi 1 magazine
+                switch (currentWeapon.weaponType)
+                {
+                    case WeaponType.Handgun:
+                        handgunMagazines--;
+                        Debug.Log($"Reloaded Handgun. Magazines left: {handgunMagazines}");
+                        OnMagazineChanged?.Invoke(WeaponType.Handgun, handgunMagazines); // NEW: Trigger event
+                        break;
+                    case WeaponType.Rifle:
+                        rifleMagazines--;
+                        Debug.Log($"Reloaded Rifle. Magazines left: {rifleMagazines}");
+                        OnMagazineChanged?.Invoke(WeaponType.Rifle, rifleMagazines); // NEW: Trigger event
+                        break;
+                    case WeaponType.Shotgun:
+                        shotgunMagazines--;
+                        Debug.Log($"Reloaded Shotgun. Magazines left: {shotgunMagazines}");
+                        OnMagazineChanged?.Invoke(WeaponType.Shotgun, shotgunMagazines); // NEW: Trigger event
+                        break;
+                }
+                
+                // NEW: Trigger current ammo event
+                OnCurrentAmmoChanged?.Invoke(currentAmmo);
+            }
+            else
+            {
+                Debug.Log("No magazines to reload!");
+            }
+        }
+        
+        isReloading = false;
+    }
+    
+    public void SwitchWeapon(WeaponData newWeapon)
+    {
+        if (newWeapon == null || newWeapon == currentWeapon)
+        {
+            return;
+        }
+        
+        currentWeapon = newWeapon;
+        currentAmmo = currentWeapon.magazineSize;
+        isReloading = false;
+        
+        // Update animator
+        UpdateAnimatorWeaponType();
+        
+        // Debug log
+        Debug.Log($"Switched to {currentWeapon.weaponName} (WeaponType: {(int)currentWeapon.weaponType})");
+        
+        // NEW: Trigger events
+        OnWeaponSwitched?.Invoke(currentWeapon);
+        OnCurrentAmmoChanged?.Invoke(currentAmmo);
+    }
+    
+    private void UpdateAnimatorWeaponType()
+    {
+        if (animator == null || currentWeapon == null)
+        {
+            return;
+        }
+        
+        // Set WeaponType sebagai INTEGER (bukan float lagi)
+        int weaponTypeValue = (int)currentWeapon.weaponType;
+        animator.SetInteger("WeaponType", weaponTypeValue);
+        
+        // Debug log untuk memastikan nilai ter-set
+        Debug.Log($"Updated Animator WeaponType to: {weaponTypeValue} ({currentWeapon.weaponName})");
+    }
+    
+    // Method untuk unlock weapon (dipanggil saat loot)
+    public void UnlockRifle()
+    {
+        hasRifle = true;
+        SwitchWeapon(rifleData);
+    }
+    
+    public void UnlockShotgun()
+    {
+        hasShotgun = true;
+        SwitchWeapon(shotgunData);
+    }
+    
+    // NEW: Method untuk add magazine (dipanggil dari ItemPickup)
+    public void AddMagazine(WeaponType weaponType, int magazineCount = 1)
+    {
+        switch (weaponType)
+        {
+            case WeaponType.Handgun:
+                handgunMagazines = Mathf.Min(handgunMagazines + magazineCount, maxMagazines);
+                Debug.Log($"Added {magazineCount} Handgun magazine(s). Total: {handgunMagazines}");
+                OnMagazineChanged?.Invoke(WeaponType.Handgun, handgunMagazines); // NEW: Trigger event
+                break;
+            case WeaponType.Rifle:
+                rifleMagazines = Mathf.Min(rifleMagazines + magazineCount, maxMagazines);
+                Debug.Log($"Added {magazineCount} Rifle magazine(s). Total: {rifleMagazines}");
+                OnMagazineChanged?.Invoke(WeaponType.Rifle, rifleMagazines); // NEW: Trigger event
+                break;
+            case WeaponType.Shotgun:
+                shotgunMagazines = Mathf.Min(shotgunMagazines + magazineCount, maxMagazines);
+                Debug.Log($"Added {magazineCount} Shotgun magazine(s). Total: {shotgunMagazines}");
+                OnMagazineChanged?.Invoke(WeaponType.Shotgun, shotgunMagazines); // NEW: Trigger event
+                break;
+        }
+        
+        // Force UI update
+        if (InventoryUI.Instance != null)
+        {
+            InventoryUI.Instance.ForceUpdateUI();
+        }
+    }
+    
+    // DEPRECATED: Old AddAmmo method (keep for compatibility but redirect to AddMagazine)
+    public void AddAmmo(WeaponType weaponType, int amount)
+    {
+        // Convert bullet count to magazine count
+        // This is for backward compatibility with ItemPickup
+        WeaponData weaponData = GetWeaponData(weaponType);
+        if (weaponData != null)
+        {
+            int magazineCount = Mathf.CeilToInt((float)amount / weaponData.magazineSize);
+            AddMagazine(weaponType, magazineCount);
+        }
+    }
+    
+    private WeaponData GetWeaponData(WeaponType weaponType)
+    {
+        switch (weaponType)
+        {
+            case WeaponType.Handgun:
+                return handgunData;
+            case WeaponType.Rifle:
+                return rifleData;
+            case WeaponType.Shotgun:
+                return shotgunData;
+            default:
+                return null;
+        }
+    }
+    
+    // Getters
+    public WeaponData GetCurrentWeapon()
+    {
+        return currentWeapon;
+    }
+    
+    public int GetCurrentAmmo()
+    {
+        return currentAmmo;
+    }
+    
+    public bool IsReloading()
+    {
+        return isReloading;
+    }
+    
+    // NEW: Get magazine count untuk current weapon
+    public int GetMagazineCount()
+    {
+        if (currentWeapon == null)
+        {
+            return 0;
+        }
+        
+        return GetMagazineCountForType(currentWeapon.weaponType);
+    }
+    
+    // NEW: Get magazine count untuk specific weapon type (untuk UI)
+    public int GetMagazineCountForType(WeaponType weaponType)
+    {
+        switch (weaponType)
+        {
+            case WeaponType.Handgun:
+                return handgunMagazines;
+            case WeaponType.Rifle:
+                return rifleMagazines;
+            case WeaponType.Shotgun:
+                return shotgunMagazines;
+            default:
+                return 0;
+        }
+    }
+    
+    // DEPRECATED: Keep old methods for compatibility
+    public int GetReserveAmmo()
+    {
+        // Return peluru count (magazine * magazineSize)
+        if (currentWeapon == null)
+        {
+            return 0;
+        }
+        
+        int magazineCount = GetMagazineCount();
+        return magazineCount * currentWeapon.magazineSize;
+    }
+    
+    public int GetReserveAmmoForType(WeaponType weaponType)
+    {
+        // Return peluru count (magazine * magazineSize)
+        WeaponData weaponData = GetWeaponData(weaponType);
+        if (weaponData == null)
+        {
+            return 0;
+        }
+        
+        int magazineCount = GetMagazineCountForType(weaponType);
+        return magazineCount * weaponData.magazineSize;
+    }
+}

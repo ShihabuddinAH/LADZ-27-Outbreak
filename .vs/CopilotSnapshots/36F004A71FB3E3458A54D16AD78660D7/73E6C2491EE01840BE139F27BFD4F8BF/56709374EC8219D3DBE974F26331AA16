@@ -1,0 +1,276 @@
+﻿using UnityEngine;
+using UnityEngine.UI;
+using TMPro;
+
+/// <summary>
+/// EMERGENCY DIAGNOSTIC - Run ini untuk find EXACT problem!
+/// Attach ke GameObject manapun, lalu Right Click ? Emergency Check
+/// </summary>
+public class EmergencyPanelCheck : MonoBehaviour
+{
+    [ContextMenu("?? EMERGENCY: Check Input Panel NOW!")]
+    public void EmergencyCheck()
+    {
+        Debug.Log("===========================================");
+        Debug.Log("?? EMERGENCY DIAGNOSTIC - INPUT PANEL");
+        Debug.Log("===========================================\n");
+        
+        bool foundIssue = false;
+        
+        // === STEP 1: Find GameOverPanel ===
+        Debug.Log("STEP 1: Searching for GameOverPanel...");
+        
+        GameOverPanel gameOverPanel = FindObjectOfType<GameOverPanel>(true); // Include inactive
+        
+        if (gameOverPanel == null)
+        {
+            Debug.LogError("? CRITICAL: GameOverPanel script NOT FOUND!");
+            Debug.LogError("   FIX: Find your GameOverPanel GameObject and attach GameOverPanel.cs script");
+            foundIssue = true;
+        }
+        else
+        {
+            Debug.Log($"? GameOverPanel found on: {gameOverPanel.gameObject.name}");
+            
+            // === STEP 2: Check if panel active ===
+            if (!gameOverPanel.gameObject.activeInHierarchy)
+            {
+                Debug.LogWarning("?? GameOverPanel GameObject is INACTIVE");
+                Debug.LogWarning("   This is OK if not in game over state yet");
+            }
+        }
+        
+        // === STEP 3: Find NameInputPanel in scene ===
+        Debug.Log("\nSTEP 2: Searching for NameInputPanel GameObject...");
+        
+        GameObject[] allObjects = Resources.FindObjectsOfTypeAll<GameObject>();
+        GameObject nameInputPanel = null;
+        
+        foreach (var obj in allObjects)
+        {
+            if (obj.name == "NameInputPanel" || obj.name.Contains("InputPanel") || obj.name.Contains("Input"))
+            {
+                Debug.Log($"   Found: {obj.name} (Parent: {(obj.transform.parent ? obj.transform.parent.name : "None")})");
+                
+                if (obj.name == "NameInputPanel")
+                {
+                    nameInputPanel = obj;
+                }
+            }
+        }
+        
+        if (nameInputPanel == null)
+        {
+            Debug.LogError("? CRITICAL: NameInputPanel GameObject NOT FOUND in scene!");
+            Debug.LogError("   FIX: Create NameInputPanel under GameOverPanel");
+            Debug.LogError("   Right Click GameOverPanel ? UI ? Panel ? Rename to 'NameInputPanel'");
+            foundIssue = true;
+        }
+        else
+        {
+            Debug.Log($"? NameInputPanel found: {nameInputPanel.name}");
+            Debug.Log($"   Parent: {(nameInputPanel.transform.parent ? nameInputPanel.transform.parent.name : "ROOT")}");
+            Debug.Log($"   Active Self: {nameInputPanel.activeSelf}");
+            Debug.Log($"   Active in Hierarchy: {nameInputPanel.activeInHierarchy}");
+            
+            // Check children
+            Debug.Log($"   Children count: {nameInputPanel.transform.childCount}");
+            
+            if (nameInputPanel.transform.childCount == 0)
+            {
+                Debug.LogWarning("?? NameInputPanel has NO children!");
+                Debug.LogWarning("   Should have: NameInput (InputField), SubmitButton, RankText");
+            }
+            else
+            {
+                Debug.Log("   Children:");
+                for (int i = 0; i < nameInputPanel.transform.childCount; i++)
+                {
+                    var child = nameInputPanel.transform.GetChild(i);
+                    Debug.Log($"     - {child.name} ({child.GetComponent<Component>()?.GetType().Name})");
+                }
+            }
+        }
+        
+        // === STEP 4: Check references via reflection ===
+        if (gameOverPanel != null)
+        {
+            Debug.Log("\nSTEP 3: Checking GameOverPanel references...");
+            
+            var type = typeof(GameOverPanel);
+            var flags = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance;
+            
+            // Check nameInputPanel field
+            var nameInputPanelField = type.GetField("nameInputPanel", flags);
+            if (nameInputPanelField != null)
+            {
+                GameObject assignedPanel = nameInputPanelField.GetValue(gameOverPanel) as GameObject;
+                
+                if (assignedPanel == null)
+                {
+                    Debug.LogError("? CRITICAL: Name Input Panel reference is NULL!");
+                    Debug.LogError("   FIX: Select GameOverPanel ? Inspector ? Drag NameInputPanel to 'Name Input Panel' field");
+                    foundIssue = true;
+                }
+                else
+                {
+                    Debug.Log($"? Name Input Panel assigned: {assignedPanel.name}");
+                }
+            }
+            
+            // Check alwaysShowInput
+            var alwaysShowField = type.GetField("alwaysShowInput", flags);
+            if (alwaysShowField != null)
+            {
+                bool alwaysShow = (bool)alwaysShowField.GetValue(gameOverPanel);
+                
+                if (alwaysShow)
+                {
+                    Debug.Log("? Always Show Input: ENABLED (good!)");
+                }
+                else
+                {
+                    Debug.LogError("? CRITICAL: Always Show Input is DISABLED!");
+                    Debug.LogError("   FIX: Select GameOverPanel ? Inspector ? Settings ? Check 'Always Show Input'");
+                    foundIssue = true;
+                }
+            }
+            
+            // Check other fields
+            var nameInputField = type.GetField("nameInput", flags);
+            if (nameInputField != null)
+            {
+                TMP_InputField input = nameInputField.GetValue(gameOverPanel) as TMP_InputField;
+                if (input == null)
+                {
+                    Debug.LogWarning("?? Name Input (InputField) reference is NULL!");
+                    Debug.LogWarning("   FIX: Assign NameInput InputField component");
+                }
+                else
+                {
+                    Debug.Log($"? Name Input assigned: {input.name}");
+                }
+            }
+            
+            var submitButtonField = type.GetField("submitButton", flags);
+            if (submitButtonField != null)
+            {
+                Button button = submitButtonField.GetValue(gameOverPanel) as Button;
+                if (button == null)
+                {
+                    Debug.LogWarning("?? Submit Button reference is NULL!");
+                }
+                else
+                {
+                    Debug.Log($"? Submit Button assigned: {button.name}");
+                }
+            }
+        }
+        
+        // === STEP 5: Check Managers ===
+        Debug.Log("\nSTEP 4: Checking Managers...");
+        
+        if (LeaderboardManager.Instance == null)
+        {
+            Debug.LogWarning("?? LeaderboardManager.Instance is NULL");
+            Debug.LogWarning("   Panel might still show, but won't save data");
+            Debug.LogWarning("   FIX: Create Empty GameObject ? Add LeaderboardManager component");
+        }
+        else
+        {
+            Debug.Log("? LeaderboardManager exists");
+        }
+        
+        if (GameStats.Instance == null)
+        {
+            Debug.LogWarning("?? GameStats.Instance is NULL");
+            Debug.LogWarning("   Panel won't show stats correctly");
+            Debug.LogWarning("   FIX: Create Empty GameObject ? Add GameStats component");
+        }
+        else
+        {
+            Debug.Log("? GameStats exists");
+        }
+        
+        // === FINAL REPORT ===
+        Debug.Log("\n===========================================");
+        
+        if (!foundIssue)
+        {
+            Debug.Log("? NO CRITICAL ISSUES FOUND!");
+            Debug.Log("If panel still doesn't show:");
+            Debug.Log("1. Make sure GameOverPanel GameObject is ACTIVE when game over");
+            Debug.Log("2. Check Console for 'Name input panel shown!' message");
+            Debug.Log("3. Try running 'Force Show Panel' test below");
+        }
+        else
+        {
+            Debug.LogError("? CRITICAL ISSUES FOUND! Fix errors above!");
+        }
+        
+        Debug.Log("===========================================\n");
+    }
+    
+    [ContextMenu("?? FORCE SHOW PANEL (Testing)")]
+    public void ForceShowPanel()
+    {
+        Debug.Log("?? Attempting to FORCE show input panel...");
+        
+        // Find NameInputPanel
+        GameObject[] allObjects = Resources.FindObjectsOfTypeAll<GameObject>();
+        GameObject nameInputPanel = null;
+        
+        foreach (var obj in allObjects)
+        {
+            if (obj.name == "NameInputPanel")
+            {
+                nameInputPanel = obj;
+                break;
+            }
+        }
+        
+        if (nameInputPanel != null)
+        {
+            nameInputPanel.SetActive(true);
+            Debug.Log($"? FORCED NameInputPanel to ACTIVE: {nameInputPanel.name}");
+            Debug.Log($"   Check Game View - panel should be visible now!");
+        }
+        else
+        {
+            Debug.LogError("? Cannot find NameInputPanel to force show!");
+        }
+    }
+    
+    [ContextMenu("?? List ALL UI Panels in Scene")]
+    public void ListAllPanels()
+    {
+        Debug.Log("========== ALL UI PANELS IN SCENE ==========");
+        
+        GameObject[] allObjects = Resources.FindObjectsOfTypeAll<GameObject>();
+        
+        foreach (var obj in allObjects)
+        {
+            if (obj.GetComponent<Image>() != null || obj.name.Contains("Panel"))
+            {
+                string path = GetGameObjectPath(obj);
+                Debug.Log($"   {obj.name} (Active: {obj.activeSelf}) - Path: {path}");
+            }
+        }
+        
+        Debug.Log("=============================================");
+    }
+    
+    private string GetGameObjectPath(GameObject obj)
+    {
+        string path = obj.name;
+        Transform parent = obj.transform.parent;
+        
+        while (parent != null)
+        {
+            path = parent.name + "/" + path;
+            parent = parent.parent;
+        }
+        
+        return path;
+    }
+}

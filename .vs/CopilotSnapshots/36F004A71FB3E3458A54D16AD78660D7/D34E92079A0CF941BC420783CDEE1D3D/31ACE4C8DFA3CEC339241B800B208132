@@ -1,0 +1,241 @@
+﻿using UnityEngine;
+
+/// <summary>
+/// Quick diagnostic tool untuk troubleshoot ammo pickup issue
+/// Attach ke Player untuk instant debugging
+/// </summary>
+public class AmmoPickupDiagnostic : MonoBehaviour
+{
+    [Header("Auto-find References")]
+    [SerializeField] private bool autoFind = true;
+    
+    private WeaponController weaponController;
+    private PlayerInventory playerInventory;
+    private InventoryUI inventoryUI;
+    
+    [Header("Debug Display")]
+    [SerializeField] private bool showDebugUI = true;
+    [SerializeField] private KeyCode diagnosticKey = KeyCode.T;
+    
+    void Start()
+    {
+        if (autoFind)
+        {
+            weaponController = GetComponent<WeaponController>();
+            playerInventory = GetComponent<PlayerInventory>();
+            inventoryUI = FindObjectOfType<InventoryUI>();
+        }
+        
+        RunDiagnostic();
+    }
+    
+    void Update()
+    {
+        if (Input.GetKeyDown(diagnosticKey))
+        {
+            RunDiagnostic();
+        }
+    }
+    
+    void RunDiagnostic()
+    {
+        Debug.Log("========== AMMO PICKUP DIAGNOSTIC ==========");
+        
+        // Check Player Tag
+        if (gameObject.CompareTag("Player"))
+        {
+            Debug.Log("? Player tag: OK");
+        }
+        else
+        {
+            Debug.LogError("? Player tag WRONG! Current: " + gameObject.tag + " (Should be: Player)");
+        }
+        
+        // Check WeaponController
+        if (weaponController != null)
+        {
+            Debug.Log("? WeaponController: Found");
+            
+            // Check Infinite Ammo
+            var infiniteField = typeof(WeaponController).GetField("infiniteAmmo", 
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            
+            if (infiniteField != null)
+            {
+                bool infinite = (bool)infiniteField.GetValue(weaponController);
+                if (infinite)
+                {
+                    Debug.LogWarning("? Infinite Ammo: ENABLED (Ammo pickup won't add to reserve!)");
+                }
+                else
+                {
+                    Debug.Log("? Infinite Ammo: Disabled");
+                }
+            }
+            
+            // Check Max Reserve
+            var maxReserveField = typeof(WeaponController).GetField("maxReserveAmmo", 
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            
+            if (maxReserveField != null)
+            {
+                int maxReserve = (int)maxReserveField.GetValue(weaponController);
+                Debug.Log($"? Max Reserve Ammo: {maxReserve}");
+            }
+            
+            // Check Current Reserves
+            int handgunReserve = weaponController.GetReserveAmmoForType(WeaponType.Handgun);
+            int rifleReserve = weaponController.GetReserveAmmoForType(WeaponType.Rifle);
+            int shotgunReserve = weaponController.GetReserveAmmoForType(WeaponType.Shotgun);
+            
+            Debug.Log($"  Handgun Reserve: {handgunReserve}");
+            Debug.Log($"  Rifle Reserve: {rifleReserve}");
+            Debug.Log($"  Shotgun Reserve: {shotgunReserve}");
+            
+            // Check if at MAX
+            var maxReserveValue = (int)maxReserveField.GetValue(weaponController);
+            if (handgunReserve >= maxReserveValue)
+            {
+                Debug.LogWarning("? Handgun Reserve at MAX! Cannot add more!");
+            }
+            if (rifleReserve >= maxReserveValue)
+            {
+                Debug.LogWarning("? Rifle Reserve at MAX! Cannot add more!");
+            }
+            if (shotgunReserve >= maxReserveValue)
+            {
+                Debug.LogWarning("? Shotgun Reserve at MAX! Cannot add more!");
+            }
+            
+            // Check Current Reserves
+            int handgunMagazines = weaponController.GetMagazineCountForType(WeaponType.Handgun);
+            int rifleMagazines = weaponController.GetMagazineCountForType(WeaponType.Rifle);
+            int shotgunMagazines = weaponController.GetMagazineCountForType(WeaponType.Shotgun);
+            
+            Debug.Log($"  Handgun Magazines: {handgunMagazines}");
+            Debug.Log($"  Rifle Magazines: {rifleMagazines}");
+            Debug.Log($"  Shotgun Magazines: {shotgunMagazines}");
+            
+            // Check if at MAX
+            var maxMagazineField = typeof(WeaponController).GetField("maxMagazines", 
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            
+            if (maxMagazineField != null)
+            {
+                int maxMagazines = (int)maxMagazineField.GetValue(weaponController);
+                if (handgunMagazines >= maxMagazines)
+                {
+                    Debug.LogWarning("? Handgun Magazines at MAX! Cannot add more!");
+                }
+                if (rifleMagazines >= maxMagazines)
+                {
+                    Debug.LogWarning("? Rifle Magazines at MAX! Cannot add more!");
+                }
+                if (shotgunMagazines >= maxMagazines)
+                {
+                    Debug.LogWarning("? Shotgun Magazines at MAX! Cannot add more!");
+                }
+            }
+
+        }
+        else
+        {
+            Debug.LogError("? WeaponController: NOT FOUND!");
+        }
+        
+        // Check PlayerInventory
+        if (playerInventory != null)
+        {
+            Debug.Log("? PlayerInventory: Found");
+            Debug.Log($"  Medkits: {playerInventory.GetCurrentMedkits()}/{playerInventory.GetMaxMedkits()}");
+        }
+        else
+        {
+            Debug.LogWarning("? PlayerInventory: NOT FOUND!");
+        }
+        
+        // Check InventoryUI
+        if (inventoryUI != null)
+        {
+            Debug.Log("? InventoryUI: Found");
+        }
+        else
+        {
+            Debug.LogWarning("? InventoryUI: NOT FOUND! (UI won't update)");
+        }
+        
+        // Check Item Pickups in scene
+        ItemPickup[] items = FindObjectsOfType<ItemPickup>();
+        Debug.Log($"Items in scene: {items.Length}");
+        
+        foreach (ItemPickup item in items)
+        {
+            var itemTypeField = typeof(ItemPickup).GetField("itemType", 
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            var amountField = typeof(ItemPickup).GetField("amount", 
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            
+            if (itemTypeField != null && amountField != null)
+            {
+                var itemType = itemTypeField.GetValue(item);
+                var amount = amountField.GetValue(item);
+                Debug.Log($"  - {item.name}: Type={itemType}, Amount={amount}");
+            }
+        }
+        
+        Debug.Log("============================================");
+    }
+    
+    void OnGUI()
+    {
+        if (!showDebugUI)
+        {
+            return;
+        }
+        
+        GUIStyle style = new GUIStyle(GUI.skin.box);
+        style.normal.background = MakeTex(2, 2, new Color(0, 0, 0, 0.8f));
+        
+        GUIStyle textStyle = new GUIStyle(GUI.skin.label);
+        textStyle.normal.textColor = Color.white;
+        textStyle.fontSize = 14;
+        textStyle.fontStyle = FontStyle.Bold;
+        
+        GUILayout.BeginArea(new Rect(10, Screen.height - 180, 350, 170), style);
+        
+        GUILayout.Label("=== AMMO DIAGNOSTIC ===", textStyle);
+        
+        if (weaponController != null)
+        {
+            GUILayout.Label($"Handgun: {weaponController.GetMagazineCountForType(WeaponType.Handgun)} mags", textStyle);
+            GUILayout.Label($"Rifle: {weaponController.GetMagazineCountForType(WeaponType.Rifle)} mags", textStyle);
+            GUILayout.Label($"Shotgun: {weaponController.GetMagazineCountForType(WeaponType.Shotgun)} mags", textStyle);
+        }
+        else
+        {
+            GUILayout.Label("WeaponController: NULL!", textStyle);
+        }
+        
+        GUILayout.Space(5);
+        textStyle.fontSize = 12;
+        textStyle.fontStyle = FontStyle.Normal;
+        GUILayout.Label($"Press [{diagnosticKey}] for full diagnostic", textStyle);
+        GUILayout.Label("Press [N] to add 50 ammo (cheat)", textStyle);
+        
+        GUILayout.EndArea();
+    }
+    
+    private Texture2D MakeTex(int width, int height, Color col)
+    {
+        Color[] pix = new Color[width * height];
+        for (int i = 0; i < pix.Length; i++)
+        {
+            pix[i] = col;
+        }
+        
+        Texture2D result = new Texture2D(width, height);
+        result.SetPixels(pix);
+        result.Apply();
+        return result;
+    }
+}

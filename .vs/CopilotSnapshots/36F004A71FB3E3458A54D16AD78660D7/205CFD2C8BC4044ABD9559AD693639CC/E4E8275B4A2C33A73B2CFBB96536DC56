@@ -1,0 +1,261 @@
+﻿using UnityEngine;
+using System.Collections.Generic;
+using System.Linq;
+
+/// <summary>
+/// Utility untuk clean duplicate entries di leaderboard.
+/// Attach ke LeaderboardManager GameObject atau any GameObject.
+/// Works in ANY scene!
+/// </summary>
+public class LeaderboardCleaner : MonoBehaviour
+{
+    [ContextMenu("?? Remove Duplicate Entries")]
+    public void RemoveDuplicates()
+    {
+        LeaderboardManager manager = FindLeaderboardManager();
+        
+        if (manager == null)
+        {
+            Debug.LogError("? LeaderboardManager not found!");
+            Debug.LogError("   Fix: Create LeaderboardManager GameObject in scene");
+            Debug.LogError("   Or: LeaderboardManager might be in different scene");
+            return;
+        }
+        
+        Debug.Log("========== CLEANING LEADERBOARD ==========");
+        
+        var allEntries = manager.GetAllEntries();
+        int originalCount = allEntries.Count;
+        
+        Debug.Log($"Original entries: {originalCount}");
+        
+        if (originalCount == 0)
+        {
+            Debug.Log("?? Leaderboard is empty. Nothing to clean.");
+            Debug.Log("==========================================");
+            return;
+        }
+        
+        // Remove exact duplicates (same name, score, kills)
+        var uniqueEntries = allEntries
+            .GroupBy(e => new { e.playerName, e.score, e.kills })
+            .Select(g => g.First()) // Keep only first of each duplicate group
+            .OrderByDescending(e => e.score)
+            .ToList();
+        
+        int duplicatesRemoved = originalCount - uniqueEntries.Count;
+        
+        if (duplicatesRemoved > 0)
+        {
+            Debug.LogWarning($"?? Found {duplicatesRemoved} duplicate entries!");
+            Debug.Log("Removing duplicates...");
+            
+            // Clear and re-add unique entries
+            manager.ClearLeaderboard();
+            
+            foreach (var entry in uniqueEntries)
+            {
+                // Manually add (bypass duplicate check since we're cleaning)
+                manager.AddEntry(
+                    entry.playerName,
+                    entry.score,
+                    entry.kills,
+                    entry.survivalTime,
+                    entry.wave
+                );
+            }
+            
+            Debug.Log($"? Cleaned! {duplicatesRemoved} duplicates removed");
+            Debug.Log($"New total: {uniqueEntries.Count} entries");
+        }
+        else
+        {
+            Debug.Log("? No duplicates found! Leaderboard is clean.");
+        }
+        
+        Debug.Log("==========================================");
+    }
+    
+    [ContextMenu("?? Show Duplicate Analysis")]
+    public void ShowDuplicates()
+    {
+        LeaderboardManager manager = FindLeaderboardManager();
+        
+        if (manager == null)
+        {
+            Debug.LogError("? LeaderboardManager not found!");
+            ShowLeaderboardManagerHelp();
+            return;
+        }
+        
+        Debug.Log("========== DUPLICATE ANALYSIS ==========");
+        
+        var allEntries = manager.GetAllEntries();
+        
+        if (allEntries.Count == 0)
+        {
+            Debug.Log("?? Leaderboard is empty.");
+            Debug.Log("=======================================");
+            return;
+        }
+        
+        Debug.Log($"Total entries: {allEntries.Count}");
+        
+        // Group by name, score, kills
+        var groups = allEntries
+            .GroupBy(e => new { e.playerName, e.score, e.kills })
+            .Where(g => g.Count() > 1) // Only duplicates
+            .ToList();
+        
+        if (groups.Count == 0)
+        {
+            Debug.Log("? No duplicates found!");
+        }
+        else
+        {
+            Debug.LogWarning($"?? Found {groups.Count} sets of duplicates:");
+            
+            foreach (var group in groups)
+            {
+                Debug.LogWarning($"Duplicate: {group.Key.playerName} - Score: {group.Key.score}, Kills: {group.Key.kills}");
+                Debug.LogWarning($"  Count: {group.Count()} times");
+            }
+        }
+        
+        Debug.Log("=======================================");
+    }
+    
+    [ContextMenu("??? Clear All Leaderboard Data")]
+    public void ClearAll()
+    {
+        LeaderboardManager manager = FindLeaderboardManager();
+        
+        if (manager != null)
+        {
+            manager.ClearLeaderboard();
+            Debug.Log("? All leaderboard data cleared!");
+        }
+        else
+        {
+            Debug.LogError("? LeaderboardManager not found!");
+            ShowLeaderboardManagerHelp();
+        }
+    }
+    
+    [ContextMenu("?? Find LeaderboardManager")]
+    public void FindManager()
+    {
+        Debug.Log("========== SEARCHING FOR LEADERBOARDMANAGER ==========");
+        
+        // Method 1: Check Instance (Singleton)
+        if (LeaderboardManager.Instance != null)
+        {
+            Debug.Log("? Found via Instance (Singleton)");
+            Debug.Log($"   GameObject: {LeaderboardManager.Instance.gameObject.name}");
+            Debug.Log($"   Scene: {LeaderboardManager.Instance.gameObject.scene.name}");
+            Debug.Log("==========================================");
+            return;
+        }
+        
+        // Method 2: Find in current scene
+        LeaderboardManager[] managers = FindObjectsOfType<LeaderboardManager>(true); // Include inactive
+        
+        if (managers.Length > 0)
+        {
+            Debug.LogWarning($"?? Found {managers.Length} LeaderboardManager(s) in scene:");
+            foreach (var mgr in managers)
+            {
+                Debug.Log($"   - {mgr.gameObject.name} (Active: {mgr.gameObject.activeSelf})");
+            }
+            Debug.Log("   But Instance is NULL!");
+            Debug.Log("   This means Awake() hasn't run yet or GameObject is inactive.");
+        }
+        else
+        {
+            Debug.LogError("? NO LeaderboardManager found in ANY scene!");
+            ShowLeaderboardManagerHelp();
+        }
+        
+        Debug.Log("====================================================");
+    }
+    
+    /// <summary>
+    /// Smart finder - tries multiple methods
+    /// WORKS IN EDIT MODE TOO!
+    /// </summary>
+    private LeaderboardManager FindLeaderboardManager()
+    {
+        // Method 1: Try Instance (Singleton)
+        if (LeaderboardManager.Instance != null)
+        {
+            return LeaderboardManager.Instance;
+        }
+        
+        // Method 2: Try FindObjectOfType (includes inactive)
+        LeaderboardManager manager = FindObjectOfType<LeaderboardManager>(true);
+        
+        if (manager != null)
+        {
+            // Found but Instance is null (Awake not run yet)
+            Debug.LogWarning("?? Found LeaderboardManager but Instance is null!");
+            Debug.LogWarning("   This happens in EDIT MODE (Awake hasn't run)");
+            Debug.LogWarning("   Workaround: Using direct reference instead of Instance");
+            
+            // If inactive, activate it
+            if (!manager.gameObject.activeSelf)
+            {
+                manager.gameObject.SetActive(true);
+                Debug.Log("   ? Activated LeaderboardManager GameObject");
+            }
+            
+            // Return direct reference (bypassing Instance)
+            return manager;
+        }
+        
+        // Not found
+        return null;
+    }
+    
+    private void ShowLeaderboardManagerHelp()
+    {
+        Debug.Log("========== HOW TO FIX ==========");
+        Debug.Log("1. Create Empty GameObject");
+        Debug.Log("2. Rename: 'LeaderboardManager'");
+        Debug.Log("3. Add Component ? LeaderboardManager");
+        Debug.Log("4. Make sure GameObject is ACTIVE");
+        Debug.Log("5. Try again");
+        Debug.Log("================================");
+    }
+    
+    [ContextMenu("?? Show All Entries")]
+    public void ShowAllEntries()
+    {
+        LeaderboardManager manager = FindLeaderboardManager();
+        
+        if (manager == null)
+        {
+            Debug.LogError("? LeaderboardManager not found!");
+            return;
+        }
+        
+        var allEntries = manager.GetAllEntries();
+        
+        Debug.Log($"========== ALL LEADERBOARD ENTRIES ({allEntries.Count}) ==========");
+        
+        if (allEntries.Count == 0)
+        {
+            Debug.Log("?? Leaderboard is empty");
+        }
+        else
+        {
+            int rank = 1;
+            foreach (var entry in allEntries)
+            {
+                Debug.Log($"#{rank}: {entry.playerName} - Score: {entry.score}, Kills: {entry.kills}, Wave: {entry.wave}");
+                rank++;
+            }
+        }
+        
+        Debug.Log("================================================================");
+    }
+}

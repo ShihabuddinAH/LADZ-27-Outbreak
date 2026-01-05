@@ -1,0 +1,554 @@
+﻿using UnityEngine;
+using UnityEngine.UI;
+using TMPro;
+
+public class InventoryUI : MonoBehaviour
+{
+    [Header("References")]
+    [SerializeField] private PlayerInventory playerInventory;
+    [SerializeField] private WeaponController weaponController;
+    
+    [Header("Medkit UI")]
+    [SerializeField] private TextMeshProUGUI medkitText;
+    [SerializeField] private Image medkitIcon;
+    
+    [Header("Handgun Ammo UI")]
+    [SerializeField] private TextMeshProUGUI handgunAmmoText;
+    [SerializeField] private Image handgunAmmoIcon;
+    
+    [Header("Rifle Ammo UI")]
+    [SerializeField] private TextMeshProUGUI rifleAmmoText;
+    [SerializeField] private Image rifleAmmoIcon;
+    
+    [Header("Shotgun Ammo UI")]
+    [SerializeField] private TextMeshProUGUI shotgunAmmoText;
+    [SerializeField] private Image shotgunAmmoIcon;
+    
+    [Header("Current Weapon Display (Optional)")]
+    [SerializeField] private TextMeshProUGUI currentWeaponText;
+    [SerializeField] private TextMeshProUGUI currentAmmoText; // Current mag ammo
+    
+    [Header("UI Settings")]
+    [SerializeField] private bool autoFindReferences = true;
+    [SerializeField] private Color lowAmmoColor = Color.red;
+    [SerializeField] private Color normalAmmoColor = Color.white;
+    [SerializeField] private int lowAmmoThreshold = 10; // Threshold untuk warning (jumlah peluru)
+    [SerializeField] private float dimmedAlpha = 0.3f; // Alpha untuk icon yang dimmed
+    
+    [Header("Debug")]
+    [SerializeField] private bool showDebugLogs = false; // Toggle debug logs
+    [SerializeField] private bool showUpdateLogs = false; // Show update frequency
+    
+    private float lastLogTime = 0f;
+    
+    // Singleton pattern untuk easy access dari ItemPickup
+    private static InventoryUI instance;
+    public static InventoryUI Instance => instance;
+    
+    void Awake()
+    {
+        // Set singleton instance
+        if (instance == null)
+        {
+            instance = this;
+        }
+        else if (instance != this)
+        {
+            Debug.LogWarning("Multiple InventoryUI instances detected!");
+        }
+    }
+    
+    void Start()
+    {
+        // Force find references if needed
+        FindReferences();
+        
+        if (playerInventory == null)
+        {
+            Debug.LogWarning("InventoryUI: PlayerInventory not found!");
+        }
+        
+        if (weaponController == null)
+        {
+            Debug.LogWarning("InventoryUI: WeaponController not found!");
+        }
+        
+        // Subscribe to events
+        if (playerInventory != null)
+        {
+            playerInventory.OnMedkitChanged += UpdateMedkitUI;
+        }
+        
+        if (weaponController != null)
+        {
+            weaponController.OnReserveAmmoChanged += OnReserveAmmoChangedHandler;
+            weaponController.OnWeaponSwitched += OnWeaponSwitchedHandler;
+            weaponController.OnCurrentAmmoChanged += OnCurrentAmmoChangedHandler;
+        }
+        
+        // Debug log untuk verify references
+        if (showDebugLogs)
+        {
+            Debug.Log("=== InventoryUI Start Debug ===");
+            Debug.Log($"PlayerInventory: {(playerInventory != null ? "OK" : "NULL")}");
+            Debug.Log($"WeaponController: {(weaponController != null ? "OK" : "NULL")}");
+            Debug.Log($"Handgun Text: {(handgunAmmoText != null ? "OK" : "NULL")}");
+            Debug.Log($"Rifle Text: {(rifleAmmoText != null ? "OK" : "NULL")}");
+            Debug.Log($"Shotgun Text: {(shotgunAmmoText != null ? "OK" : "NULL")}");
+            Debug.Log($"Medkit Text: {(medkitText != null ? "OK" : "NULL")}");
+        }
+        
+        // Force first update
+        Debug.Log("[InventoryUI] Starting... Forcing first update");
+        UpdateAllUI();
+    }
+    
+    // Public method to find references (can be called externally)
+    public void FindReferences()
+    {
+        if (autoFindReferences)
+        {
+            if (playerInventory == null)
+            {
+                playerInventory = FindObjectOfType<PlayerInventory>();
+                if (playerInventory != null && showDebugLogs)
+                {
+                    Debug.Log("[InventoryUI] Found PlayerInventory reference");
+                }
+            }
+            
+            if (weaponController == null)
+            {
+                weaponController = FindObjectOfType<WeaponController>();
+                if (weaponController != null && showDebugLogs)
+                {
+                    Debug.Log("[InventoryUI] Found WeaponController reference");
+                }
+            }
+        }
+    }
+    
+    void Update()
+    {
+        // Only update current weapon UI in Update (for realtime ammo display)
+        // Reserve ammo counts are now event-driven
+        UpdateCurrentWeaponUI();
+        
+        // Debug log setiap 2 detik
+        if (showUpdateLogs && Time.time - lastLogTime > 2f)
+        {
+            lastLogTime = Time.time;
+            if (weaponController != null)
+            {
+                Debug.Log($"[InventoryUI] Update() running... Reserve ammo: H={weaponController.GetReserveAmmoForType(WeaponType.Handgun)}");
+            }
+        }
+    }
+    
+    // Public method untuk force update (dipanggil dari ItemPickup)
+    public void ForceUpdateUI()
+    {
+        // Re-find references jika ada yang null
+        if (playerInventory == null || weaponController == null)
+        {
+            FindReferences();
+        }
+        
+        // Update UI
+        UpdateAllUI();
+        
+        if (showDebugLogs)
+        {
+            Debug.Log("[InventoryUI] ForceUpdateUI() called");
+        }
+    }
+    
+    // Centralized update method
+    private void UpdateAllUI()
+    {
+        UpdateMedkitUI();
+        UpdateHandgunAmmoUI();
+        UpdateRifleAmmoUI();
+        UpdateShotgunAmmoUI();
+        UpdateCurrentWeaponUI();
+    }
+    
+    // ============================================
+    // MEDKIT UI
+    // ============================================
+    private void UpdateMedkitUI()
+    {
+        if (playerInventory == null)
+        {
+            return;
+        }
+        
+        if (medkitText != null)
+        {
+            int current = playerInventory.GetCurrentMedkits();
+            int max = playerInventory.GetMaxMedkits();
+            medkitText.text = $"x {current:00}";
+            
+            // Color feedback - merah jika tidak punya medkit
+            if (current == 0)
+            {
+                medkitText.color = lowAmmoColor;
+            }
+            else
+            {
+                medkitText.color = normalAmmoColor;
+            }
+        }
+        
+        // Icon alpha - dim jika tidak punya medkit
+        if (medkitIcon != null)
+        {
+            Color iconColor = medkitIcon.color;
+            iconColor.a = playerInventory.GetCurrentMedkits() > 0 ? 1f : dimmedAlpha;
+            medkitIcon.color = iconColor;
+        }
+    }
+    
+    // Event-based overload
+    private void UpdateMedkitUI(int newCount)
+    {
+        if (medkitText != null)
+        {
+            medkitText.text = $"x {newCount:00}";
+            
+            if (newCount == 0)
+            {
+                medkitText.color = lowAmmoColor;
+            }
+            else
+            {
+                medkitText.color = normalAmmoColor;
+            }
+            
+            if (showDebugLogs)
+            {
+                Debug.Log($"[InventoryUI] Medkit UI updated via EVENT: {newCount}");
+            }
+        }
+        
+        if (medkitIcon != null)
+        {
+            Color iconColor = medkitIcon.color;
+            iconColor.a = newCount > 0 ? 1f : dimmedAlpha;
+            medkitIcon.color = iconColor;
+        }
+    }
+    
+    // ============================================
+    // HANDGUN AMMO UI
+    // ============================================
+    private void UpdateHandgunAmmoUI()
+    {
+        if (weaponController == null)
+        {
+            if (showDebugLogs)
+            {
+                Debug.LogWarning("[InventoryUI] WeaponController is NULL! Cannot update UI");
+            }
+            return;
+        }
+        
+        // Display reserve ammo count (jumlah peluru)
+        int reserveAmmo = weaponController.GetReserveAmmoForType(WeaponType.Handgun);
+        UpdateHandgunAmmoUI(reserveAmmo);
+    }
+    
+    // Event-based overload
+    private void UpdateHandgunAmmoUI(int reserveAmmo)
+    {
+        if (handgunAmmoText != null)
+        {
+            string newText = $"x {reserveAmmo:000}"; // 3 digit untuk ammo count
+            
+            if (handgunAmmoText.text != newText)
+            {
+                handgunAmmoText.text = newText;
+                if (showDebugLogs)
+                {
+                    Debug.Log($"[InventoryUI] Handgun ammo text UPDATED to: {newText}");
+                }
+            }
+            
+            // Color warning untuk low ammo
+            if (reserveAmmo <= lowAmmoThreshold)
+            {
+                handgunAmmoText.color = lowAmmoColor;
+            }
+            else
+            {
+                handgunAmmoText.color = normalAmmoColor;
+            }
+        }
+        else
+        {
+            if (showDebugLogs)
+            {
+                Debug.LogWarning("[InventoryUI] Handgun Ammo Text is NULL!");
+            }
+        }
+        
+        // Icon alpha
+        if (handgunAmmoIcon != null)
+        {
+            Color iconColor = handgunAmmoIcon.color;
+            float targetAlpha = reserveAmmo > 0 ? 1f : dimmedAlpha;
+            
+            if (Mathf.Abs(iconColor.a - targetAlpha) > 0.01f)
+            {
+                iconColor.a = targetAlpha;
+                handgunAmmoIcon.color = iconColor;
+                
+                if (showDebugLogs)
+                {
+                    Debug.Log($"[InventoryUI] Handgun icon alpha changed to: {targetAlpha}");
+                }
+            }
+        }
+    }
+    
+    // ============================================
+    // RIFLE AMMO UI
+    // ============================================
+    private void UpdateRifleAmmoUI()
+    {
+        if (weaponController == null)
+        {
+            return;
+        }
+        
+        // Display reserve ammo count
+        int reserveAmmo = weaponController.GetReserveAmmoForType(WeaponType.Rifle);
+        UpdateRifleAmmoUI(reserveAmmo);
+    }
+    
+    // Event-based overload
+    private void UpdateRifleAmmoUI(int reserveAmmo)
+    {
+        if (rifleAmmoText != null)
+        {
+            rifleAmmoText.text = $"x {reserveAmmo:000}";
+            
+            if (reserveAmmo <= lowAmmoThreshold)
+            {
+                rifleAmmoText.color = lowAmmoColor;
+            }
+            else
+            {
+                rifleAmmoText.color = normalAmmoColor;
+            }
+        }
+        
+        if (rifleAmmoIcon != null)
+        {
+            Color iconColor = rifleAmmoIcon.color;
+            iconColor.a = reserveAmmo > 0 ? 1f : dimmedAlpha;
+            rifleAmmoIcon.color = iconColor;
+        }
+    }
+    
+    // ============================================
+    // SHOTGUN AMMO UI
+    // ============================================
+    private void UpdateShotgunAmmoUI()
+    {
+        if (weaponController == null)
+        {
+            return;
+        }
+        
+        // Display reserve ammo count
+        int reserveAmmo = weaponController.GetReserveAmmoForType(WeaponType.Shotgun);
+        UpdateShotgunAmmoUI(reserveAmmo);
+    }
+    
+    // Event-based overload
+    private void UpdateShotgunAmmoUI(int reserveAmmo)
+    {
+        if (shotgunAmmoText != null)
+        {
+            shotgunAmmoText.text = $"x {reserveAmmo:000}";
+            
+            if (reserveAmmo <= lowAmmoThreshold)
+            {
+                shotgunAmmoText.color = lowAmmoColor;
+            }
+            else
+            {
+                shotgunAmmoText.color = normalAmmoColor;
+            }
+        }
+        
+        if (shotgunAmmoIcon != null)
+        {
+            Color iconColor = shotgunAmmoIcon.color;
+            iconColor.a = reserveAmmo > 0 ? 1f : dimmedAlpha;
+            shotgunAmmoIcon.color = iconColor;
+        }
+    }
+    
+    // ============================================
+    // CURRENT WEAPON UI (Optional)
+    // ============================================
+    private void UpdateCurrentWeaponUI()
+    {
+        if (weaponController == null)
+        {
+            return;
+        }
+        
+        WeaponData currentWeapon = weaponController.GetCurrentWeapon();
+        if (currentWeapon == null)
+        {
+            return;
+        }
+        
+        // Update weapon name
+        if (currentWeaponText != null)
+        {
+            currentWeaponText.text = currentWeapon.weaponName.ToUpper();
+        }
+        
+        // Update current ammo in magazine + reserve
+        if (currentAmmoText != null)
+        {
+            int currentAmmo = weaponController.GetCurrentAmmo();
+            int reserveAmmo = weaponController.GetReserveAmmo();
+            currentAmmoText.text = $"{currentAmmo} / {reserveAmmo}";
+            
+            // Color warning untuk low ammo
+            if (currentAmmo <= lowAmmoThreshold || currentAmmo == 0)
+            {
+                currentAmmoText.color = lowAmmoColor;
+            }
+            else
+            {
+                currentAmmoText.color = normalAmmoColor;
+            }
+        }
+    }
+    
+    // ============================================
+    // EVENT HANDLERS
+    // ============================================
+    
+    private void OnReserveAmmoChangedHandler(WeaponType weaponType, int newReserveAmmo)
+    {
+        if (showDebugLogs)
+        {
+            Debug.Log($"[InventoryUI] Reserve ammo changed EVENT: {weaponType} = {newReserveAmmo}");
+        }
+        
+        switch (weaponType)
+        {
+            case WeaponType.Handgun:
+                UpdateHandgunAmmoUI(newReserveAmmo);
+                break;
+            case WeaponType.Rifle:
+                UpdateRifleAmmoUI(newReserveAmmo);
+                break;
+            case WeaponType.Shotgun:
+                UpdateShotgunAmmoUI(newReserveAmmo);
+                break;
+        }
+    }
+    
+    private void OnWeaponSwitchedHandler(WeaponData newWeapon)
+    {
+        if (showDebugLogs)
+        {
+            Debug.Log($"[InventoryUI] Weapon switched EVENT: {newWeapon.weaponName}");
+        }
+        
+        // Update all ammo UI when weapon switches
+        UpdateHandgunAmmoUI();
+        UpdateRifleAmmoUI();
+        UpdateShotgunAmmoUI();
+        UpdateCurrentWeaponUI();
+    }
+    
+    private void OnCurrentAmmoChangedHandler(int newAmmo)
+    {
+        // This is for current magazine ammo display
+        UpdateCurrentWeaponUI();
+    }
+    
+    // ============================================
+    // PUBLIC METHODS - Flash Effects
+    // ============================================
+    
+    public void FlashMedkitIcon()
+    {
+        ForceUpdateUI();
+        
+        if (medkitIcon != null)
+        {
+            StartCoroutine(FlashIcon(medkitIcon));
+        }
+    }
+    
+    public void FlashHandgunAmmoIcon()
+    {
+        ForceUpdateUI();
+        
+        if (handgunAmmoIcon != null)
+        {
+            StartCoroutine(FlashIcon(handgunAmmoIcon));
+        }
+    }
+    
+    public void FlashRifleAmmoIcon()
+    {
+        ForceUpdateUI();
+        
+        if (rifleAmmoIcon != null)
+        {
+            StartCoroutine(FlashIcon(rifleAmmoIcon));
+        }
+    }
+    
+    public void FlashShotgunAmmoIcon()
+    {
+        ForceUpdateUI();
+        
+        if (shotgunAmmoIcon != null)
+        {
+            StartCoroutine(FlashIcon(shotgunAmmoIcon));
+        }
+    }
+    
+    private System.Collections.IEnumerator FlashIcon(Image icon)
+    {
+        Color original = icon.color;
+        Color flash = Color.green;
+        flash.a = original.a;
+        
+        for (int i = 0; i < 3; i++)
+        {
+            icon.color = flash;
+            yield return new WaitForSeconds(0.1f);
+            icon.color = original;
+            yield return new WaitForSeconds(0.1f);
+        }
+    }
+    
+    void OnDestroy()
+    {
+        // Unsubscribe from events to prevent memory leaks
+        if (playerInventory != null)
+        {
+            playerInventory.OnMedkitChanged -= UpdateMedkitUI;
+        }
+        
+        if (weaponController != null)
+        {
+            weaponController.OnReserveAmmoChanged -= OnReserveAmmoChangedHandler;
+            weaponController.OnWeaponSwitched -= OnWeaponSwitchedHandler;
+            weaponController.OnCurrentAmmoChanged -= OnCurrentAmmoChangedHandler;
+        }
+    }
+}

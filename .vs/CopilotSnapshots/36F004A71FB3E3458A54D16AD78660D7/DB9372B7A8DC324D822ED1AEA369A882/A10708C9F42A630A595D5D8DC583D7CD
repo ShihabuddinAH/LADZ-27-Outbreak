@@ -1,0 +1,224 @@
+﻿using UnityEngine;
+using TMPro;
+using UnityEngine.UI;
+
+/// <summary>
+/// Comprehensive check untuk text components
+/// Detects jika pakai wrong component type
+/// </summary>
+public class TextComponentChecker : MonoBehaviour
+{
+    [Header("Auto-Run")]
+    [SerializeField] private bool runOnStart = true;
+    
+    void Start()
+    {
+        if (runOnStart)
+        {
+            CheckAllTextComponents();
+        }
+    }
+    
+    [ContextMenu("Check All Text Components")]
+    public void CheckAllTextComponents()
+    {
+        Debug.Log("========================================");
+        Debug.Log("?? TEXT COMPONENT TYPE CHECKER");
+        Debug.Log("========================================");
+        
+        // Find InventoryUI
+        InventoryUI inventoryUI = FindObjectOfType<InventoryUI>();
+        
+        if (inventoryUI == null)
+        {
+            Debug.LogError("? InventoryUI not found!");
+            return;
+        }
+        
+        Debug.Log($"? InventoryUI found: {inventoryUI.gameObject.name}");
+        Debug.Log("");
+        
+        // Use reflection to get all text fields
+        var type = typeof(InventoryUI);
+        var flags = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance;
+        
+        string[] textFieldNames = new string[]
+        {
+            "medkitText",
+            "handgunAmmoText",
+            "rifleAmmoText",
+            "shotgunAmmoText",
+            "currentWeaponText",
+            "currentAmmoText"
+        };
+        
+        int wrongTypeCount = 0;
+        int nullCount = 0;
+        int correctCount = 0;
+        
+        foreach (string fieldName in textFieldNames)
+        {
+            Debug.Log($"--- Checking: {fieldName} ---");
+            
+            var field = type.GetField(fieldName, flags);
+            
+            if (field == null)
+            {
+                Debug.LogWarning($"?? Field '{fieldName}' not found in InventoryUI");
+                continue;
+            }
+            
+            var value = field.GetValue(inventoryUI);
+            
+            if (value == null)
+            {
+                Debug.LogError($"? {fieldName} is NULL!");
+                Debug.LogError($"   FIX: Assign reference in Inspector");
+                nullCount++;
+                continue;
+            }
+            
+            // Check component type
+            if (value is TextMeshProUGUI)
+            {
+                TextMeshProUGUI tmp = value as TextMeshProUGUI;
+                Debug.Log($"? Type: TextMeshProUGUI (CORRECT!)");
+                Debug.Log($"   GameObject: {tmp.gameObject.name}");
+                Debug.Log($"   Active: {tmp.gameObject.activeInHierarchy}");
+                Debug.Log($"   Enabled: {tmp.enabled}");
+                Debug.Log($"   Current Text: '{tmp.text}'");
+                
+                if (!tmp.gameObject.activeInHierarchy)
+                {
+                    Debug.LogWarning($"   ?? GameObject INACTIVE! Enable it!");
+                    wrongTypeCount++;
+                }
+                else if (!tmp.enabled)
+                {
+                    Debug.LogWarning($"   ?? Component DISABLED! Enable it!");
+                    wrongTypeCount++;
+                }
+                else
+                {
+                    correctCount++;
+                }
+            }
+            else if (value is Text)
+            {
+                Text legacyText = value as Text;
+                Debug.LogError($"? Type: Text (LEGACY - WRONG!)");
+                Debug.LogError($"   GameObject: {legacyText.gameObject.name}");
+                Debug.LogError($"   FIX: Convert to TextMeshProUGUI");
+                Debug.LogError($"   ? Right-click GameObject ? TextMeshPro ? Convert to TextMeshProUGUI");
+                wrongTypeCount++;
+            }
+            else
+            {
+                Debug.LogError($"? Type: {value.GetType().Name} (UNKNOWN!)");
+                wrongTypeCount++;
+            }
+            
+            Debug.Log("");
+        }
+        
+        // Summary
+        Debug.Log("========================================");
+        Debug.Log("?? SUMMARY:");
+        Debug.Log($"   ? Correct: {correctCount}");
+        Debug.Log($"   ? Wrong Type/Inactive: {wrongTypeCount}");
+        Debug.Log($"   ? NULL: {nullCount}");
+        
+        if (wrongTypeCount > 0)
+        {
+            Debug.LogError("========================================");
+            Debug.LogError("? FIX REQUIRED!");
+            Debug.LogError($"   {wrongTypeCount} text component(s) need fixing");
+            Debug.LogError("   See errors above for specific fixes ?");
+            Debug.LogError("========================================");
+        }
+        else if (nullCount > 0)
+        {
+            Debug.LogError("========================================");
+            Debug.LogError("? ASSIGN REFERENCES!");
+            Debug.LogError($"   {nullCount} text reference(s) are NULL");
+            Debug.LogError("   Assign them in InventoryUI Inspector");
+            Debug.LogError("========================================");
+        }
+        else
+        {
+            Debug.Log("========================================");
+            Debug.Log("? ALL TEXT COMPONENTS CORRECT!");
+            Debug.Log("   If UI still not updating, check other issues");
+            Debug.Log("========================================");
+        }
+    }
+    
+    [ContextMenu("Force Update Test")]
+    public void ForceUpdateTest()
+    {
+        Debug.Log("========================================");
+        Debug.Log("?? FORCE UPDATE TEST");
+        Debug.Log("========================================");
+        
+        InventoryUI inventoryUI = FindObjectOfType<InventoryUI>();
+        
+        if (inventoryUI == null)
+        {
+            Debug.LogError("? InventoryUI not found!");
+            return;
+        }
+        
+        // Get handgun text
+        var type = typeof(InventoryUI);
+        var flags = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance;
+        var field = type.GetField("handgunAmmoText", flags);
+        
+        if (field == null)
+        {
+            Debug.LogError("? handgunAmmoText field not found!");
+            return;
+        }
+        
+        var textComponent = field.GetValue(inventoryUI);
+        
+        if (textComponent == null)
+        {
+            Debug.LogError("? handgunAmmoText is NULL!");
+            return;
+        }
+        
+        if (textComponent is TextMeshProUGUI)
+        {
+            TextMeshProUGUI tmp = textComponent as TextMeshProUGUI;
+            
+            Debug.Log($"?? Current text: '{tmp.text}'");
+            Debug.Log($"?? Attempting to change text to 'TEST 123'...");
+            
+            string oldText = tmp.text;
+            tmp.text = "TEST 123";
+            
+            Debug.Log($"?? Text after change: '{tmp.text}'");
+            
+            if (tmp.text == "TEST 123")
+            {
+                Debug.Log("? Text changed successfully!");
+                Debug.Log("   Text component is working!");
+                
+                // Restore
+                tmp.text = oldText;
+                Debug.Log($"?? Restored to: '{tmp.text}'");
+            }
+            else
+            {
+                Debug.LogError("? Text did NOT change!");
+                Debug.LogError("   Component may be broken or Canvas issue");
+            }
+        }
+        else
+        {
+            Debug.LogError($"? Component is not TextMeshProUGUI! Type: {textComponent.GetType().Name}");
+        }
+        
+        Debug.Log("========================================");
+    }
+}

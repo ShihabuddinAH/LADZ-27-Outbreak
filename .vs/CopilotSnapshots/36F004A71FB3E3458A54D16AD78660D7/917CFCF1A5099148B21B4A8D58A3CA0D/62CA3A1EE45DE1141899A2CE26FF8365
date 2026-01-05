@@ -1,0 +1,193 @@
+﻿using UnityEngine;
+using UnityEngine.UI;
+using TMPro;
+
+/// <summary>
+/// How to Play Panel - Tutorial/Controls popup
+/// </summary>
+public class HowToPlayPanel : MonoBehaviour
+{
+    [Header("UI References")]
+    [SerializeField] private GameObject panel;
+    [SerializeField] private Button closeButton;
+    
+    [Header("Content (Optional)")]
+    [SerializeField] private TextMeshProUGUI titleText;
+    [SerializeField] private TextMeshProUGUI contentText;
+    
+    [Header("Multi-Page Support")]
+    [SerializeField] private GameObject[] pages;
+    [SerializeField] private Button nextButton;
+    [SerializeField] private Button previousButton;
+    [SerializeField] private TextMeshProUGUI pageIndicatorText;
+    
+    private int currentPageIndex = 0;
+    private bool isInitialized = false;
+    
+    void Awake()
+    {
+        // Setup button listeners di Awake (lebih awal dari Start)
+        if (closeButton != null)
+            closeButton.onClick.AddListener(Close);
+        
+        if (nextButton != null)
+            nextButton.onClick.AddListener(NextPage);
+        
+        if (previousButton != null)
+            previousButton.onClick.AddListener(PreviousPage);
+        
+        // Hide panel IMMEDIATELY di Awake
+        if (panel != null)
+            panel.SetActive(false);
+        
+        isInitialized = true;
+    }
+    
+    void Start()
+    {
+        // Setup pages di Start (setelah semua GameObject ready)
+        if (pages != null && pages.Length > 0)
+        {
+            // Hide all pages except first
+            for (int i = 0; i < pages.Length; i++)
+            {
+                if (pages[i] != null)
+                {
+                    pages[i].SetActive(i == 0);
+                }
+            }
+        }
+    }
+    
+    /// <summary>
+    /// Show How to Play panel
+    /// </summary>
+    public void Show()
+    {
+        if (panel != null)
+        {
+            panel.SetActive(true);
+            currentPageIndex = 0;
+            ShowPage(currentPageIndex);
+            
+            // Play UI sound
+            if (SFXManager.Instance != null)
+            {
+                SFXManager.Instance.PlayButtonClick();
+            }
+            
+            Debug.Log("[HowToPlayPanel] Showing panel");
+        }
+        else
+        {
+            Debug.LogWarning("[HowToPlayPanel] Panel is NULL!");
+        }
+    }
+    
+    /// <summary>
+    /// Close How to Play panel
+    /// </summary>
+    public void Close()
+    {
+        if (panel != null)
+        {
+            panel.SetActive(false);
+            
+            // Play UI sound
+            if (SFXManager.Instance != null)
+            {
+                SFXManager.Instance.PlayButtonClick();
+            }
+            
+            Debug.Log("[HowToPlayPanel] Closing panel");
+        }
+    }
+    
+    /// <summary>
+    /// Next page
+    /// </summary>
+    public void NextPage()
+    {
+        if (pages == null || pages.Length == 0) return;
+        
+        currentPageIndex++;
+        if (currentPageIndex >= pages.Length)
+        {
+            currentPageIndex = pages.Length - 1;
+        }
+        
+        ShowPage(currentPageIndex);
+        
+        if (SFXManager.Instance != null)
+        {
+            SFXManager.Instance.PlayButtonClick();
+        }
+    }
+    
+    /// <summary>
+    /// Previous page
+    /// </summary>
+    public void PreviousPage()
+    {
+        if (pages == null || pages.Length == 0) return;
+        
+        currentPageIndex--;
+        if (currentPageIndex < 0)
+        {
+            currentPageIndex = 0;
+        }
+        
+        ShowPage(currentPageIndex);
+        
+        if (SFXManager.Instance != null)
+        {
+            SFXManager.Instance.PlayButtonClick();
+        }
+    }
+    
+    /// <summary>
+    /// Show specific page
+    /// </summary>
+    private void ShowPage(int pageIndex)
+    {
+        if (pages == null || pages.Length == 0) return;
+        
+        // Hide all pages
+        for (int i = 0; i < pages.Length; i++)
+        {
+            if (pages[i] != null)
+            {
+                pages[i].SetActive(i == pageIndex);
+            }
+        }
+        
+        // Update navigation buttons
+        if (previousButton != null)
+        {
+            previousButton.interactable = pageIndex > 0;
+        }
+        
+        if (nextButton != null)
+        {
+            nextButton.interactable = pageIndex < pages.Length - 1;
+        }
+        
+        // Update page indicator
+        if (pageIndicatorText != null)
+        {
+            pageIndicatorText.text = $"Page {pageIndex + 1}/{pages.Length}";
+        }
+    }
+    
+    /// <summary>
+    /// Set content dynamically (jika tidak pakai pages)
+    /// </summary>
+    public void SetContent(string title, string content)
+    {
+        if (titleText != null)
+            titleText.text = title;
+        
+        if (contentText != null)
+            contentText.text = content;
+    }
+}

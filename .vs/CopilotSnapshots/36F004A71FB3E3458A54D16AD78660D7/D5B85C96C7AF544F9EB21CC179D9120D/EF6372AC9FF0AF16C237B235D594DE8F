@@ -1,0 +1,319 @@
+﻿using UnityEngine;
+using UnityEngine.UI;
+
+/// <summary>
+/// Audio Settings Controller untuk Settings Menu
+/// Kontrol volume BGM dan SFX dengan slider
+/// </summary>
+public class AudioSettings : MonoBehaviour
+{
+    [Header("UI References")]
+    [SerializeField] private Slider musicVolumeSlider;
+    [SerializeField] private Slider sfxVolumeSlider;
+    [SerializeField] private Toggle musicMuteToggle;
+    [SerializeField] private Toggle sfxMuteToggle;
+    
+    [Header("Optional Text Display")]
+    [SerializeField] private TMPro.TextMeshProUGUI musicVolumeText;
+    [SerializeField] private TMPro.TextMeshProUGUI sfxVolumeText;
+    
+    [Header("Buttons (Optional)")]
+    [SerializeField] private Button applyButton;
+    [SerializeField] private Button resetButton;
+    
+    [Header("Default Values")]
+    [SerializeField] private float defaultMusicVolume = 0.5f;
+    [SerializeField] private float defaultSFXVolume = 0.7f;
+    
+    // Temporary values (belum di-apply)
+    private float tempMusicVolume;
+    private float tempSFXVolume;
+    private bool tempMusicMute;
+    private bool tempSFXMute;
+    
+    // Apakah ada perubahan yang belum di-apply
+    private bool hasUnsavedChanges = false;
+    
+    void Start()
+    {
+        // Setup sliders
+        if (musicVolumeSlider != null)
+        {
+            musicVolumeSlider.minValue = 0f;
+            musicVolumeSlider.maxValue = 1f;
+            musicVolumeSlider.onValueChanged.AddListener(OnMusicVolumeChanged);
+        }
+        
+        if (sfxVolumeSlider != null)
+        {
+            sfxVolumeSlider.minValue = 0f;
+            sfxVolumeSlider.maxValue = 1f;
+            sfxVolumeSlider.onValueChanged.AddListener(OnSFXVolumeChanged);
+        }
+        
+        // Setup toggles
+        if (musicMuteToggle != null)
+        {
+            musicMuteToggle.onValueChanged.AddListener(OnMusicMuteToggled);
+        }
+        
+        if (sfxMuteToggle != null)
+        {
+            sfxMuteToggle.onValueChanged.AddListener(OnSFXMuteToggled);
+        }
+        
+        // Setup buttons
+        if (applyButton != null)
+        {
+            applyButton.onClick.AddListener(ApplySettings);
+            applyButton.interactable = false; // Disabled by default
+        }
+        
+        if (resetButton != null)
+        {
+            resetButton.onClick.AddListener(ResetToDefault);
+        }
+        
+        // Load saved settings
+        LoadSettings();
+    }
+    
+    void OnEnable()
+    {
+        // Refresh UI saat panel dibuka
+        LoadSettings();
+        hasUnsavedChanges = false;
+        
+        if (applyButton != null)
+            applyButton.interactable = false;
+    }
+    
+    private void LoadSettings()
+    {
+        // Load Music settings
+        if (MusicManager.Instance != null)
+        {
+            float musicVolume = MusicManager.Instance.GetVolume();
+            tempMusicVolume = musicVolume;
+            
+            if (musicVolumeSlider != null)
+            {
+                musicVolumeSlider.SetValueWithoutNotify(musicVolume);
+            }
+            
+            UpdateMusicVolumeText(musicVolume);
+            
+            bool isMuted = MusicManager.Instance.IsMuted();
+            tempMusicMute = isMuted;
+            
+            if (musicMuteToggle != null)
+            {
+                musicMuteToggle.SetIsOnWithoutNotify(isMuted);
+            }
+        }
+        
+        // Load SFX settings
+        if (SFXManager.Instance != null)
+        {
+            float sfxVolume = SFXManager.Instance.GetVolume();
+            tempSFXVolume = sfxVolume;
+            
+            if (sfxVolumeSlider != null)
+            {
+                sfxVolumeSlider.SetValueWithoutNotify(sfxVolume);
+            }
+            
+            UpdateSFXVolumeText(sfxVolume);
+        }
+    }
+    
+    /// <summary>
+    /// Dipanggil saat music volume slider berubah
+    /// </summary>
+    public void OnMusicVolumeChanged(float value)
+    {
+        tempMusicVolume = value;
+        UpdateMusicVolumeText(value);
+        
+        // Preview volume change (real-time)
+        if (MusicManager.Instance != null)
+        {
+            MusicManager.Instance.SetVolume(value);
+        }
+        
+        MarkAsChanged();
+    }
+    
+    /// <summary>
+    /// Dipanggil saat SFX volume slider berubah
+    /// </summary>
+    public void OnSFXVolumeChanged(float value)
+    {
+        tempSFXVolume = value;
+        UpdateSFXVolumeText(value);
+        
+        // Preview volume change (real-time)
+        if (SFXManager.Instance != null)
+        {
+            SFXManager.Instance.SetVolume(value);
+            // Play test SFX untuk preview
+            SFXManager.Instance.PlayButtonClick();
+        }
+        
+        MarkAsChanged();
+    }
+    
+    /// <summary>
+    /// Dipanggil saat music mute toggle berubah
+    /// </summary>
+    public void OnMusicMuteToggled(bool isMuted)
+    {
+        tempMusicMute = isMuted;
+        
+        // Preview mute (real-time)
+        if (MusicManager.Instance != null)
+        {
+            MusicManager.Instance.SetMute(isMuted);
+        }
+        
+        MarkAsChanged();
+    }
+    
+    /// <summary>
+    /// Dipanggil saat SFX mute toggle berubah
+    /// </summary>
+    public void OnSFXMuteToggled(bool isMuted)
+    {
+        tempSFXMute = isMuted;
+        
+        // Preview mute (real-time)
+        if (SFXManager.Instance != null)
+        {
+            SFXManager.Instance.SetMute(isMuted);
+        }
+        
+        MarkAsChanged();
+    }
+    
+    /// <summary>
+    /// Apply settings (save to PlayerPrefs)
+    /// </summary>
+    public void ApplySettings()
+    {
+        // Settings sudah di-apply secara real-time untuk preview
+        // Tinggal save ke PlayerPrefs
+        
+        if (MusicManager.Instance != null)
+        {
+            MusicManager.Instance.SetVolume(tempMusicVolume);
+            MusicManager.Instance.SetMute(tempMusicMute);
+        }
+        
+        if (SFXManager.Instance != null)
+        {
+            SFXManager.Instance.SetVolume(tempSFXVolume);
+            SFXManager.Instance.SetMute(tempSFXMute);
+        }
+        
+        // Play confirmation sound
+        if (SFXManager.Instance != null)
+        {
+            SFXManager.Instance.PlayButtonClick();
+        }
+        
+        hasUnsavedChanges = false;
+        
+        if (applyButton != null)
+            applyButton.interactable = false;
+        
+        Debug.Log("[AudioSettings] Settings applied and saved!");
+    }
+    
+    /// <summary>
+    /// Reset audio settings ke default
+    /// </summary>
+    public void ResetToDefault()
+    {
+        // Reset ke default values
+        if (musicVolumeSlider != null)
+        {
+            musicVolumeSlider.value = defaultMusicVolume;
+        }
+        
+        if (sfxVolumeSlider != null)
+        {
+            sfxVolumeSlider.value = defaultSFXVolume;
+        }
+        
+        if (musicMuteToggle != null)
+        {
+            musicMuteToggle.isOn = false;
+        }
+        
+        if (sfxMuteToggle != null)
+        {
+            sfxMuteToggle.isOn = false;
+        }
+        
+        // Update temp values
+        tempMusicVolume = defaultMusicVolume;
+        tempSFXVolume = defaultSFXVolume;
+        tempMusicMute = false;
+        tempSFXMute = false;
+        
+        // Apply immediately
+        ApplySettings();
+        
+        // Play confirmation sound
+        if (SFXManager.Instance != null)
+        {
+            SFXManager.Instance.PlayButtonClick();
+        }
+        
+        Debug.Log("[AudioSettings] Reset to default values!");
+    }
+    
+    /// <summary>
+    /// Cancel changes (revert to saved values)
+    /// </summary>
+    public void CancelChanges()
+    {
+        LoadSettings();
+        hasUnsavedChanges = false;
+        
+        if (applyButton != null)
+            applyButton.interactable = false;
+    }
+    
+    private void MarkAsChanged()
+    {
+        hasUnsavedChanges = true;
+        
+        if (applyButton != null)
+            applyButton.interactable = true;
+    }
+    
+    private void UpdateMusicVolumeText(float volume)
+    {
+        if (musicVolumeText != null)
+        {
+            musicVolumeText.text = $"{Mathf.RoundToInt(volume * 100)}%";
+        }
+    }
+    
+    private void UpdateSFXVolumeText(float volume)
+    {
+        if (sfxVolumeText != null)
+        {
+            sfxVolumeText.text = $"{Mathf.RoundToInt(volume * 100)}%";
+        }
+    }
+    
+    /// <summary>
+    /// Check if there are unsaved changes (untuk warning dialog)
+    /// </summary>
+    public bool HasUnsavedChanges()
+    {
+        return hasUnsavedChanges;
+    }
+}

@@ -1,0 +1,157 @@
+﻿using UnityEngine;
+
+/// <summary>
+/// Main Menu Background Music Controller
+/// Attach to Main Menu scene atau GameObject persistent
+/// </summary>
+public class MainMenuMusic : MonoBehaviour
+{
+    [Header("Audio Settings")]
+    [SerializeField] private AudioClip bgmClip;
+    [SerializeField] private float volume = 0.5f;
+    [SerializeField] private bool loop = true;
+    [SerializeField] private bool playOnAwake = true;
+    
+    [Header("Fade Settings")]
+    [SerializeField] private bool useFadeIn = true;
+    [SerializeField] private float fadeInDuration = 1f;
+    
+    private AudioSource audioSource;
+    private float targetVolume;
+    
+    void Awake()
+    {
+        // Create atau get AudioSource component
+        audioSource = GetComponent<AudioSource>();
+        if (audioSource == null)
+        {
+            audioSource = gameObject.AddComponent<AudioSource>();
+        }
+        
+        // Setup AudioSource
+        audioSource.clip = bgmClip;
+        audioSource.loop = loop;
+        audioSource.playOnAwake = false; // Control manual
+        
+        targetVolume = volume;
+        
+        // Set initial volume for fade in
+        if (useFadeIn)
+        {
+            audioSource.volume = 0f;
+        }
+        else
+        {
+            audioSource.volume = volume;
+        }
+    }
+    
+    void Start()
+    {
+        if (playOnAwake && bgmClip != null)
+        {
+            PlayMusic();
+        }
+    }
+    
+    void Update()
+    {
+        // Fade in effect
+        if (useFadeIn && audioSource.isPlaying && audioSource.volume < targetVolume)
+        {
+            audioSource.volume = Mathf.MoveTowards(
+                audioSource.volume, 
+                targetVolume, 
+                (targetVolume / fadeInDuration) * Time.unscaledDeltaTime
+            );
+        }
+    }
+    
+    /// <summary>
+    /// Play BGM
+    /// </summary>
+    public void PlayMusic()
+    {
+        if (audioSource != null && bgmClip != null && !audioSource.isPlaying)
+        {
+            audioSource.Play();
+            Debug.Log("[MainMenuMusic] Playing BGM: " + bgmClip.name);
+        }
+    }
+    
+    /// <summary>
+    /// Stop BGM
+    /// </summary>
+    public void StopMusic()
+    {
+        if (audioSource != null && audioSource.isPlaying)
+        {
+            audioSource.Stop();
+            Debug.Log("[MainMenuMusic] Stopped BGM");
+        }
+    }
+    
+    /// <summary>
+    /// Pause BGM
+    /// </summary>
+    public void PauseMusic()
+    {
+        if (audioSource != null && audioSource.isPlaying)
+        {
+            audioSource.Pause();
+        }
+    }
+    
+    /// <summary>
+    /// Resume BGM
+    /// </summary>
+    public void ResumeMusic()
+    {
+        if (audioSource != null && !audioSource.isPlaying)
+        {
+            audioSource.UnPause();
+        }
+    }
+    
+    /// <summary>
+    /// Set volume
+    /// </summary>
+    public void SetVolume(float newVolume)
+    {
+        volume = Mathf.Clamp01(newVolume);
+        targetVolume = volume;
+        
+        if (audioSource != null && !useFadeIn)
+        {
+            audioSource.volume = volume;
+        }
+    }
+    
+    /// <summary>
+    /// Fade out dan stop
+    /// </summary>
+    public void FadeOutAndStop(float duration = 1f)
+    {
+        if (audioSource != null && audioSource.isPlaying)
+        {
+            StartCoroutine(FadeOutCoroutine(duration));
+        }
+    }
+    
+    private System.Collections.IEnumerator FadeOutCoroutine(float duration)
+    {
+        float startVolume = audioSource.volume;
+        float elapsed = 0f;
+        
+        while (elapsed < duration)
+        {
+            elapsed += Time.unscaledDeltaTime;
+            audioSource.volume = Mathf.Lerp(startVolume, 0f, elapsed / duration);
+            yield return null;
+        }
+        
+        audioSource.volume = 0f;
+        audioSource.Stop();
+        audioSource.volume = targetVolume; // Reset untuk next play
+    }
+}

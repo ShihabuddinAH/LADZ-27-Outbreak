@@ -1,0 +1,291 @@
+using UnityEngine;
+using UnityEngine.SceneManagement;
+
+/// <summary>
+/// Music Manager dengan Singleton Pattern
+/// Mengatur BGM untuk semua scene dengan auto-switch dan crossfade
+/// </summary>
+public class MusicManager : MonoBehaviour
+{
+    [Header("BGM Clips")]
+    [SerializeField] private AudioClip mainMenuBGM;
+    [SerializeField] private AudioClip gameplayBGM;
+    [SerializeField] private AudioClip gameOverBGM; // Optional
+    
+    [Header("Settings")]
+    [SerializeField] private float defaultVolume = 0.5f;
+    [SerializeField] private bool enableCrossfade = true;
+    [SerializeField] private float crossfadeDuration = 1.5f;
+    
+    [Header("Scene Names")]
+    [SerializeField] private string[] mainMenuScenes = { "MainMenu", "Main Menu" };
+    [SerializeField] private string[] gameplayScenes = { "EndlessScene", "GameScene", "Gameplay" };
+    [SerializeField] private string[] gameOverScenes = { "GameOver" };
+    
+    private AudioSource audioSource;
+    private static MusicManager instance;
+    private string currentScene;
+    private float currentVolume;
+    
+    public static MusicManager Instance => instance;
+    
+    void Awake()
+    {
+        // Singleton dengan DontDestroyOnLoad
+        if (instance == null)
+        {
+            instance = this;
+            DontDestroyOnLoad(gameObject);
+            
+            // Setup AudioSource
+            audioSource = GetComponent<AudioSource>();
+            if (audioSource == null)
+            {
+                audioSource = gameObject.AddComponent<AudioSource>();
+            }
+            
+            audioSource.loop = true;
+            audioSource.playOnAwake = false;
+            
+            // Load saved volume atau pakai default
+            currentVolume = PlayerPrefs.GetFloat("MusicVolume", defaultVolume);
+            audioSource.volume = currentVolume;
+            
+            Debug.Log("[MusicManager] Initialized");
+        }
+        else
+        {
+            Destroy(gameObject);
+            return;
+        }
+    }
+    
+    void Start()
+    {
+        // Subscribe to scene loaded event
+        SceneManager.sceneLoaded += OnSceneLoaded;
+        
+        // Play BGM untuk scene awal
+        currentScene = SceneManager.GetActiveScene().name;
+        PlayBGMForScene(currentScene);
+    }
+    
+    void OnDestroy()
+    {
+        if (instance == this)
+        {
+            SceneManager.sceneLoaded -= OnSceneLoaded;
+        }
+    }
+    
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        string sceneName = scene.name;
+        
+        // Skip jika scene yang sama
+        if (sceneName == currentScene)
+            return;
+        
+        currentScene = sceneName;
+        PlayBGMForScene(sceneName);
+    }
+    
+    private void PlayBGMForScene(string sceneName)
+    {
+        AudioClip targetClip = GetBGMForScene(sceneName);
+        
+        if (targetClip != null)
+        {
+            // Jika BGM berbeda dengan yang sedang play
+            if (audioSource.clip != targetClip)
+            {
+                if (enableCrossfade && audioSource.isPlaying)
+                {
+                    StartCoroutine(CrossfadeTo(targetClip, crossfadeDuration));
+                }
+                else
+                {
+                    audioSource.clip = targetClip;
+                    audioSource.Play();
+                    Debug.Log($"[MusicManager] Playing: {targetClip.name}");
+                }
+            }
+            else if (!audioSource.isPlaying)
+            {
+                // Clip sama tapi tidak playing, play aja
+                audioSource.Play();
+            }
+        }
+        else
+        {
+            // Tidak ada BGM untuk scene ini, stop
+            if (audioSource.isPlaying)
+            {
+                if (enableCrossfade)
+                {
+                    StartCoroutine(FadeOutAndStop(crossfadeDuration / 2f));
+                }
+                else
+                {
+                    audioSource.Stop();
+                }
+            }
+        }
+    }
+    
+    private AudioClip GetBGMForScene(string sceneName)
+    {
+        // Check Main Menu scenes
+        foreach (string menuScene in mainMenuScenes)
+        {
+            if (sceneName.Contains(menuScene))
+                return mainMenuBGM;
+        }
+        
+        // Check Gameplay scenes
+        foreach (string gameScene in gameplayScenes)
+        {
+            if (sceneName.Contains(gameScene))
+                return gameplayBGM;
+        }
+        
+        // Check Game Over scenes
+        if (gameOverBGM != null)
+        {
+            foreach (string overScene in gameOverScenes)
+            {
+                if (sceneName.Contains(overScene))
+                    return gameOverBGM;
+            }
+        }
+        
+        return null;
+    }
+    
+    private System.Collections.IEnumerator CrossfadeTo(AudioClip newClip, float duration)
+    {
+        float halfDuration = duration / 2f;
+        float elapsed = 0f;
+        float startVolume = audioSource.volume;
+        
+        // Fade out
+        while (elapsed < halfDuration)
+        {
+            elapsed += Time.unscaledDeltaTime;
+            audioSource.volume = Mathf.Lerp(startVolume, 0f, elapsed / halfDuration);
+            yield return null;
+        }
+        
+        // Switch clip
+        audioSource.clip = newClip;
+        audioSource.Play();
+        Debug.Log($"[MusicManager] Crossfading to: {newClip.name}");
+        
+        // Fade in
+        elapsed = 0f;
+        while (elapsed < halfDuration)
+        {
+            elapsed += Time.unscaledDeltaTime;
+            audioSource.volume = Mathf.Lerp(0f, currentVolume, elapsed / halfDuration);
+            yield return null;
+        }
+        
+        audioSource.volume = currentVolume;
+    }
+    
+    private System.Collections.IEnumerator FadeOutAndStop(float duration)
+    {
+        float elapsed = 0f;
+        float startVolume = audioSource.volume;
+        
+        while (elapsed < duration)
+        {
+            elapsed += Time.unscaledDeltaTime;
+            audioSource.volume = Mathf.Lerp(startVolume, 0f, elapsed / duration);
+            yield return null;
+        }
+        
+        audioSource.Stop();
+        audioSource.volume = currentVolume;
+    }
+    
+    /// <summary>
+    /// Set volume BGM (0-1)
+    /// saveToPrefs: true = save ke PlayerPrefs, false = hanya preview
+    /// </summary>
+    public void SetVolume(float volume, bool saveToPrefs = true)
+    {
+        currentVolume = Mathf.Clamp01(volume);
+        if (audioSource != null)
+        {
+            audioSource.volume = currentVolume;
+        }
+        
+        // Save to PlayerPrefs HANYA jika saveToPrefs = true
+        if (saveToPrefs)
+        {
+            PlayerPrefs.SetFloat("MusicVolume", currentVolume);
+            PlayerPrefs.Save();
+        }
+    }
+    
+    /// <summary>
+    /// Get current volume
+    /// </summary>
+    public float GetVolume()
+    {
+        return currentVolume;
+    }
+    
+    /// <summary>
+    /// Mute/Unmute BGM
+    /// </summary>
+    public void SetMute(bool mute)
+    {
+        if (audioSource != null)
+        {
+            audioSource.mute = mute;
+        }
+    }
+    
+    /// <summary>
+    /// Check if muted
+    /// </summary>
+    public bool IsMuted()
+    {
+        return audioSource != null && audioSource.mute;
+    }
+    
+    /// <summary>
+    /// Stop BGM
+    /// </summary>
+    public void Stop()
+    {
+        if (audioSource != null && audioSource.isPlaying)
+        {
+            audioSource.Stop();
+        }
+    }
+    
+    /// <summary>
+    /// Pause BGM
+    /// </summary>
+    public void Pause()
+    {
+        if (audioSource != null && audioSource.isPlaying)
+        {
+            audioSource.Pause();
+        }
+    }
+    
+    /// <summary>
+    /// Resume BGM
+    /// </summary>
+    public void Resume()
+    {
+        if (audioSource != null && !audioSource.isPlaying)
+        {
+            audioSource.UnPause();
+        }
+    }
+}

@@ -1,0 +1,159 @@
+﻿using UnityEngine;
+using UnityEngine.SceneManagement;
+
+public class GameManager : MonoBehaviour
+{
+    [Header("References")]
+    [SerializeField] private ZombieSpawner spawner;
+    [SerializeField] private PlayerHealth playerHealth;
+    [SerializeField] private GameStats gameStats;
+    
+    [Header("Game State")]
+    [SerializeField] private bool isPaused = false;
+    [SerializeField] private bool isGameOver = false;
+    
+    [Header("UI Panels")]
+    [SerializeField] private GameObject pauseMenuPanel;
+    [SerializeField] private GameObject gameOverPanel;
+    [SerializeField] private GameObject hudPanel;
+    
+    private static GameManager instance;
+    public static GameManager Instance => instance;
+    
+    void Awake()
+    {
+        // Simple singleton - always use current instance
+        instance = this;
+    }
+    
+    void Start()
+    {
+        // Auto-find references using newer API
+        if (spawner == null)
+            spawner = FindFirstObjectByType<ZombieSpawner>();
+        
+        if (playerHealth == null)
+            playerHealth = FindFirstObjectByType<PlayerHealth>();
+        
+        if (gameStats == null)
+            gameStats = FindFirstObjectByType<GameStats>();
+        
+        // Initialize UI
+        if (pauseMenuPanel != null) pauseMenuPanel.SetActive(false);
+        if (gameOverPanel != null) gameOverPanel.SetActive(false);
+        if (hudPanel != null) hudPanel.SetActive(true);
+        
+        // Ensure time is running
+        Time.timeScale = 1f;
+        isPaused = false;
+        isGameOver = false;
+    }
+    
+    void Update()
+    {
+        // Pause menu toggle
+        if (Input.GetKeyDown(KeyCode.Escape) && !isGameOver)
+        {
+            if (isPaused)
+                ResumeGame();
+            else
+                PauseGame();
+        }
+        
+        // Check game over
+        if (!isGameOver && playerHealth != null && playerHealth.GetCurrentHealth() <= 0)
+        {
+            GameOver();
+        }
+    }
+    
+    public void PauseGame()
+    {
+        isPaused = true;
+        Time.timeScale = 0f;
+        
+        if (pauseMenuPanel != null)
+            pauseMenuPanel.SetActive(true);
+        
+        if (hudPanel != null)
+            hudPanel.SetActive(false);
+    }
+    
+    public void ResumeGame()
+    {
+        isPaused = false;
+        Time.timeScale = 1f;
+        
+        if (pauseMenuPanel != null)
+            pauseMenuPanel.SetActive(false);
+        
+        if (hudPanel != null)
+            hudPanel.SetActive(true);
+    }
+    
+    public void GameOver()
+    {
+        if (isGameOver) return;
+        
+        isGameOver = true;
+        Time.timeScale = 0f;
+        
+        if (spawner != null)
+            spawner.enabled = false;
+        
+        // Cleanup items saat game over
+        CleanupItems();
+        
+        if (gameOverPanel != null)
+            gameOverPanel.SetActive(true);
+        
+        if (hudPanel != null)
+            hudPanel.SetActive(false);
+        
+        SaveGameStats();
+    }
+    
+    public void RestartGame()
+    {
+        // PENTING: Cleanup dulu sebelum restart
+        CleanupItems();
+        CleanupZombies();
+        
+        // Reset time dan load scene
+        Time.timeScale = 1f;
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+    }
+    
+    public void QuitToMainMenu()
+    {
+        // PENTING: Cleanup dulu sebelum pindah scene
+        CleanupItems();
+        CleanupZombies();
+        
+        Time.timeScale = 1f;
+        SceneManager.LoadScene("MainMenu");
+    }
+    
+    public void QuitGame()
+    {
+        CleanupItems();
+        Application.Quit();
+    }
+    
+    /// <summary>
+    /// Hapus semua item pickup di scene
+    /// </summary>
+    private void CleanupItems()
+    {
+        // Method 1: Pakai ItemCleanup jika ada
+        if (ItemCleanup.Instance != null)
+        {
+            ItemCleanup.Instance.CleanupAllItems();
+        }
+        else
+        {
+            // Method 2: Langsung cari dan destroy
+            ItemPickup[] items = FindObjectsByType<ItemPickup>(FindObjectsSortMode.None);
+            foreach (ItemPickup item in items)
+            {
+                if

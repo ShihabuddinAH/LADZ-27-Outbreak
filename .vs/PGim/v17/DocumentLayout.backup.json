@@ -1,0 +1,345 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "D:\\Shihab\\UII\\KULIAH\\SEMESTER 5\\PGIM\\PGim\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{8FA58980-645E-DAFC-0389-852285D56F2A}|Assembly-CSharp.csproj|D:\\Shihab\\UII\\KULIAH\\SEMESTER 5\\PGIM\\PGim\\assets\\scripts\\ui\\mainmenumanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{8FA58980-645E-DAFC-0389-852285D56F2A}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\ui\\mainmenumanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{8FA58980-645E-DAFC-0389-852285D56F2A}|Assembly-CSharp.csproj|d:\\shihab\\uii\\kuliah\\semester 5\\pgim\\pgim\\assets\\scripts\\ui\\howtoplaypanel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{8FA58980-645E-DAFC-0389-852285D56F2A}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\ui\\howtoplaypanel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{8FA58980-645E-DAFC-0389-852285D56F2A}|Assembly-CSharp.csproj|D:\\Shihab\\UII\\KULIAH\\SEMESTER 5\\PGIM\\PGim\\assets\\scripts\\audio\\musicmanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{8FA58980-645E-DAFC-0389-852285D56F2A}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\audio\\musicmanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{8FA58980-645E-DAFC-0389-852285D56F2A}|Assembly-CSharp.csproj|D:\\Shihab\\UII\\KULIAH\\SEMESTER 5\\PGIM\\PGim\\assets\\scripts\\audio\\sfxmanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{8FA58980-645E-DAFC-0389-852285D56F2A}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\audio\\sfxmanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{8FA58980-645E-DAFC-0389-852285D56F2A}|Assembly-CSharp.csproj|D:\\Shihab\\UII\\KULIAH\\SEMESTER 5\\PGIM\\PGim\\assets\\scripts\\audio\\audiosettings.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{8FA58980-645E-DAFC-0389-852285D56F2A}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\audio\\audiosettings.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{8FA58980-645E-DAFC-0389-852285D56F2A}|Assembly-CSharp.csproj|D:\\Shihab\\UII\\KULIAH\\SEMESTER 5\\PGIM\\PGim\\assets\\scripts\\ui\\gameoverpanel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{8FA58980-645E-DAFC-0389-852285D56F2A}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\ui\\gameoverpanel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{8FA58980-645E-DAFC-0389-852285D56F2A}|Assembly-CSharp.csproj|D:\\Shihab\\UII\\KULIAH\\SEMESTER 5\\PGIM\\PGim\\assets\\scripts\\weapon\\weaponcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{8FA58980-645E-DAFC-0389-852285D56F2A}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\weapon\\weaponcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{8FA58980-645E-DAFC-0389-852285D56F2A}|Assembly-CSharp.csproj|D:\\Shihab\\UII\\KULIAH\\SEMESTER 5\\PGIM\\PGim\\assets\\scripts\\manager\\itemcleanup.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{8FA58980-645E-DAFC-0389-852285D56F2A}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\manager\\itemcleanup.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{8FA58980-645E-DAFC-0389-852285D56F2A}|Assembly-CSharp.csproj|D:\\Shihab\\UII\\KULIAH\\SEMESTER 5\\PGIM\\PGim\\assets\\scripts\\ui\\inventoryui.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{8FA58980-645E-DAFC-0389-852285D56F2A}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\ui\\inventoryui.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{8FA58980-645E-DAFC-0389-852285D56F2A}|Assembly-CSharp.csproj|D:\\Shihab\\UII\\KULIAH\\SEMESTER 5\\PGIM\\PGim\\assets\\scripts\\item\\itempickup.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{8FA58980-645E-DAFC-0389-852285D56F2A}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\item\\itempickup.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{8FA58980-645E-DAFC-0389-852285D56F2A}|Assembly-CSharp.csproj|D:\\Shihab\\UII\\KULIAH\\SEMESTER 5\\PGIM\\PGim\\assets\\scripts\\item\\itemdropper.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{8FA58980-645E-DAFC-0389-852285D56F2A}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\item\\itemdropper.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{8FA58980-645E-DAFC-0389-852285D56F2A}|Assembly-CSharp.csproj|D:\\Shihab\\UII\\KULIAH\\SEMESTER 5\\PGIM\\PGim\\assets\\scripts\\player\\playerinventory.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{8FA58980-645E-DAFC-0389-852285D56F2A}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\player\\playerinventory.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{8FA58980-645E-DAFC-0389-852285D56F2A}|Assembly-CSharp.csproj|D:\\Shihab\\UII\\KULIAH\\SEMESTER 5\\PGIM\\PGim\\assets\\scripts\\manager\\gamemanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{8FA58980-645E-DAFC-0389-852285D56F2A}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\manager\\gamemanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{8FA58980-645E-DAFC-0389-852285D56F2A}|Assembly-CSharp.csproj|D:\\Shihab\\UII\\KULIAH\\SEMESTER 5\\PGIM\\PGim\\assets\\scripts\\manager\\gamestats.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{8FA58980-645E-DAFC-0389-852285D56F2A}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\manager\\gamestats.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{8FA58980-645E-DAFC-0389-852285D56F2A}|Assembly-CSharp.csproj|D:\\Shihab\\UII\\KULIAH\\SEMESTER 5\\PGIM\\PGim\\assets\\scripts\\ui\\hudmanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{8FA58980-645E-DAFC-0389-852285D56F2A}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\ui\\hudmanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{8FA58980-645E-DAFC-0389-852285D56F2A}|Assembly-CSharp.csproj|D:\\Shihab\\UII\\KULIAH\\SEMESTER 5\\PGIM\\PGim\\assets\\scripts\\manager\\leaderboardmanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{8FA58980-645E-DAFC-0389-852285D56F2A}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\manager\\leaderboardmanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{8FA58980-645E-DAFC-0389-852285D56F2A}|Assembly-CSharp.csproj|D:\\Shihab\\UII\\KULIAH\\SEMESTER 5\\PGIM\\PGim\\assets\\scripts\\ui\\leaderboardpanelui.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{8FA58980-645E-DAFC-0389-852285D56F2A}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\ui\\leaderboardpanelui.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{8FA58980-645E-DAFC-0389-852285D56F2A}|Assembly-CSharp.csproj|D:\\Shihab\\UII\\KULIAH\\SEMESTER 5\\PGIM\\PGim\\assets\\scripts\\zombie\\zombiehealth.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{8FA58980-645E-DAFC-0389-852285D56F2A}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\zombie\\zombiehealth.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{8FA58980-645E-DAFC-0389-852285D56F2A}|Assembly-CSharp.csproj|D:\\Shihab\\UII\\KULIAH\\SEMESTER 5\\PGIM\\PGim\\assets\\scripts\\player\\playerhealth.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{8FA58980-645E-DAFC-0389-852285D56F2A}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\player\\playerhealth.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{8FA58980-645E-DAFC-0389-852285D56F2A}|Assembly-CSharp.csproj|D:\\Shihab\\UII\\KULIAH\\SEMESTER 5\\PGIM\\PGim\\assets\\scripts\\zombie\\zombiemovement.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{8FA58980-645E-DAFC-0389-852285D56F2A}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\zombie\\zombiemovement.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 1,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "HowToPlayPanel.cs",
+              "DocumentMoniker": "D:\\Shihab\\UII\\KULIAH\\SEMESTER 5\\PGIM\\PGim\\Assets\\Scripts\\UI\\HowToPlayPanel.cs",
+              "RelativeDocumentMoniker": "Assets\\Scripts\\UI\\HowToPlayPanel.cs",
+              "ToolTip": "D:\\Shihab\\UII\\KULIAH\\SEMESTER 5\\PGIM\\PGim\\Assets\\Scripts\\UI\\HowToPlayPanel.cs",
+              "RelativeToolTip": "Assets\\Scripts\\UI\\HowToPlayPanel.cs",
+              "ViewState": "AgIAAJ0AAAAAAAAAAAAYwLcAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-05T19:58:09.499Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "MainMenuManager.cs",
+              "DocumentMoniker": "D:\\Shihab\\UII\\KULIAH\\SEMESTER 5\\PGIM\\PGim\\Assets\\Scripts\\UI\\MainMenuManager.cs",
+              "RelativeDocumentMoniker": "Assets\\Scripts\\UI\\MainMenuManager.cs",
+              "ToolTip": "D:\\Shihab\\UII\\KULIAH\\SEMESTER 5\\PGIM\\PGim\\Assets\\Scripts\\UI\\MainMenuManager.cs",
+              "RelativeToolTip": "Assets\\Scripts\\UI\\MainMenuManager.cs",
+              "ViewState": "AgIAABYBAAAAAAAAAAAuwP8AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-05T19:11:21.289Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 19,
+              "Title": "ZombieMovement.cs",
+              "DocumentMoniker": "D:\\Shihab\\UII\\KULIAH\\SEMESTER 5\\PGIM\\PGim\\Assets\\Scripts\\Zombie\\ZombieMovement.cs",
+              "RelativeDocumentMoniker": "Assets\\Scripts\\Zombie\\ZombieMovement.cs",
+              "ToolTip": "D:\\Shihab\\UII\\KULIAH\\SEMESTER 5\\PGIM\\PGim\\Assets\\Scripts\\Zombie\\ZombieMovement.cs",
+              "RelativeToolTip": "Assets\\Scripts\\Zombie\\ZombieMovement.cs",
+              "ViewState": "AgIAAPgAAAAAAAAAAEBVwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-05T19:10:40.911Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 18,
+              "Title": "PlayerHealth.cs",
+              "DocumentMoniker": "D:\\Shihab\\UII\\KULIAH\\SEMESTER 5\\PGIM\\PGim\\Assets\\Scripts\\Player\\PlayerHealth.cs",
+              "RelativeDocumentMoniker": "Assets\\Scripts\\Player\\PlayerHealth.cs",
+              "ToolTip": "D:\\Shihab\\UII\\KULIAH\\SEMESTER 5\\PGIM\\PGim\\Assets\\Scripts\\Player\\PlayerHealth.cs",
+              "RelativeToolTip": "Assets\\Scripts\\Player\\PlayerHealth.cs",
+              "ViewState": "AgIAALQAAAAAAAAAAEBVwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-05T19:09:40.594Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 17,
+              "Title": "ZombieHealth.cs",
+              "DocumentMoniker": "D:\\Shihab\\UII\\KULIAH\\SEMESTER 5\\PGIM\\PGim\\Assets\\Scripts\\Zombie\\ZombieHealth.cs",
+              "RelativeDocumentMoniker": "Assets\\Scripts\\Zombie\\ZombieHealth.cs",
+              "ToolTip": "D:\\Shihab\\UII\\KULIAH\\SEMESTER 5\\PGIM\\PGim\\Assets\\Scripts\\Zombie\\ZombieHealth.cs",
+              "RelativeToolTip": "Assets\\Scripts\\Zombie\\ZombieHealth.cs",
+              "ViewState": "AgIAAHUAAAAAAAAAAABRwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-05T19:08:47.824Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "AudioSettings.cs",
+              "DocumentMoniker": "D:\\Shihab\\UII\\KULIAH\\SEMESTER 5\\PGIM\\PGim\\Assets\\Scripts\\Audio\\AudioSettings.cs",
+              "RelativeDocumentMoniker": "Assets\\Scripts\\Audio\\AudioSettings.cs",
+              "ToolTip": "D:\\Shihab\\UII\\KULIAH\\SEMESTER 5\\PGIM\\PGim\\Assets\\Scripts\\Audio\\AudioSettings.cs",
+              "RelativeToolTip": "Assets\\Scripts\\Audio\\AudioSettings.cs",
+              "ViewState": "AgIAAHwBAAAAAAAAAABBwH0BAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-05T18:22:12.585Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "SFXManager.cs",
+              "DocumentMoniker": "D:\\Shihab\\UII\\KULIAH\\SEMESTER 5\\PGIM\\PGim\\Assets\\Scripts\\Audio\\SFXManager.cs",
+              "RelativeDocumentMoniker": "Assets\\Scripts\\Audio\\SFXManager.cs",
+              "ToolTip": "D:\\Shihab\\UII\\KULIAH\\SEMESTER 5\\PGIM\\PGim\\Assets\\Scripts\\Audio\\SFXManager.cs",
+              "RelativeToolTip": "Assets\\Scripts\\Audio\\SFXManager.cs",
+              "ViewState": "AgIAALgBAAAAAAAAAABRwLsBAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-05T18:21:47.802Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "MusicManager.cs",
+              "DocumentMoniker": "D:\\Shihab\\UII\\KULIAH\\SEMESTER 5\\PGIM\\PGim\\Assets\\Scripts\\Audio\\MusicManager.cs",
+              "RelativeDocumentMoniker": "Assets\\Scripts\\Audio\\MusicManager.cs",
+              "ToolTip": "D:\\Shihab\\UII\\KULIAH\\SEMESTER 5\\PGIM\\PGim\\Assets\\Scripts\\Audio\\MusicManager.cs",
+              "RelativeToolTip": "Assets\\Scripts\\Audio\\MusicManager.cs",
+              "ViewState": "AgIAACABAAAAAAAAAABRwBEAAAA8AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-05T18:21:20.92Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 16,
+              "Title": "LeaderboardPanelUI.cs",
+              "DocumentMoniker": "D:\\Shihab\\UII\\KULIAH\\SEMESTER 5\\PGIM\\PGim\\Assets\\Scripts\\UI\\LeaderboardPanelUI.cs",
+              "RelativeDocumentMoniker": "Assets\\Scripts\\UI\\LeaderboardPanelUI.cs",
+              "ToolTip": "D:\\Shihab\\UII\\KULIAH\\SEMESTER 5\\PGIM\\PGim\\Assets\\Scripts\\UI\\LeaderboardPanelUI.cs",
+              "RelativeToolTip": "Assets\\Scripts\\UI\\LeaderboardPanelUI.cs",
+              "ViewState": "AgIAAE4BAAAAAAAAAABRwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-05T15:59:08.137Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 15,
+              "Title": "LeaderboardManager.cs",
+              "DocumentMoniker": "D:\\Shihab\\UII\\KULIAH\\SEMESTER 5\\PGIM\\PGim\\Assets\\Scripts\\Manager\\LeaderboardManager.cs",
+              "RelativeDocumentMoniker": "Assets\\Scripts\\Manager\\LeaderboardManager.cs",
+              "ToolTip": "D:\\Shihab\\UII\\KULIAH\\SEMESTER 5\\PGIM\\PGim\\Assets\\Scripts\\Manager\\LeaderboardManager.cs",
+              "RelativeToolTip": "Assets\\Scripts\\Manager\\LeaderboardManager.cs",
+              "ViewState": "AgIAACYBAAAAAAAAAEBVwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-05T15:57:51.758Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "ItemCleanup.cs",
+              "DocumentMoniker": "D:\\Shihab\\UII\\KULIAH\\SEMESTER 5\\PGIM\\PGim\\Assets\\Scripts\\Manager\\ItemCleanup.cs",
+              "RelativeDocumentMoniker": "Assets\\Scripts\\Manager\\ItemCleanup.cs",
+              "ToolTip": "D:\\Shihab\\UII\\KULIAH\\SEMESTER 5\\PGIM\\PGim\\Assets\\Scripts\\Manager\\ItemCleanup.cs",
+              "RelativeToolTip": "Assets\\Scripts\\Manager\\ItemCleanup.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA0AAABWAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-05T14:32:38.762Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 14,
+              "Title": "HUDManager.cs",
+              "DocumentMoniker": "D:\\Shihab\\UII\\KULIAH\\SEMESTER 5\\PGIM\\PGim\\Assets\\Scripts\\UI\\HUDManager.cs",
+              "RelativeDocumentMoniker": "Assets\\Scripts\\UI\\HUDManager.cs",
+              "ToolTip": "D:\\Shihab\\UII\\KULIAH\\SEMESTER 5\\PGIM\\PGim\\Assets\\Scripts\\UI\\HUDManager.cs",
+              "RelativeToolTip": "Assets\\Scripts\\UI\\HUDManager.cs",
+              "ViewState": "AgIAAMIAAAAAAAAAAABBwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-05T14:30:53.715Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 13,
+              "Title": "GameStats.cs",
+              "DocumentMoniker": "D:\\Shihab\\UII\\KULIAH\\SEMESTER 5\\PGIM\\PGim\\Assets\\Scripts\\Manager\\GameStats.cs",
+              "RelativeDocumentMoniker": "Assets\\Scripts\\Manager\\GameStats.cs",
+              "ToolTip": "D:\\Shihab\\UII\\KULIAH\\SEMESTER 5\\PGIM\\PGim\\Assets\\Scripts\\Manager\\GameStats.cs",
+              "RelativeToolTip": "Assets\\Scripts\\Manager\\GameStats.cs",
+              "ViewState": "AgIAALcAAAAAAAAAAABBwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-05T14:24:41.769Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "InventoryUI.cs",
+              "DocumentMoniker": "D:\\Shihab\\UII\\KULIAH\\SEMESTER 5\\PGIM\\PGim\\Assets\\Scripts\\UI\\InventoryUI.cs",
+              "RelativeDocumentMoniker": "Assets\\Scripts\\UI\\InventoryUI.cs",
+              "ToolTip": "D:\\Shihab\\UII\\KULIAH\\SEMESTER 5\\PGIM\\PGim\\Assets\\Scripts\\UI\\InventoryUI.cs",
+              "RelativeToolTip": "Assets\\Scripts\\UI\\InventoryUI.cs",
+              "ViewState": "AgIAAK0AAAAAAAAAAIBgwLMAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-05T13:13:39.152Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 12,
+              "Title": "GameManager.cs",
+              "DocumentMoniker": "D:\\Shihab\\UII\\KULIAH\\SEMESTER 5\\PGIM\\PGim\\Assets\\Scripts\\Manager\\GameManager.cs",
+              "RelativeDocumentMoniker": "Assets\\Scripts\\Manager\\GameManager.cs",
+              "ToolTip": "D:\\Shihab\\UII\\KULIAH\\SEMESTER 5\\PGIM\\PGim\\Assets\\Scripts\\Manager\\GameManager.cs",
+              "RelativeToolTip": "Assets\\Scripts\\Manager\\GameManager.cs",
+              "ViewState": "AgIAALIAAAAAAAAAAABfwLYAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-04T11:54:12.136Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "GameOverPanel.cs",
+              "DocumentMoniker": "D:\\Shihab\\UII\\KULIAH\\SEMESTER 5\\PGIM\\PGim\\Assets\\Scripts\\UI\\GameOverPanel.cs",
+              "RelativeDocumentMoniker": "Assets\\Scripts\\UI\\GameOverPanel.cs",
+              "ToolTip": "D:\\Shihab\\UII\\KULIAH\\SEMESTER 5\\PGIM\\PGim\\Assets\\Scripts\\UI\\GameOverPanel.cs",
+              "RelativeToolTip": "Assets\\Scripts\\UI\\GameOverPanel.cs",
+              "ViewState": "AgIAAB0AAAAAAAAAAAAQwDAAAAATAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-04T17:41:35.57Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "WeaponController.cs",
+              "DocumentMoniker": "D:\\Shihab\\UII\\KULIAH\\SEMESTER 5\\PGIM\\PGim\\Assets\\Scripts\\Weapon\\WeaponController.cs",
+              "RelativeDocumentMoniker": "Assets\\Scripts\\Weapon\\WeaponController.cs",
+              "ToolTip": "D:\\Shihab\\UII\\KULIAH\\SEMESTER 5\\PGIM\\PGim\\Assets\\Scripts\\Weapon\\WeaponController.cs",
+              "RelativeToolTip": "Assets\\Scripts\\Weapon\\WeaponController.cs",
+              "ViewState": "AgIAAPsBAAAAAAAAAEBVwCUAAAAUAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-02T21:12:15.299Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "ItemPickup.cs",
+              "DocumentMoniker": "D:\\Shihab\\UII\\KULIAH\\SEMESTER 5\\PGIM\\PGim\\Assets\\Scripts\\Item\\ItemPickup.cs",
+              "RelativeDocumentMoniker": "Assets\\Scripts\\Item\\ItemPickup.cs",
+              "ToolTip": "D:\\Shihab\\UII\\KULIAH\\SEMESTER 5\\PGIM\\PGim\\Assets\\Scripts\\Item\\ItemPickup.cs",
+              "RelativeToolTip": "Assets\\Scripts\\Item\\ItemPickup.cs",
+              "ViewState": "AgIAAKIAAAAAAAAAAABRwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-05T13:12:51.765Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "ItemDropper.cs",
+              "DocumentMoniker": "D:\\Shihab\\UII\\KULIAH\\SEMESTER 5\\PGIM\\PGim\\Assets\\Scripts\\Item\\ItemDropper.cs",
+              "RelativeDocumentMoniker": "Assets\\Scripts\\Item\\ItemDropper.cs",
+              "ToolTip": "D:\\Shihab\\UII\\KULIAH\\SEMESTER 5\\PGIM\\PGim\\Assets\\Scripts\\Item\\ItemDropper.cs",
+              "RelativeToolTip": "Assets\\Scripts\\Item\\ItemDropper.cs",
+              "ViewState": "AgIAAGoAAAAAAAAAAIBgwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-05T13:13:24.852Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
+              "Title": "PlayerInventory.cs",
+              "DocumentMoniker": "D:\\Shihab\\UII\\KULIAH\\SEMESTER 5\\PGIM\\PGim\\Assets\\Scripts\\Player\\PlayerInventory.cs",
+              "RelativeDocumentMoniker": "Assets\\Scripts\\Player\\PlayerInventory.cs",
+              "ToolTip": "D:\\Shihab\\UII\\KULIAH\\SEMESTER 5\\PGIM\\PGim\\Assets\\Scripts\\Player\\PlayerInventory.cs",
+              "RelativeToolTip": "Assets\\Scripts\\Player\\PlayerInventory.cs",
+              "ViewState": "AgIAAH0AAAAAAAAAAABBwIAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-05T09:09:39.735Z"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

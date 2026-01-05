@@ -1,0 +1,241 @@
+﻿using UnityEngine;
+
+/// <summary>
+/// Debug script untuk test inventory system
+/// Provides cheat commands untuk testing
+/// </summary>
+public class InventoryDebug : MonoBehaviour
+{
+    [Header("References")]
+    [SerializeField] private PlayerInventory playerInventory;
+    [SerializeField] private WeaponController weaponController;
+    [SerializeField] private PlayerHealth playerHealth;
+    
+    [Header("Auto Find")]
+    [SerializeField] private bool autoFindReferences = true;
+    
+    [Header("Debug Keys")]
+    [SerializeField] private KeyCode addMedkitKey = KeyCode.M;
+    [SerializeField] private KeyCode addAmmoKey = KeyCode.N;
+    [SerializeField] private KeyCode refillAllKey = KeyCode.B;
+    [SerializeField] private KeyCode damagePlayerKey = KeyCode.H;
+    [SerializeField] private KeyCode toggleInfiniteAmmoKey = KeyCode.I;
+    
+    [Header("Debug Amounts")]
+    [SerializeField] private int medkitsToAdd = 1;
+    [SerializeField] private int ammoToAdd = 50;
+    [SerializeField] private int damageAmount = 20;
+    
+    private bool showDebugUI = true;
+    
+    void Start()
+    {
+        if (autoFindReferences)
+        {
+            if (playerInventory == null)
+                playerInventory = FindObjectOfType<PlayerInventory>();
+            
+            if (weaponController == null)
+                weaponController = FindObjectOfType<WeaponController>();
+            
+            if (playerHealth == null)
+                playerHealth = FindObjectOfType<PlayerHealth>();
+        }
+    }
+    
+    void Update()
+    {
+        HandleDebugInput();
+        
+        // Toggle debug UI
+        if (Input.GetKeyDown(KeyCode.F12))
+        {
+            showDebugUI = !showDebugUI;
+        }
+    }
+    
+    private void HandleDebugInput()
+    {
+        // Add Medkit
+        if (Input.GetKeyDown(addMedkitKey))
+        {
+            AddMedkit();
+        }
+        
+        // Add Ammo
+        if (Input.GetKeyDown(addAmmoKey))
+        {
+            AddAmmo();
+        }
+        
+        // Refill All
+        if (Input.GetKeyDown(refillAllKey))
+        {
+            RefillAll();
+        }
+        
+        // Damage Player (untuk test heal)
+        if (Input.GetKeyDown(damagePlayerKey))
+        {
+            DamagePlayer();
+        }
+        
+        // Toggle Infinite Ammo
+        if (Input.GetKeyDown(toggleInfiniteAmmoKey))
+        {
+            ToggleInfiniteAmmo();
+        }
+    }
+    
+    private void AddMedkit()
+    {
+        if (playerInventory == null)
+        {
+            Debug.LogWarning("PlayerInventory not found!");
+            return;
+        }
+        
+        playerInventory.AddMedkit(medkitsToAdd);
+        Debug.Log($"[CHEAT] Added {medkitsToAdd} medkit(s)");
+    }
+    
+    private void AddAmmo()
+    {
+        if (weaponController == null)
+        {
+            Debug.LogWarning("WeaponController not found!");
+            return;
+        }
+        
+        WeaponData currentWeapon = weaponController.GetCurrentWeapon();
+        if (currentWeapon != null)
+        {
+            // NEW: Add 5 magazines instead of bullets
+            weaponController.AddMagazine(currentWeapon.weaponType, 5);
+            Debug.Log($"[CHEAT] Added 5 magazines for {currentWeapon.weaponName}");
+        }
+    }
+    
+    private void RefillAll()
+    {
+        if (playerInventory != null)
+        {
+            playerInventory.SetMedkits(playerInventory.GetMaxMedkits());
+            Debug.Log($"[CHEAT] Refilled medkits to max");
+        }
+        
+        if (weaponController != null)
+        {
+            // NEW: Add 99 magazines for each weapon
+            weaponController.AddMagazine(WeaponType.Handgun, 99);
+            weaponController.AddMagazine(WeaponType.Rifle, 99);
+            weaponController.AddMagazine(WeaponType.Shotgun, 99);
+            Debug.Log($"[CHEAT] Refilled all magazines to max");
+        }
+        
+        if (playerHealth != null && playerHealth.IsDead() == false)
+        {
+            playerHealth.Heal(999);
+            Debug.Log($"[CHEAT] Healed to full HP");
+        }
+    }
+    
+    private void DamagePlayer()
+    {
+        if (playerHealth == null)
+        {
+            Debug.LogWarning("PlayerHealth not found!");
+            return;
+        }
+        
+        playerHealth.TakeDamage(damageAmount);
+        Debug.Log($"[CHEAT] Dealt {damageAmount} damage to player for testing");
+    }
+    
+    private void ToggleInfiniteAmmo()
+    {
+        if (weaponController == null)
+        {
+            Debug.LogWarning("WeaponController not found!");
+            return;
+        }
+        
+        // Use reflection to toggle infinite ammo
+        var infiniteField = typeof(WeaponController).GetField("infiniteAmmo", 
+            System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+        
+        if (infiniteField != null)
+        {
+            bool current = (bool)infiniteField.GetValue(weaponController);
+            infiniteField.SetValue(weaponController, !current);
+            Debug.Log($"[CHEAT] Infinite Ammo: {!current}");
+        }
+    }
+    
+    private void OnGUI()
+    {
+        if (!showDebugUI)
+        {
+            return;
+        }
+        
+        // Draw debug panel
+        GUIStyle style = new GUIStyle(GUI.skin.box);
+        style.normal.background = MakeTex(2, 2, new Color(0, 0, 0, 0.7f));
+        
+        GUIStyle textStyle = new GUIStyle(GUI.skin.label);
+        textStyle.normal.textColor = Color.white;
+        textStyle.fontSize = 12;
+        
+        GUILayout.BeginArea(new Rect(10, 10, 300, 300), style);
+        
+        GUILayout.Label("=== INVENTORY DEBUG ===", textStyle);
+        GUILayout.Space(5);
+        
+        if (playerInventory != null)
+        {
+            GUILayout.Label($"Medkits: {playerInventory.GetCurrentMedkits()}/{playerInventory.GetMaxMedkits()}", textStyle);
+        }
+        
+        if (weaponController != null)
+        {
+            WeaponData weapon = weaponController.GetCurrentWeapon();
+            if (weapon != null)
+            {
+                GUILayout.Label($"Weapon: {weapon.weaponName}", textStyle);
+                GUILayout.Label($"Ammo: {weaponController.GetCurrentAmmo()}/{weapon.magazineSize}", textStyle);
+                GUILayout.Label($"Magazines: {weaponController.GetMagazineCount()}", textStyle);
+            }
+        }
+        
+        if (playerHealth != null)
+        {
+            GUILayout.Label($"HP: {playerHealth.GetCurrentHealth()}/{playerHealth.GetMaxHealth()}", textStyle);
+        }
+        
+        GUILayout.Space(10);
+        GUILayout.Label("=== CHEATS ===", textStyle);
+        GUILayout.Label($"[{addMedkitKey}] Add Medkit", textStyle);
+        GUILayout.Label($"[{addAmmoKey}] Add Ammo", textStyle);
+        GUILayout.Label($"[{refillAllKey}] Refill All", textStyle);
+        GUILayout.Label($"[{damagePlayerKey}] Damage Self", textStyle);
+        GUILayout.Label($"[{toggleInfiniteAmmoKey}] Toggle Inf Ammo", textStyle);
+        GUILayout.Label($"[F12] Toggle This UI", textStyle);
+        
+        GUILayout.EndArea();
+    }
+    
+    private Texture2D MakeTex(int width, int height, Color col)
+    {
+        Color[] pix = new Color[width * height];
+        for (int i = 0; i < pix.Length; i++)
+        {
+            pix[i] = col;
+        }
+        
+        Texture2D result = new Texture2D(width, height);
+        result.SetPixels(pix);
+        result.Apply();
+        return result;
+    }
+}

@@ -1,0 +1,130 @@
+﻿using UnityEngine;
+using UnityEngine.UI;
+using TMPro;
+
+/// <summary>
+/// FORCE FIX - Manually activate and position panel
+/// Attach to NameInputPanel, run in Play mode
+/// </summary>
+public class ForceShowInputPanel : MonoBehaviour
+{
+    [ContextMenu("?? FORCE SHOW THIS PANEL")]
+    public void ForceShow()
+    {
+        GameObject panel = this.gameObject;
+        
+        Debug.Log("========== FORCE SHOW PANEL ==========");
+        
+        // 1. Force active
+        panel.SetActive(true);
+        Debug.Log($"? Panel set to ACTIVE: {panel.activeSelf}");
+        
+        // 2. Check RectTransform
+        RectTransform rect = panel.GetComponent<RectTransform>();
+        if (rect != null)
+        {
+            Debug.Log($"Position: {rect.anchoredPosition}");
+            Debug.Log($"Size: {rect.sizeDelta}");
+            Debug.Log($"Anchors: Min {rect.anchorMin}, Max {rect.anchorMax}");
+            
+            // Force center of screen
+            rect.anchorMin = new Vector2(0.5f, 0.5f);
+            rect.anchorMax = new Vector2(0.5f, 0.5f);
+            rect.pivot = new Vector2(0.5f, 0.5f);
+            rect.anchoredPosition = Vector2.zero;
+            
+            // Ensure visible size
+            if (rect.sizeDelta.x < 100 || rect.sizeDelta.y < 100)
+            {
+                rect.sizeDelta = new Vector2(400, 300);
+                Debug.Log("?? Panel size was too small! Resized to 400x300");
+            }
+            
+            Debug.Log("? Panel repositioned to CENTER");
+        }
+        
+        // 3. Check CanvasGroup (alpha)
+        CanvasGroup cg = panel.GetComponent<CanvasGroup>();
+        if (cg != null)
+        {
+            if (cg.alpha < 1f)
+            {
+                Debug.LogWarning($"?? CanvasGroup alpha was {cg.alpha}! Setting to 1");
+                cg.alpha = 1f;
+            }
+            cg.interactable = true;
+            cg.blocksRaycasts = true;
+        }
+        
+        // 4. Check Image component
+        Image img = panel.GetComponent<Image>();
+        if (img != null)
+        {
+            Color col = img.color;
+            if (col.a < 0.1f)
+            {
+                Debug.LogWarning($"?? Image alpha was {col.a}! Setting to 0.8");
+                col.a = 0.8f;
+                img.color = col;
+            }
+        }
+        
+        // 5. Bring to front
+        panel.transform.SetAsLastSibling();
+        Debug.Log("? Panel moved to front (last sibling)");
+        
+        // 6. Check children
+        Debug.Log($"Panel has {panel.transform.childCount} children");
+        for (int i = 0; i < panel.transform.childCount; i++)
+        {
+            Transform child = panel.transform.GetChild(i);
+            child.gameObject.SetActive(true);
+            Debug.Log($"  - {child.name}: Active = {child.gameObject.activeSelf}");
+        }
+        
+        Debug.Log("========== FORCE SHOW COMPLETE ==========");
+        Debug.Log("Check Game View - panel should be VISIBLE NOW!");
+    }
+    
+    [ContextMenu("?? Diagnostic Info")]
+    public void ShowDiagnostics()
+    {
+        GameObject panel = this.gameObject;
+        
+        Debug.Log("========== PANEL DIAGNOSTICS ==========");
+        Debug.Log($"Name: {panel.name}");
+        Debug.Log($"Active Self: {panel.activeSelf}");
+        Debug.Log($"Active in Hierarchy: {panel.activeInHierarchy}");
+        Debug.Log($"Layer: {LayerMask.LayerToName(panel.layer)}");
+        
+        // Parent chain
+        Transform parent = panel.transform.parent;
+        string parentChain = panel.name;
+        while (parent != null)
+        {
+            parentChain = parent.name + "/" + parentChain;
+            Debug.Log($"  Parent: {parent.name} (Active: {parent.gameObject.activeSelf})");
+            parent = parent.parent;
+        }
+        Debug.Log($"Full path: {parentChain}");
+        
+        // RectTransform
+        RectTransform rect = panel.GetComponent<RectTransform>();
+        if (rect != null)
+        {
+            Debug.Log($"Position: {rect.anchoredPosition}");
+            Debug.Log($"Size: {rect.sizeDelta}");
+            Debug.Log($"Scale: {rect.localScale}");
+        }
+        
+        // Components
+        Component[] components = panel.GetComponents<Component>();
+        Debug.Log($"Components ({components.Length}):");
+        foreach (var comp in components)
+        {
+            Debug.Log($"  - {comp.GetType().Name}");
+        }
+        
+        Debug.Log("========================================");
+    }
+}

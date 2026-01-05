@@ -1,0 +1,214 @@
+﻿using UnityEngine;
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
+
+/// <summary>
+/// Main Menu Manager - Handle navigation & panels.
+/// EXCLUSIVE panel system - only ONE panel active at a time.
+/// </summary>
+public class MainMenuManager : MonoBehaviour
+{
+    [Header("Main Menu Panels")]
+    [Tooltip("Main menu panel dengan Play, Settings, Leaderboard buttons")]
+    [SerializeField] private GameObject mainMenuPanel;
+    
+    [Tooltip("Settings panel")]
+    [SerializeField] private GameObject settingsPanel;
+    
+    [Tooltip("Leaderboard panel (Top 7 display)")]
+    [SerializeField] private GameObject leaderboardPanel;
+    
+    [Header("Buttons")]
+    [SerializeField] private Button endlessButton;
+    [SerializeField] private Button storyButton;
+    [SerializeField] private Button settingsButton;
+    [SerializeField] private Button leaderboardButton;
+    [SerializeField] private Button exitButton;
+    
+    [Header("Scene Names")]
+    [SerializeField] private string endlessSceneName = "EndlessScene";
+    [SerializeField] private string storySceneName = "StoryScene";
+    
+    [Header("Debug")]
+    [SerializeField] private bool debugMode = true;
+    
+    void Start()
+    {
+        // Setup button listeners
+        if (endlessButton != null)
+            endlessButton.onClick.AddListener(LoadEndlessMode);
+        
+        if (storyButton != null)
+            storyButton.onClick.AddListener(LoadStoryMode);
+        
+        if (settingsButton != null)
+            settingsButton.onClick.AddListener(ShowSettings);
+        
+        if (leaderboardButton != null)
+            leaderboardButton.onClick.AddListener(ShowLeaderboard);
+        
+        if (exitButton != null)
+            exitButton.onClick.AddListener(ExitGame);
+        
+        // Verify references
+        VerifyPanelReferences();
+        
+        // Show main menu by default
+        ShowMainMenu();
+    }
+    
+    private void VerifyPanelReferences()
+    {
+        if (mainMenuPanel == null)
+            Debug.LogWarning("?? Main Menu Panel not assigned!");
+        
+        if (settingsPanel == null)
+            Debug.LogWarning("?? Settings Panel not assigned!");
+        
+        if (leaderboardPanel == null)
+            Debug.LogWarning("?? Leaderboard Panel not assigned!");
+    }
+    
+    // ========== SCENE NAVIGATION ==========\
+
+    public void LoadEndlessMode()
+    {
+        DebugLog("Loading Endless Mode...");
+        Time.timeScale = 1f; // Ensure timescale is normal
+        SceneManager.LoadScene(endlessSceneName);
+    }
+    
+    public void LoadStoryMode()
+    {
+        DebugLog("Loading Story Mode...");
+        Time.timeScale = 1f;
+        SceneManager.LoadScene(storySceneName);
+    }
+    
+    // ========== PANEL NAVIGATION ==========\
+    
+    /// <summary>
+    /// Show Main Menu panel ONLY (hide others).
+    /// </summary>
+    public void ShowMainMenu()
+    {
+        DebugLog("?? Showing Main Menu Panel");
+        
+        SetPanelActive(mainMenuPanel, true);
+        SetPanelActive(settingsPanel, false);
+        SetPanelActive(leaderboardPanel, false);
+        
+        DebugLog($"   Main Menu: {(mainMenuPanel != null ? mainMenuPanel.activeSelf.ToString() : "NULL")}");
+        DebugLog($"   Settings: {(settingsPanel != null ? settingsPanel.activeSelf.ToString() : "NULL")}");
+        DebugLog($"   Leaderboard: {(leaderboardPanel != null ? leaderboardPanel.activeSelf.ToString() : "NULL")}");
+    }
+    
+    /// <summary>
+    /// Show Settings panel ONLY (hide others).
+    /// </summary>
+    public void ShowSettings()
+    {
+        DebugLog("?? Showing Settings Panel");
+        
+        SetPanelActive(mainMenuPanel, false);
+        SetPanelActive(settingsPanel, true);
+        SetPanelActive(leaderboardPanel, false);
+        
+        DebugLog($"   Main Menu: {(mainMenuPanel != null ? mainMenuPanel.activeSelf.ToString() : "NULL")}");
+        DebugLog($"   Settings: {(settingsPanel != null ? settingsPanel.activeSelf.ToString() : "NULL")}");
+        DebugLog($"   Leaderboard: {(leaderboardPanel != null ? leaderboardPanel.activeSelf.ToString() : "NULL")}");
+    }
+    
+    /// <summary>
+    /// Show Leaderboard panel ONLY (hide others).
+    /// </summary>
+    public void ShowLeaderboard()
+    {
+        DebugLog("?? Showing Leaderboard Panel");
+        
+        SetPanelActive(mainMenuPanel, false);
+        SetPanelActive(settingsPanel, false);
+        SetPanelActive(leaderboardPanel, true);
+        
+        DebugLog($"   Main Menu: {(mainMenuPanel != null ? mainMenuPanel.activeSelf.ToString() : "NULL")}");
+        DebugLog($"   Settings: {(settingsPanel != null ? settingsPanel.activeSelf.ToString() : "NULL")}");
+        DebugLog($"   Leaderboard: {(leaderboardPanel != null ? leaderboardPanel.activeSelf.ToString() : "NULL")}");
+        
+        // Refresh leaderboard when shown
+        if (leaderboardPanel != null)
+        {
+            LeaderboardPanelUI leaderboardUI = leaderboardPanel.GetComponent<LeaderboardPanelUI>();
+            if (leaderboardUI != null)
+            {
+                leaderboardUI.RefreshLeaderboard();
+                DebugLog("   ? Leaderboard refreshed");
+            }
+            else
+            {
+                Debug.LogWarning("?? LeaderboardPanelUI component not found!");
+            }
+        }
+    }
+    
+    // ========== UTILITY ==========\
+    
+    public void ExitGame()
+    {
+        DebugLog("Exiting game...");
+        Application.Quit();
+        
+        #if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;
+        #endif
+    }
+    
+    private void SetPanelActive(GameObject panel, bool active)
+    {
+        if (panel != null)
+        {
+            panel.SetActive(active);
+        }
+        else if (active)
+        {
+            Debug.LogWarning($"?? Trying to activate a NULL panel!");
+        }
+    }
+    
+    private void DebugLog(string message)
+    {
+        if (debugMode)
+        {
+            Debug.Log(message);
+        }
+    }
+    
+    // ========== CONTEXT MENU TESTING ==========\
+    
+    [ContextMenu("Test: Show Main Menu")]
+    private void TestShowMainMenu()
+    {
+        ShowMainMenu();
+    }
+    
+    [ContextMenu("Test: Show Settings")]
+    private void TestShowSettings()
+    {
+        ShowSettings();
+    }
+    
+    [ContextMenu("Test: Show Leaderboard")]
+    private void TestShowLeaderboard()
+    {
+        ShowLeaderboard();
+    }
+    
+    [ContextMenu("Print Panel States")]
+    private void PrintPanelStates()
+    {
+        Debug.Log("========== PANEL STATES ==========");
+        Debug.Log($"Main Menu Panel: {(mainMenuPanel != null ? (mainMenuPanel.activeSelf ? "ACTIVE" : "INACTIVE") : "NULL")}");
+        Debug.Log($"Settings Panel: {(settingsPanel != null ? (settingsPanel.activeSelf ? "ACTIVE" : "INACTIVE") : "NULL")}");
+        Debug.Log($"Leaderboard Panel: {(leaderboardPanel != null ? (leaderboardPanel.activeSelf ? "ACTIVE" : "INACTIVE") : "NULL")}");
+        Debug.Log("==================================");
+    }
+}

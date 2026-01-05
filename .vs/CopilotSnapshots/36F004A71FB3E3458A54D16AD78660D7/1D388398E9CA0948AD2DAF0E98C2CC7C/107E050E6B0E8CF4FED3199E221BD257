@@ -1,0 +1,338 @@
+﻿using UnityEngine;
+using System.Collections.Generic;
+
+/// <summary>
+/// SFX Manager dengan Singleton Pattern
+/// Mengatur semua sound effects dengan pooling system
+/// </summary>
+public class SFXManager : MonoBehaviour
+{
+    [Header("UI SFX")]
+    [SerializeField] private AudioClip buttonClickSFX;
+    [SerializeField] private AudioClip buttonHoverSFX;
+    
+    [Header("Weapon SFX - Shoot")]
+    [SerializeField] private AudioClip handgunShootSFX;
+    [SerializeField] private AudioClip rifleShootSFX;
+    [SerializeField] private AudioClip shotgunShootSFX;
+    
+    [Header("Weapon SFX - Reload")]
+    [SerializeField] private AudioClip handgunReloadSFX;
+    [SerializeField] private AudioClip rifleReloadSFX;
+    [SerializeField] private AudioClip shotgunReloadSFX;
+    
+    [Header("Player SFX")]
+    [SerializeField] private AudioClip playerHitSFX;
+    [SerializeField] private AudioClip playerDeathSFX;
+    
+    [Header("Zombie SFX")]
+    [SerializeField] private AudioClip zombieAttackSFX;
+    [SerializeField] private AudioClip zombieHitSFX;
+    [SerializeField] private AudioClip zombieDeathSFX;
+    [SerializeField] private AudioClip zombieIdleRunSFX; // Suara zombie berjalan/idle (looping)
+    
+    [Header("Item SFX")]
+    [SerializeField] private AudioClip pickupSFX;
+    [SerializeField] private AudioClip medkitUseSFX;
+    
+    [Header("Settings")]
+    [SerializeField] private float defaultVolume = 0.7f;
+    [SerializeField] private int audioSourcePoolSize = 10;
+    
+    private List<AudioSource> audioSourcePool;
+    private static SFXManager instance;
+    private float currentVolume;
+    
+    public static SFXManager Instance => instance;
+    
+    void Awake()
+    {
+        if (instance == null)
+        {
+            instance = this;
+            DontDestroyOnLoad(gameObject);
+            
+            currentVolume = PlayerPrefs.GetFloat("SFXVolume", defaultVolume);
+            InitializePool();
+            
+            Debug.Log("[SFXManager] Initialized");
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+    }
+    
+    private void InitializePool()
+    {
+        audioSourcePool = new List<AudioSource>();
+        
+        for (int i = 0; i < audioSourcePoolSize; i++)
+        {
+            GameObject go = new GameObject($"SFX_AudioSource_{i}");
+            go.transform.SetParent(transform);
+            
+            AudioSource source = go.AddComponent<AudioSource>();
+            source.playOnAwake = false;
+            source.loop = false;
+            source.volume = currentVolume;
+            
+            audioSourcePool.Add(source);
+        }
+    }
+    
+    #region Core SFX Methods
+    
+    /// <summary>
+    /// Play SFX dari AudioClip
+    /// </summary>
+    public void PlaySFX(AudioClip clip, float volumeScale = 1f)
+    {
+        if (clip == null) return;
+        
+        AudioSource source = GetAvailableSource();
+        if (source != null)
+        {
+            source.clip = clip;
+            source.volume = currentVolume * volumeScale;
+            source.loop = false;
+            source.Play();
+        }
+    }
+    
+    /// <summary>
+    /// Play SFX looping (untuk zombie idle/run)
+    /// </summary>
+    public AudioSource PlaySFXLooping(AudioClip clip, float volumeScale = 1f)
+    {
+        if (clip == null) return null;
+        
+        AudioSource source = GetAvailableSource();
+        if (source != null)
+        {
+            source.clip = clip;
+            source.volume = currentVolume * volumeScale;
+            source.loop = true;
+            source.Play();
+            return source;
+        }
+        return null;
+    }
+    
+    /// <summary>
+    /// Play SFX di posisi tertentu (3D sound)
+    /// </summary>
+    public void PlaySFXAtPosition(AudioClip clip, Vector3 position, float volumeScale = 1f)
+    {
+        if (clip == null) return;
+        AudioSource.PlayClipAtPoint(clip, position, currentVolume * volumeScale);
+    }
+    
+    /// <summary>
+    /// Get audio source yang tidak sedang playing
+    /// </summary>
+    private AudioSource GetAvailableSource()
+    {
+        foreach (AudioSource source in audioSourcePool)
+        {
+            if (!source.isPlaying)
+            {
+                return source;
+            }
+        }
+        
+        // Jika semua sedang playing, pakai yang pertama (override)
+        return audioSourcePool[0];
+    }
+    
+    #endregion
+    
+    #region UI SFX
+    
+    public void PlayButtonClick()
+    {
+        PlaySFX(buttonClickSFX);
+    }
+    
+    public void PlayButtonHover()
+    {
+        PlaySFX(buttonHoverSFX, 0.5f);
+    }
+    
+    #endregion
+    
+    #region Weapon SFX
+    
+    /// <summary>
+    /// Play shoot SFX berdasarkan weapon type
+    /// </summary>
+    public void PlayWeaponShoot(WeaponType weaponType)
+    {
+        AudioClip clip = weaponType switch
+        {
+            WeaponType.Handgun => handgunShootSFX,
+            WeaponType.Rifle => rifleShootSFX,
+            WeaponType.Shotgun => shotgunShootSFX,
+            _ => null
+        };
+        
+        if (clip != null)
+        {
+            PlaySFX(clip);
+        }
+    }
+    
+    /// <summary>
+    /// Play reload SFX berdasarkan weapon type
+    /// </summary>
+    public void PlayWeaponReload(WeaponType weaponType)
+    {
+        AudioClip clip = weaponType switch
+        {
+            WeaponType.Handgun => handgunReloadSFX,
+            WeaponType.Rifle => rifleReloadSFX,
+            WeaponType.Shotgun => shotgunReloadSFX,
+            _ => null
+        };
+        
+        if (clip != null)
+        {
+            PlaySFX(clip);
+        }
+    }
+    
+    // Backward compatibility methods (deprecated, tapi tetap ada)
+    public void PlayHandgunShoot() => PlaySFX(handgunShootSFX);
+    public void PlayRifleShoot() => PlaySFX(rifleShootSFX);
+    public void PlayShotgunShoot() => PlaySFX(shotgunShootSFX);
+    
+    public void PlayHandgunReload() => PlaySFX(handgunReloadSFX);
+    public void PlayRifleReload() => PlaySFX(rifleReloadSFX);
+    public void PlayShotgunReload() => PlaySFX(shotgunReloadSFX);
+    
+    #endregion
+    
+    #region Player SFX
+    
+    public void PlayPlayerHit()
+    {
+        PlaySFX(playerHitSFX);
+    }
+    
+    public void PlayPlayerDeath()
+    {
+        PlaySFX(playerDeathSFX);
+    }
+    
+    #endregion
+    
+    #region Zombie SFX
+    
+    /// <summary>
+    /// Play zombie attack SFX
+    /// </summary>
+    public void PlayZombieAttack()
+    {
+        PlaySFX(zombieAttackSFX);
+    }
+    
+    /// <summary>
+    /// Play zombie hit SFX (saat kena tembakan)
+    /// </summary>
+    public void PlayZombieHit()
+    {
+        PlaySFX(zombieHitSFX, 0.8f);
+    }
+    
+    /// <summary>
+    /// Play zombie death SFX
+    /// </summary>
+    public void PlayZombieDeath()
+    {
+        PlaySFX(zombieDeathSFX);
+    }
+    
+    /// <summary>
+    /// Play zombie idle/run SFX (looping)
+    /// Return AudioSource untuk kontrol (stop/pause)
+    /// </summary>
+    public AudioSource PlayZombieIdleRun(float volumeScale = 0.3f)
+    {
+        return PlaySFXLooping(zombieIdleRunSFX, volumeScale);
+    }
+    
+    #endregion
+    
+    #region Item SFX
+    
+    public void PlayPickup()
+    {
+        PlaySFX(pickupSFX);
+    }
+    
+    public void PlayMedkitUse()
+    {
+        PlaySFX(medkitUseSFX);
+    }
+    
+    #endregion
+    
+    #region Volume Control
+    
+    /// <summary>
+    /// Set volume SFX (0-1)
+    /// </summary>
+    public void SetVolume(float volume)
+    {
+        currentVolume = Mathf.Clamp01(volume);
+        
+        // Update semua audio source di pool
+        foreach (AudioSource source in audioSourcePool)
+        {
+            if (!source.isPlaying)
+            {
+                source.volume = currentVolume;
+            }
+        }
+        
+        // Save to PlayerPrefs
+        PlayerPrefs.SetFloat("SFXVolume", currentVolume);
+        PlayerPrefs.Save();
+    }
+    
+    /// <summary>
+    /// Get current volume
+    /// </summary>
+    public float GetVolume()
+    {
+        return currentVolume;
+    }
+    
+    /// <summary>
+    /// Mute/Unmute semua SFX
+    /// </summary>
+    public void SetMute(bool mute)
+    {
+        foreach (AudioSource source in audioSourcePool)
+        {
+            source.mute = mute;
+        }
+    }
+    
+    /// <summary>
+    /// Stop all SFX
+    /// </summary>
+    public void StopAll()
+    {
+        foreach (AudioSource source in audioSourcePool)
+        {
+            if (source.isPlaying)
+            {
+                source.Stop();
+                source.loop = false;
+            }
+        }
+    }
+    
+    #endregion
+}

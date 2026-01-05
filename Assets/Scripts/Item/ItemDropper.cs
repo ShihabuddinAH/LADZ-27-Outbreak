@@ -1,0 +1,112 @@
+using UnityEngine;
+
+[System.Serializable]
+public class ItemDropData
+{
+    public GameObject itemPrefab;
+    [Range(0f, 100f)] public float dropChance;
+    public int minAmount = 1;
+    public int maxAmount = 1;
+}
+
+public class ItemDropper : MonoBehaviour
+{
+    [Header("Drop Settings")]
+    [SerializeField] private ItemDropData[] possibleDrops;
+    
+    [Header("Drop Behavior")]
+    [SerializeField] private float dropForce = 2f;
+    [SerializeField] private Vector2 dropOffset = Vector2.up * 0.5f;
+    
+    [Header("Drop Limits")]
+    [SerializeField] private bool guaranteedDrop = false;
+    [SerializeField] private int maxDropsPerKill = 1;
+    
+    private bool hasDropped = false;
+    
+    // Method untuk dipanggil saat zombie mati
+    public void DropItems()
+    {
+        if (hasDropped) return;
+        hasDropped = true;
+        
+        if (possibleDrops == null || possibleDrops.Length == 0) return;
+        
+        int itemsDropped = 0;
+        bool anyDropped = false;
+        
+        // Cek setiap possible drop
+        foreach (ItemDropData drop in possibleDrops)
+        {
+            if (drop.itemPrefab == null) continue;
+            if (itemsDropped >= maxDropsPerKill) break;
+            
+            // Roll chance untuk drop
+            float roll = Random.Range(0f, 100f);
+            
+            if (roll <= drop.dropChance)
+            {
+                SpawnItem(drop);
+                itemsDropped++;
+                anyDropped = true;
+            }
+        }
+        
+        // Guaranteed drop jika belum ada yang drop
+        if (guaranteedDrop && !anyDropped && possibleDrops.Length > 0)
+        {
+            ItemDropData randomDrop = possibleDrops[Random.Range(0, possibleDrops.Length)];
+            if (randomDrop.itemPrefab != null)
+            {
+                SpawnItem(randomDrop);
+            }
+        }
+        
+        // Enforce item limit di scene
+        if (ItemCleanup.Instance != null)
+        {
+            ItemCleanup.Instance.EnforceItemLimit();
+        }
+    }
+    
+    private void SpawnItem(ItemDropData drop)
+    {
+        // Random amount
+        int amount = Random.Range(drop.minAmount, drop.maxAmount + 1);
+        
+        // Spawn position dengan offset
+        Vector3 spawnPos = transform.position + (Vector3)dropOffset;
+        
+        // Random direction untuk variety
+        Vector2 randomDir = Random.insideUnitCircle.normalized;
+        spawnPos += (Vector3)randomDir * 0.3f;
+        
+        // Instantiate item
+        GameObject itemObj = Instantiate(drop.itemPrefab, spawnPos, Quaternion.identity);
+        
+        // Set amount jika item punya component ItemPickup
+        ItemPickup itemPickup = itemObj.GetComponent<ItemPickup>();
+        if (itemPickup != null)
+        {
+            // Gunakan reflection untuk set amount (karena private)
+            // Atau bisa tambahkan public method di ItemPickup
+            var amountField = typeof(ItemPickup).GetField("amount", 
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            if (amountField != null)
+            {
+                amountField.SetValue(itemPickup, amount);
+            }
+        }
+        
+        // Add force untuk "pop" effect
+        Rigidbody2D rb = itemObj.GetComponent<Rigidbody2D>();
+        if (rb != null)
+        {
+            Vector2 force = new Vector2(Random.Range(-1f, 1f), Random.Range(0.5f, 1f)).normalized * dropForce;
+            rb.AddForce(force, ForceMode2D.Impulse);
+        }
+    }
+    
+    // Method untuk manual drop (bisa dipanggil dari script lain)
+    public void ForceDrop() => DropItems();
+}

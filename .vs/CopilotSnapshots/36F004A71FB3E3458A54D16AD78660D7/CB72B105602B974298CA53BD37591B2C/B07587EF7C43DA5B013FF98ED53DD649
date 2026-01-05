@@ -1,0 +1,65 @@
+﻿using UnityEngine;
+
+/// <summary>
+/// Mengelola semua item pickup di scene.
+/// Item akan otomatis terdaftar dan dibersihkan saat game over/restart.
+/// </summary>
+public class ItemCleanup : MonoBehaviour
+{
+    private static ItemCleanup instance;
+    public static ItemCleanup Instance => instance;
+    
+    [Header("Settings")]
+    [SerializeField] private int maxItemsInScene = 50; // Batas maksimal item di scene
+    [SerializeField] private float itemLifetime = 30f; // Item hilang setelah 30 detik
+    
+    void Awake()
+    {
+        instance = this;
+    }
+    
+    /// <summary>
+    /// Hapus SEMUA item pickup di scene.
+    /// Panggil ini saat Game Over, Restart, atau Scene Change.
+    /// </summary>
+    public void CleanupAllItems()
+    {
+        // Cari semua ItemPickup di scene dan destroy
+        ItemPickup[] items = FindObjectsByType<ItemPickup>(FindObjectsSortMode.None);
+        
+        foreach (ItemPickup item in items)
+        {
+            if (item != null && item.gameObject != null)
+            {
+                Destroy(item.gameObject);
+            }
+        }
+        
+        Debug.Log($"[ItemCleanup] Cleaned {items.Length} items");
+    }
+    
+    /// <summary>
+    /// Cek jumlah item dan hapus yang tertua jika melebihi batas.
+    /// Dipanggil dari ItemDropper setiap kali drop item baru.
+    /// </summary>
+    public void EnforceItemLimit()
+    {
+        ItemPickup[] items = FindObjectsByType<ItemPickup>(FindObjectsSortMode.None);
+        
+        // Jika melebihi batas, hapus item-item tertua
+        if (items.Length > maxItemsInScene)
+        {
+            int toRemove = items.Length - maxItemsInScene;
+            
+            for (int i = 0; i < toRemove && i < items.Length; i++)
+            {
+                if (items[i] != null && items[i].gameObject != null)
+                {
+                    Destroy(items[i].gameObject);
+                }
+            }
+            
+            Debug.Log($"[ItemCleanup] Removed {toRemove} excess items");
+        }
+    }
+}

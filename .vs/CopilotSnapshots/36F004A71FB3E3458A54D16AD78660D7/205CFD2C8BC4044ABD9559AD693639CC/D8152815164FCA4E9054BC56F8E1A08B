@@ -1,0 +1,174 @@
+﻿using UnityEngine;
+using UnityEngine.UI;
+using TMPro;
+using System.Collections.Generic;
+
+/// <summary>
+/// Leaderboard Panel UI - Display scores di template static.
+/// Support flexible number of entries (7, 10, atau berapapun).
+/// </summary>
+public class LeaderboardPanelUI : MonoBehaviour
+{
+    [Header("Fixed Entry References")]
+    [Tooltip("Assign semua entry yang ada di template (7, 10, atau berapapun)")]
+    [SerializeField] private LeaderboardEntry1to10[] entries = new LeaderboardEntry1to10[10];
+    
+    [Header("Buttons")]
+    [SerializeField] private Button backButton;
+    [SerializeField] private Button clearButton; // Clear leaderboard (optional)
+    
+    [Header("Settings")]
+    [SerializeField] private bool showClearButton = false; // Hide in production
+    
+    [System.Serializable]
+    public class LeaderboardEntry1to10
+    {
+        public TextMeshProUGUI nameText;
+        public TextMeshProUGUI scoreText;
+        public TextMeshProUGUI killsText;
+    }
+    
+    void Start()
+    {
+        // Setup buttons
+        if (backButton != null)
+            backButton.onClick.AddListener(OnBackButton);
+        
+        if (clearButton != null)
+        {
+            clearButton.onClick.AddListener(OnClearLeaderboard);
+            clearButton.gameObject.SetActive(showClearButton);
+        }
+        
+        // Log jumlah entries yang ter-assign
+        int assignedEntries = CountAssignedEntries();
+        Debug.Log($"Leaderboard has {assignedEntries} entries assigned");
+    }
+    
+    void OnEnable()
+    {
+        // Refresh when panel opens
+        RefreshLeaderboard();
+    }
+    
+    public void RefreshLeaderboard()
+    {
+        List<LeaderboardEntry> leaderboardEntries = new List<LeaderboardEntry>();
+        
+        // Get leaderboard data
+        if (LeaderboardManager.Instance != null)
+        {
+            // Get as many entries as we have slots
+            int maxEntries = CountAssignedEntries();
+            leaderboardEntries = LeaderboardManager.Instance.GetTopEntries(maxEntries);
+            
+            Debug.Log($"Leaderboard loaded {leaderboardEntries.Count} entries");
+        }
+        else
+        {
+            Debug.LogWarning("LeaderboardManager.Instance is null!");
+        }
+        
+        // Update all assigned entry slots
+        int entryIndex = 0;
+        foreach (var entry in entries)
+        {
+            // Skip null or incomplete entries
+            if (entry == null || entry.nameText == null || entry.scoreText == null || entry.killsText == null)
+            {
+                continue;
+            }
+            
+            if (entryIndex < leaderboardEntries.Count)
+            {
+                // Ada data - tampilkan data asli
+                LeaderboardEntry data = leaderboardEntries[entryIndex];
+                UpdateEntry(entry, data.playerName, data.score, data.kills);
+            }
+            else
+            {
+                // Tidak ada data - tampilkan default
+                UpdateEntry(entry, "Belum Ada Data", 0, 0);
+            }
+            
+            entryIndex++;
+        }
+    }
+    
+    private void UpdateEntry(LeaderboardEntry1to10 entry, string playerName, int score, int kills)
+    {
+        // Update name
+        if (entry.nameText != null)
+        {
+            entry.nameText.text = playerName;
+        }
+        
+        // Update score
+        if (entry.scoreText != null)
+        {
+            if (score == 0 && playerName == "Belum Ada Data")
+            {
+                entry.scoreText.text = "000"; // Default empty
+            }
+            else
+            {
+                entry.scoreText.text = score.ToString();
+            }
+        }
+        
+        // Update kills
+        if (entry.killsText != null)
+        {
+            if (kills == 0 && playerName == "Belum Ada Data")
+            {
+                entry.killsText.text = "000"; // Default empty
+            }
+            else
+            {
+                entry.killsText.text = kills.ToString();
+            }
+        }
+    }
+    
+    private int CountAssignedEntries()
+    {
+        int count = 0;
+        foreach (var entry in entries)
+        {
+            if (entry != null && entry.nameText != null && entry.scoreText != null && entry.killsText != null)
+            {
+                count++;
+            }
+        }
+        return count;
+    }
+    
+    private void OnClearLeaderboard()
+    {
+        if (LeaderboardManager.Instance != null)
+        {
+            LeaderboardManager.Instance.ClearLeaderboard();
+            RefreshLeaderboard();
+            Debug.Log("Leaderboard cleared!");
+        }
+    }
+    
+    private void OnBackButton()
+    {
+        // Return to main menu
+        MainMenuManager menuManager = FindObjectOfType<MainMenuManager>();
+        if (menuManager != null)
+        {
+            menuManager.ShowMainMenu();
+        }
+    }
+    
+    /// <summary>
+    /// Manual refresh untuk testing
+    /// </summary>
+    [ContextMenu("Refresh Leaderboard Now")]
+    public void ManualRefresh()
+    {
+        RefreshLeaderboard();
+    }
+}

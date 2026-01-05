@@ -1,0 +1,147 @@
+﻿using UnityEngine;
+
+/// <summary>
+/// Diagnostic tool untuk debug Input Panel issue.
+/// Attach ke GameOverPanel atau GameObject manapun.
+/// Right Click component ? Run Diagnostics
+/// </summary>
+public class InputPanelDiagnostic : MonoBehaviour
+{
+    [ContextMenu("?? Run Full Diagnostics")]
+    public void RunDiagnostics()
+    {
+        Debug.Log("========== INPUT PANEL DIAGNOSTICS ==========");
+        
+        // Find GameOverPanel
+        GameOverPanel gameOverPanel = FindObjectOfType<GameOverPanel>();
+        
+        if (gameOverPanel == null)
+        {
+            Debug.LogError("? GameOverPanel component NOT FOUND in scene!");
+            Debug.LogError("   ? Add GameOverPanel script to your GameOverPanel GameObject");
+            return;
+        }
+        
+        Debug.Log("? GameOverPanel component found");
+        
+        // Check via reflection (since fields are private)
+        var type = typeof(GameOverPanel);
+        
+        // Check nameInputPanel field
+        var nameInputPanelField = type.GetField("nameInputPanel", 
+            System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+        
+        if (nameInputPanelField != null)
+        {
+            GameObject nameInputPanel = nameInputPanelField.GetValue(gameOverPanel) as GameObject;
+            
+            if (nameInputPanel == null)
+            {
+                Debug.LogError("? Name Input Panel reference is NULL!");
+                Debug.LogError("   ? Assign NameInputPanel GameObject in Inspector");
+            }
+            else
+            {
+                Debug.Log($"? Name Input Panel assigned: {nameInputPanel.name}");
+                Debug.Log($"   Active in Hierarchy: {nameInputPanel.activeInHierarchy}");
+                Debug.Log($"   Self Active: {nameInputPanel.activeSelf}");
+            }
+        }
+        
+        // Check settings
+        var alwaysShowInputField = type.GetField("alwaysShowInput", 
+            System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+        
+        if (alwaysShowInputField != null)
+        {
+            bool alwaysShowInput = (bool)alwaysShowInputField.GetValue(gameOverPanel);
+            
+            if (alwaysShowInput)
+            {
+                Debug.Log("? Always Show Input: ENABLED (good!)");
+            }
+            else
+            {
+                Debug.LogWarning("?? Always Show Input: DISABLED");
+                Debug.LogWarning("   ? Enable this setting for testing!");
+            }
+        }
+        
+        var requireHighScoreField = type.GetField("requireHighScore", 
+            System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+        
+        if (requireHighScoreField != null)
+        {
+            bool requireHighScore = (bool)requireHighScoreField.GetValue(gameOverPanel);
+            
+            if (requireHighScore)
+            {
+                Debug.LogWarning("?? Require High Score: ENABLED");
+                Debug.LogWarning("   ? Panel only shows if beat leaderboard");
+            }
+            else
+            {
+                Debug.Log("? Require High Score: DISABLED (good for testing)");
+            }
+        }
+        
+        // Check managers
+        Debug.Log("\n--- Checking Managers ---");
+        
+        if (LeaderboardManager.Instance == null)
+        {
+            Debug.LogError("? LeaderboardManager.Instance is NULL!");
+            Debug.LogError("   ? Add LeaderboardManager to scene");
+        }
+        else
+        {
+            Debug.Log("? LeaderboardManager found");
+        }
+        
+        if (GameStats.Instance == null)
+        {
+            Debug.LogError("? GameStats.Instance is NULL!");
+            Debug.LogError("   ? Add GameStats to scene");
+        }
+        else
+        {
+            Debug.Log("? GameStats found");
+        }
+        
+        // Check GameManager
+        if (GameManager.Instance == null)
+        {
+            Debug.LogWarning("?? GameManager.Instance is NULL");
+            Debug.LogWarning("   ? Add GameManager to scene (optional but recommended)");
+        }
+        else
+        {
+            Debug.Log("? GameManager found");
+        }
+        
+        Debug.Log("\n========== DIAGNOSTICS COMPLETE ==========");
+        Debug.Log("Check errors above to fix issues");
+    }
+    
+    [ContextMenu("?? Test Input Panel Activation")]
+    public void TestActivation()
+    {
+        GameOverPanel gameOverPanel = FindObjectOfType<GameOverPanel>();
+        
+        if (gameOverPanel == null)
+        {
+            Debug.LogError("GameOverPanel not found!");
+            return;
+        }
+        
+        Debug.Log("Attempting to activate GameOverPanel...");
+        
+        // Enable panel to trigger OnEnable
+        gameOverPanel.gameObject.SetActive(false);
+        gameOverPanel.gameObject.SetActive(true);
+        
+        Debug.Log("Panel activated. Check if input panel shows.");
+        Debug.Log("Look for: 'Input panel: Always show mode enabled'");
+        Debug.Log("And: 'Name input panel shown!'");
+    }
+}

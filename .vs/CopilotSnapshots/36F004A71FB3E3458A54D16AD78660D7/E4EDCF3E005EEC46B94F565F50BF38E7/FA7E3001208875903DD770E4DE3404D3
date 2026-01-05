@@ -1,0 +1,499 @@
+﻿using UnityEngine;
+using System;
+
+public class WeaponController : MonoBehaviour
+{
+    // Events untuk UI updates
+    public event Action<WeaponType, int> OnReserveAmmoChanged;
+    public event Action<WeaponData> OnWeaponSwitched;
+    public event Action<int> OnCurrentAmmoChanged;
+    
+    [Header("Current Weapon")]
+    [SerializeField] private WeaponData currentWeapon;
+    
+    [Header("Components")]
+    [SerializeField] private Animator animator;
+    [SerializeField] private Transform firePoint;
+    [SerializeField] private LayerMask bulletHitLayers;
+    
+    [Header("Bullet System")]
+    [SerializeField] private GameObject bulletPrefab;
+    [SerializeField] private bool usePhysicalBullets = true;
+    
+    [Header("Muzzle Flash System")]
+    [SerializeField] private GameObject handgunMuzzleFlash;
+    [SerializeField] private GameObject rifleMuzzleFlash;
+    [SerializeField] private GameObject shotgunMuzzleFlash;
+    
+    [Header("Weapon Inventory")]
+    [SerializeField] private WeaponData handgunData;
+    [SerializeField] private WeaponData rifleData;
+    [SerializeField] private WeaponData shotgunData;
+    
+    [Header("Ammo System")]
+    [SerializeField] private int currentAmmo;
+    [SerializeField] private bool hasRifle = false;
+    [SerializeField] private bool hasShotgun = false;
+    
+    [Header("Reserve Ammo System")]
+    [SerializeField] private bool infiniteAmmo = false;
+    [SerializeField] private int handgunReserveAmmo = 0;
+    [SerializeField] private int rifleReserveAmmo = 0;
+    [SerializeField] private int shotgunReserveAmmo = 0;
+    [SerializeField] private int maxReserveAmmo = 999;
+    
+    [Header("Magazine Ammo (Current in weapon)")]
+    [SerializeField] private int handgunCurrentAmmo;
+    [SerializeField] private int rifleCurrentAmmo;
+    [SerializeField] private int shotgunCurrentAmmo;
+    
+    private float lastFireTime = -999f;
+    private bool isReloading = false;
+    
+    private static WeaponController instance;
+    public static WeaponController Instance => instance;
+    
+    void Awake()
+    {
+        instance = this;
+    }
+    
+    void Start()
+    {
+        if (currentWeapon == null && handgunData != null)
+        {
+            currentWeapon = handgunData;
+        }
+        
+        if (currentWeapon != null)
+        {
+            // Initialize magazine ammo untuk semua weapon
+            if (handgunData != null) handgunCurrentAmmo = handgunData.magazineSize;
+            if (rifleData != null) rifleCurrentAmmo = rifleData.magazineSize;
+            if (shotgunData != null) shotgunCurrentAmmo = shotgunData.magazineSize;
+            
+            // Set current ammo dari weapon yang aktif
+            currentAmmo = GetCurrentAmmoForType(currentWeapon.weaponType);
+            
+            if (animator != null)
+            {
+                UpdateAnimatorWeaponType();
+            }
+        }
+    }
+    
+    void Update()
+    {
+        // Skip jika game paused atau game over
+        if (GameManager.Instance != null && (GameManager.Instance.IsPaused() || GameManager.Instance.IsGameOver()))
+            return;
+        
+        HandleWeaponInput();
+        HandleWeaponSwitch();
+    }
+    
+    private void HandleWeaponInput()
+    {
+        if (currentWeapon == null || isReloading) return;
+        
+        bool fireInput = currentWeapon.isAutomatic 
+            ? Input.GetButton("Fire1")
+            : Input.GetButtonDown("Fire1");
+        
+        if (fireInput && CanFire())
+        {
+            Fire();
+        }
+        
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            Reload();
+        }
+    }
+    
+    private void HandleWeaponSwitch()
+    {
+        if (Input.GetKeyDown(KeyCode.Alpha1) && handgunData != null)
+        {
+            SwitchWeapon(handgunData);
+        }
+        else if (Input.GetKeyDown(KeyCode.Alpha2) && hasRifle && rifleData != null)
+        {
+            SwitchWeapon(rifleData);
+        }
+        else if (Input.GetKeyDown(KeyCode.Alpha3) && hasShotgun && shotgunData != null)
+        {
+            SwitchWeapon(shotgunData);
+        }
+    }
+    
+    private bool CanFire()
+    {
+        return currentAmmo > 0 && Time.time >= lastFireTime + currentWeapon.fireRate;
+    }
+    
+    private void Fire()
+    {
+        lastFireTime = Time.time;
+        currentAmmo--;
+        
+        // Simpan ammo ke weapon yang aktif
+        SaveCurrentAmmoToWeapon();
+        
+        OnCurrentAmmoChanged?.Invoke(currentAmmo);
+        
+        if (animator != null)
+        {
+            animator.SetTrigger(currentWeapon.shootAnimationTrigger);
+        }
+        
+        if (currentWeapon.bulletsPerShot > 1)
+        {
+            StartCoroutine(FireMultipleBullets());
+        }
+        else
+        {
+            ShootBullet(0);
+        }
+        
+        if (currentAmmo <= 0)
+        {
+            Reload();
+        }
+    }
+    
+    private System.Collections.IEnumerator FireMultipleBullets()
+    {
+        for (int i = 0; i < currentWeapon.bulletsPerShot; i++)
+        {
+            ShootBullet(i);
+            if (i < currentWeapon.bulletsPerShot - 1)
+            {
+                yield return new WaitForSeconds(0.01f);
+            }
+        }
+    }
+    
+    private void ShootBullet(int bulletIndex)
+    {
+        Vector2 shootDirection = GetShootDirection();
+        
+        if (currentWeapon.bulletsPerShot > 1)
+        {
+            float spreadOffset = UnityEngine.Random.Range(-currentWeapon.spreadAngle, currentWeapon.spreadAngle);
+            shootDirection = Quaternion.Euler(0, 0, spreadOffset) * shootDirection;
+        }
+        
+        Vector3 spawnPosition = firePoint != null ? firePoint.position : transform.position;
+        
+        if (currentWeapon.bulletsPerShot > 1)
+        {
+            Vector2 randomOffset = UnityEngine.Random.insideUnitCircle * 0.1f;
+            spawnPosition += new Vector3(randomOffset.x, randomOffset.y, 0);
+        }
+        
+        if (bulletIndex == 0)
+        {
+            GameObject flashPrefab = GetMuzzleFlashPrefab();
+            if (flashPrefab != null)
+            {
+                Vector3 flashPosition = firePoint != null ? firePoint.position : transform.position;
+                GameObject muzzleFlash = Instantiate(flashPrefab, flashPosition, Quaternion.identity);
+                if (muzzleFlash != null)
+                {
+                    float angle = Mathf.Atan2(shootDirection.y, shootDirection.x) * Mathf.Rad2Deg;
+                    muzzleFlash.transform.rotation = Quaternion.Euler(0, 0, angle);
+                    Destroy(muzzleFlash, 0.2f);
+                }
+            }
+        }
+        
+        if (usePhysicalBullets && bulletPrefab != null)
+        {
+            GameObject bulletObj = Instantiate(bulletPrefab, spawnPosition, Quaternion.identity);
+            if (bulletObj != null)
+            {
+                Bullet bullet = bulletObj.GetComponent<Bullet>();
+                if (bullet != null)
+                {
+                    bullet.Initialize(shootDirection, currentWeapon.damage, bulletHitLayers, currentWeapon.range);
+                }
+                else
+                {
+                    Destroy(bulletObj);
+                }
+            }
+        }
+        else
+        {
+            RaycastHit2D hit = Physics2D.Raycast(spawnPosition, shootDirection, currentWeapon.range, bulletHitLayers);
+            if (hit.collider != null)
+            {
+                if (hit.collider.CompareTag("Enemy"))
+                {
+                    ZombieHealth zombieHealth = hit.collider.GetComponent<ZombieHealth>();
+                    if (zombieHealth != null)
+                    {
+                        zombieHealth.TakeDamage(currentWeapon.damage);
+                    }
+                }
+            }
+        }
+    }
+    
+    private GameObject GetMuzzleFlashPrefab()
+    {
+        if (currentWeapon == null) return null;
+        
+        switch (currentWeapon.weaponType)
+        {
+            case WeaponType.Handgun: return handgunMuzzleFlash;
+            case WeaponType.Rifle: return rifleMuzzleFlash;
+            case WeaponType.Shotgun: return shotgunMuzzleFlash;
+            default: return null;
+        }
+    }
+    
+    private Vector2 GetShootDirection()
+    {
+        return transform.right;
+    }
+    
+    private void Reload()
+    {
+        if (isReloading || currentAmmo == currentWeapon.magazineSize) return;
+        
+        if (!infiniteAmmo && GetReserveAmmoForType(currentWeapon.weaponType) <= 0)
+        {
+            return;
+        }
+        
+        StartCoroutine(ReloadCoroutine());
+    }
+    
+    private System.Collections.IEnumerator ReloadCoroutine()
+    {
+        isReloading = true;
+        
+        if (animator != null)
+        {
+            animator.SetTrigger("Reload");
+        }
+        
+        yield return new WaitForSeconds(currentWeapon.reloadTime);
+        
+        if (infiniteAmmo)
+        {
+            currentAmmo = currentWeapon.magazineSize;
+        }
+        else
+        {
+            int neededAmmo = currentWeapon.magazineSize - currentAmmo;
+            int reserveAmmo = GetReserveAmmoForType(currentWeapon.weaponType);
+            
+            if (reserveAmmo > 0)
+            {
+                int ammoToTake = Mathf.Min(neededAmmo, reserveAmmo);
+                currentAmmo += ammoToTake;
+                
+                switch (currentWeapon.weaponType)
+                {
+                    case WeaponType.Handgun:
+                        handgunReserveAmmo -= ammoToTake;
+                        OnReserveAmmoChanged?.Invoke(WeaponType.Handgun, handgunReserveAmmo);
+                        break;
+                    case WeaponType.Rifle:
+                        rifleReserveAmmo -= ammoToTake;
+                        OnReserveAmmoChanged?.Invoke(WeaponType.Rifle, rifleReserveAmmo);
+                        break;
+                    case WeaponType.Shotgun:
+                        shotgunReserveAmmo -= ammoToTake;
+                        OnReserveAmmoChanged?.Invoke(WeaponType.Shotgun, shotgunReserveAmmo);
+                        break;
+                }
+                
+                // Simpan ammo setelah reload
+                SaveCurrentAmmoToWeapon();
+                
+                OnCurrentAmmoChanged?.Invoke(currentAmmo);
+            }
+        }
+        
+        isReloading = false;
+    }
+    
+    public void SwitchWeapon(WeaponData newWeapon)
+    {
+        if (newWeapon == null || newWeapon == currentWeapon) return;
+        
+        // PENTING: Simpan ammo weapon saat ini SEBELUM switch
+        SaveCurrentAmmoToWeapon();
+        
+        // Switch ke weapon baru
+        currentWeapon = newWeapon;
+        isReloading = false;
+        
+        // PENTING: Load ammo dari weapon yang baru (bukan reset ke magazineSize!)
+        currentAmmo = GetCurrentAmmoForType(currentWeapon.weaponType);
+        
+        UpdateAnimatorWeaponType();
+        
+        OnWeaponSwitched?.Invoke(currentWeapon);
+        OnCurrentAmmoChanged?.Invoke(currentAmmo);
+    }
+    
+    /// <summary>
+    /// Simpan currentAmmo ke slot weapon yang aktif
+    /// </summary>
+    private void SaveCurrentAmmoToWeapon()
+    {
+        if (currentWeapon == null) return;
+        
+        switch (currentWeapon.weaponType)
+        {
+            case WeaponType.Handgun:
+                handgunCurrentAmmo = currentAmmo;
+                break;
+            case WeaponType.Rifle:
+                rifleCurrentAmmo = currentAmmo;
+                break;
+            case WeaponType.Shotgun:
+                shotgunCurrentAmmo = currentAmmo;
+                break;
+        }
+    }
+    
+    /// <summary>
+    /// Get ammo yang tersimpan untuk weapon tertentu
+    /// </summary>
+    private int GetCurrentAmmoForType(WeaponType weaponType)
+    {
+        switch (weaponType)
+        {
+            case WeaponType.Handgun: return handgunCurrentAmmo;
+            case WeaponType.Rifle: return rifleCurrentAmmo;
+            case WeaponType.Shotgun: return shotgunCurrentAmmo;
+            default: return 0;
+        }
+    }
+    
+    private void UpdateAnimatorWeaponType()
+    {
+        if (animator == null || currentWeapon == null) return;
+        animator.SetInteger("WeaponType", (int)currentWeapon.weaponType);
+    }
+    
+    public void UnlockRifle()
+    {
+        hasRifle = true;
+        // Initialize rifle ammo saat unlock
+        if (rifleData != null)
+            rifleCurrentAmmo = rifleData.magazineSize;
+        SwitchWeapon(rifleData);
+    }
+    
+    public void UnlockShotgun()
+    {
+        hasShotgun = true;
+        // Initialize shotgun ammo saat unlock
+        if (shotgunData != null)
+            shotgunCurrentAmmo = shotgunData.magazineSize;
+        SwitchWeapon(shotgunData);
+    }
+    
+    public void AddAmmoFromMagazine(WeaponType weaponType, int magazineCount = 1)
+    {
+        WeaponData weaponData = GetWeaponData(weaponType);
+        if (weaponData == null) return;
+        
+        int ammoToAdd = magazineCount * weaponData.magazineSize;
+        
+        switch (weaponType)
+        {
+            case WeaponType.Handgun:
+                handgunReserveAmmo = Mathf.Min(handgunReserveAmmo + ammoToAdd, maxReserveAmmo);
+                OnReserveAmmoChanged?.Invoke(WeaponType.Handgun, handgunReserveAmmo);
+                break;
+            case WeaponType.Rifle:
+                rifleReserveAmmo = Mathf.Min(rifleReserveAmmo + ammoToAdd, maxReserveAmmo);
+                OnReserveAmmoChanged?.Invoke(WeaponType.Rifle, rifleReserveAmmo);
+                break;
+            case WeaponType.Shotgun:
+                shotgunReserveAmmo = Mathf.Min(shotgunReserveAmmo + ammoToAdd, maxReserveAmmo);
+                OnReserveAmmoChanged?.Invoke(WeaponType.Shotgun, shotgunReserveAmmo);
+                break;
+        }
+    }
+    
+    public void AddMagazine(WeaponType weaponType, int magazineCount = 1)
+    {
+        AddAmmoFromMagazine(weaponType, magazineCount);
+    }
+    
+    public void AddAmmo(WeaponType weaponType, int amount)
+    {
+        switch (weaponType)
+        {
+            case WeaponType.Handgun:
+                handgunReserveAmmo = Mathf.Min(handgunReserveAmmo + amount, maxReserveAmmo);
+                OnReserveAmmoChanged?.Invoke(WeaponType.Handgun, handgunReserveAmmo);
+                break;
+            case WeaponType.Rifle:
+                rifleReserveAmmo = Mathf.Min(rifleReserveAmmo + amount, maxReserveAmmo);
+                OnReserveAmmoChanged?.Invoke(WeaponType.Rifle, rifleReserveAmmo);
+                break;
+            case WeaponType.Shotgun:
+                shotgunReserveAmmo = Mathf.Min(shotgunReserveAmmo + amount, maxReserveAmmo);
+                OnReserveAmmoChanged?.Invoke(WeaponType.Shotgun, shotgunReserveAmmo);
+                break;
+        }
+    }
+    
+    private WeaponData GetWeaponData(WeaponType weaponType)
+    {
+        switch (weaponType)
+        {
+            case WeaponType.Handgun: return handgunData;
+            case WeaponType.Rifle: return rifleData;
+            case WeaponType.Shotgun: return shotgunData;
+            default: return null;
+        }
+    }
+    
+    // Getters
+    public WeaponData GetCurrentWeapon() => currentWeapon;
+    public int GetCurrentAmmo() => currentAmmo;
+    public bool IsReloading() => isReloading;
+    
+    public int GetReserveAmmo()
+    {
+        if (currentWeapon == null) return 0;
+        return GetReserveAmmoForType(currentWeapon.weaponType);
+    }
+    
+    public int GetReserveAmmoForType(WeaponType weaponType)
+    {
+        switch (weaponType)
+        {
+            case WeaponType.Handgun: return handgunReserveAmmo;
+            case WeaponType.Rifle: return rifleReserveAmmo;
+            case WeaponType.Shotgun: return shotgunReserveAmmo;
+            default: return 0;
+        }
+    }
+    
+    public int GetMagazineCount()
+    {
+        if (currentWeapon == null) return 0;
+        int reserve = GetReserveAmmoForType(currentWeapon.weaponType);
+        return Mathf.FloorToInt((float)reserve / currentWeapon.magazineSize);
+    }
+    
+    public int GetMagazineCountForType(WeaponType weaponType)
+    {
+        WeaponData weaponData = GetWeaponData(weaponType);
+        if (weaponData == null) return 0;
+        int reserve = GetReserveAmmoForType(weaponType);
+        return Mathf.FloorToInt((float)reserve / weaponData.magazineSize);
+    }
+}

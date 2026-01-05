@@ -1,0 +1,336 @@
+﻿using UnityEngine;
+using TMPro;
+using UnityEngine.UI;
+
+/// <summary>
+/// REAL-TIME MONITOR untuk track UI updates
+/// Menampilkan apakah UI benar-benar berubah atau tidak
+/// </summary>
+public class UIUpdateMonitor : MonoBehaviour
+{
+    [Header("Monitor Settings")]
+    [SerializeField] private bool enableMonitor = true;
+    [SerializeField] private KeyCode toggleKey = KeyCode.F11;
+    
+    [Header("References (Auto-Find)")]
+    [SerializeField] private PlayerInventory playerInventory;
+    [SerializeField] private WeaponController weaponController;
+    [SerializeField] private InventoryUI inventoryUI;
+    
+    [Header("UI References to Monitor")]
+    [SerializeField] private TextMeshProUGUI medkitText;
+    [SerializeField] private TextMeshProUGUI handgunAmmoText;
+    [SerializeField] private TextMeshProUGUI rifleAmmoText;
+    [SerializeField] private TextMeshProUGUI shotgunAmmoText;
+    
+    // Track previous values
+    private int lastMedkitCount = -1;
+    private int lastHandgunMags = -1;
+    private int lastRifleMags = -1;
+    private int lastShotgunMags = -1;
+    
+    // Track previous UI text
+    private string lastMedkitTextValue = "";
+    private string lastHandgunTextValue = "";
+    private string lastRifleTextValue = "";
+    private string lastShotgunTextValue = "";
+    
+    // Change detection
+    private bool dataChanged = false;
+    private bool uiChanged = false;
+    
+    void Start()
+    {
+        // Auto-find references
+        if (playerInventory == null)
+            playerInventory = FindObjectOfType<PlayerInventory>();
+        
+        if (weaponController == null)
+            weaponController = FindObjectOfType<WeaponController>();
+        
+        if (inventoryUI == null)
+            inventoryUI = FindObjectOfType<InventoryUI>();
+        
+        // Try to find UI text elements
+        FindUIReferences();
+        
+        Debug.Log("=== UI UPDATE MONITOR STARTED ===");
+        Debug.Log("Press F11 to toggle monitor display");
+    }
+    
+    void FindUIReferences()
+    {
+        if (inventoryUI == null) return;
+        
+        // Use reflection to get private fields
+        var type = typeof(InventoryUI);
+        var bindingFlags = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance;
+        
+        if (medkitText == null)
+        {
+            var field = type.GetField("medkitText", bindingFlags);
+            if (field != null)
+                medkitText = field.GetValue(inventoryUI) as TextMeshProUGUI;
+        }
+        
+        if (handgunAmmoText == null)
+        {
+            var field = type.GetField("handgunAmmoText", bindingFlags);
+            if (field != null)
+                handgunAmmoText = field.GetValue(inventoryUI) as TextMeshProUGUI;
+        }
+        
+        if (rifleAmmoText == null)
+        {
+            var field = type.GetField("rifleAmmoText", bindingFlags);
+            if (field != null)
+                rifleAmmoText = field.GetValue(inventoryUI) as TextMeshProUGUI;
+        }
+        
+        if (shotgunAmmoText == null)
+        {
+            var field = type.GetField("shotgunAmmoText", bindingFlags);
+            if (field != null)
+                shotgunAmmoText = field.GetValue(inventoryUI) as TextMeshProUGUI;
+        }
+        
+        Debug.Log($"[UIMonitor] UI References Found: Medkit={medkitText != null}, Handgun={handgunAmmoText != null}");
+    }
+    
+    void Update()
+    {
+        if (Input.GetKeyDown(toggleKey))
+        {
+            enableMonitor = !enableMonitor;
+            Debug.Log($"[UIMonitor] Monitor {(enableMonitor ? "ENABLED" : "DISABLED")}");
+        }
+        
+        if (!enableMonitor) return;
+        
+        // Check data changes
+        CheckDataChanges();
+        
+        // Check UI text changes
+        CheckUIChanges();
+        
+        // Report if mismatch
+        if (dataChanged && !uiChanged)
+        {
+            Debug.LogWarning("?? [UIMonitor] DATA CHANGED BUT UI NOT UPDATED!");
+            LogFullStatus();
+        }
+    }
+    
+    void CheckDataChanges()
+    {
+        dataChanged = false;
+        
+        if (playerInventory != null)
+        {
+            int currentMedkits = playerInventory.GetCurrentMedkits();
+            if (currentMedkits != lastMedkitCount)
+            {
+                Debug.Log($"?? [DATA] Medkit count changed: {lastMedkitCount} ? {currentMedkits}");
+                lastMedkitCount = currentMedkits;
+                dataChanged = true;
+            }
+        }
+        
+        if (weaponController != null)
+        {
+            int handgunMags = weaponController.GetMagazineCountForType(WeaponType.Handgun);
+            if (handgunMags != lastHandgunMags)
+            {
+                Debug.Log($"?? [DATA] Handgun mags changed: {lastHandgunMags} ? {handgunMags}");
+                lastHandgunMags = handgunMags;
+                dataChanged = true;
+            }
+            
+            int rifleMags = weaponController.GetMagazineCountForType(WeaponType.Rifle);
+            if (rifleMags != lastRifleMags)
+            {
+                Debug.Log($"?? [DATA] Rifle mags changed: {lastRifleMags} ? {rifleMags}");
+                lastRifleMags = rifleMags;
+                dataChanged = true;
+            }
+            
+            int shotgunMags = weaponController.GetMagazineCountForType(WeaponType.Shotgun);
+            if (shotgunMags != lastShotgunMags)
+            {
+                Debug.Log($"?? [DATA] Shotgun mags changed: {lastShotgunMags} ? {shotgunMags}");
+                lastShotgunMags = shotgunMags;
+                dataChanged = true;
+            }
+        }
+    }
+    
+    void CheckUIChanges()
+    {
+        uiChanged = false;
+        
+        if (medkitText != null)
+        {
+            string currentText = medkitText.text;
+            if (currentText != lastMedkitTextValue)
+            {
+                Debug.Log($"??? [UI] Medkit text changed: '{lastMedkitTextValue}' ? '{currentText}'");
+                lastMedkitTextValue = currentText;
+                uiChanged = true;
+            }
+        }
+        
+        if (handgunAmmoText != null)
+        {
+            string currentText = handgunAmmoText.text;
+            if (currentText != lastHandgunTextValue)
+            {
+                Debug.Log($"??? [UI] Handgun text changed: '{lastHandgunTextValue}' ? '{currentText}'");
+                lastHandgunTextValue = currentText;
+                uiChanged = true;
+            }
+        }
+        
+        if (rifleAmmoText != null)
+        {
+            string currentText = rifleAmmoText.text;
+            if (currentText != lastRifleTextValue)
+            {
+                Debug.Log($"??? [UI] Rifle text changed: '{lastRifleTextValue}' ? '{currentText}'");
+                lastRifleTextValue = currentText;
+                uiChanged = true;
+            }
+        }
+        
+        if (shotgunAmmoText != null)
+        {
+            string currentText = shotgunAmmoText.text;
+            if (currentText != lastShotgunTextValue)
+            {
+                Debug.Log($"??? [UI] Shotgun text changed: '{lastShotgunTextValue}' ? '{currentText}'");
+                lastShotgunTextValue = currentText;
+                uiChanged = true;
+            }
+        }
+    }
+    
+    void LogFullStatus()
+    {
+        Debug.Log("========== FULL STATUS ==========");
+        
+        if (playerInventory != null)
+        {
+            Debug.Log($"Medkits DATA: {playerInventory.GetCurrentMedkits()}");
+            Debug.Log($"Medkits UI: '{(medkitText != null ? medkitText.text : "NULL")}'");
+        }
+        
+        if (weaponController != null)
+        {
+            Debug.Log($"Handgun Mags DATA: {weaponController.GetMagazineCountForType(WeaponType.Handgun)}");
+            Debug.Log($"Handgun Mags UI: '{(handgunAmmoText != null ? handgunAmmoText.text : "NULL")}'");
+            
+            Debug.Log($"Rifle Mags DATA: {weaponController.GetMagazineCountForType(WeaponType.Rifle)}");
+            Debug.Log($"Rifle Mags UI: '{(rifleAmmoText != null ? rifleAmmoText.text : "NULL")}'");
+            
+            Debug.Log($"Shotgun Mags DATA: {weaponController.GetMagazineCountForType(WeaponType.Shotgun)}");
+            Debug.Log($"Shotgun Mags UI: '{(shotgunAmmoText != null ? shotgunAmmoText.text : "NULL")}'");
+        }
+        
+        Debug.Log("================================");
+    }
+    
+    void OnGUI()
+    {
+        if (!enableMonitor) return;
+        
+        // Draw monitor panel
+        GUIStyle boxStyle = new GUIStyle(GUI.skin.box);
+        boxStyle.normal.background = MakeTex(2, 2, new Color(0, 0, 0, 0.8f));
+        
+        GUIStyle textStyle = new GUIStyle(GUI.skin.label);
+        textStyle.normal.textColor = Color.yellow;
+        textStyle.fontSize = 11;
+        textStyle.alignment = TextAnchor.MiddleLeft;
+        
+        float width = 350;
+        float height = 200;
+        float x = Screen.width - width - 10;
+        float y = 10;
+        
+        GUILayout.BeginArea(new Rect(x, y, width, height), boxStyle);
+        
+        GUILayout.Label("=== UI UPDATE MONITOR (F11) ===", textStyle);
+        GUILayout.Space(5);
+        
+        // Show data vs UI comparison
+        if (playerInventory != null && medkitText != null)
+        {
+            int data = playerInventory.GetCurrentMedkits();
+            string ui = medkitText.text;
+            string expected = $"x {data:00}";
+            bool match = ui == expected;
+            
+            textStyle.normal.textColor = match ? Color.green : Color.red;
+            GUILayout.Label($"Medkit: DATA={data} | UI='{ui}' {(match ? "?" : "? Expected: '" + expected + "'")}", textStyle);
+        }
+        
+        if (weaponController != null)
+        {
+            // Handgun
+            if (handgunAmmoText != null)
+            {
+                int data = weaponController.GetMagazineCountForType(WeaponType.Handgun);
+                string ui = handgunAmmoText.text;
+                string expected = $"x {data:00}";
+                bool match = ui == expected;
+                
+                textStyle.normal.textColor = match ? Color.green : Color.red;
+                GUILayout.Label($"Handgun: DATA={data} | UI='{ui}' {(match ? "?" : "?")}", textStyle);
+            }
+            
+            // Rifle
+            if (rifleAmmoText != null)
+            {
+                int data = weaponController.GetMagazineCountForType(WeaponType.Rifle);
+                string ui = rifleAmmoText.text;
+                string expected = $"x {data:00}";
+                bool match = ui == expected;
+                
+                textStyle.normal.textColor = match ? Color.green : Color.red;
+                GUILayout.Label($"Rifle: DATA={data} | UI='{ui}' {(match ? "?" : "?")}", textStyle);
+            }
+            
+            // Shotgun
+            if (shotgunAmmoText != null)
+            {
+                int data = weaponController.GetMagazineCountForType(WeaponType.Shotgun);
+                string ui = shotgunAmmoText.text;
+                string expected = $"x {data:00}";
+                bool match = ui == expected;
+                
+                textStyle.normal.textColor = match ? Color.green : Color.red;
+                GUILayout.Label($"Shotgun: DATA={data} | UI='{ui}' {(match ? "?" : "?")}", textStyle);
+            }
+        }
+        
+        GUILayout.Space(10);
+        textStyle.normal.textColor = Color.cyan;
+        GUILayout.Label($"InventoryUI.Instance: {(InventoryUI.Instance != null ? "OK" : "NULL")}", textStyle);
+        GUILayout.Label($"Update() running: {(inventoryUI != null ? "YES" : "NO")}", textStyle);
+        
+        GUILayout.EndArea();
+    }
+    
+    private Texture2D MakeTex(int width, int height, Color col)
+    {
+        Color[] pix = new Color[width * height];
+        for (int i = 0; i < pix.Length; i++)
+        {
+            pix[i] = col;
+        }
+        
+        Texture2D result = new Texture2D(width, height);
+        result.SetPixels(pix);
+        result.Apply();
+        return result;
+    }
+}

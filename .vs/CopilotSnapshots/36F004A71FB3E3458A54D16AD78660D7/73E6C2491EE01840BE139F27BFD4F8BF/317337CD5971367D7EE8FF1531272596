@@ -1,0 +1,254 @@
+﻿using UnityEngine;
+using TMPro;
+
+/// <summary>
+/// Quick tester untuk verify Inventory UI berfungsi
+/// Attach ke GameObject manapun di scene
+/// </summary>
+public class InventoryUITester : MonoBehaviour
+{
+    [Header("Auto Find References")]
+    [SerializeField] private bool autoFind = true;
+    
+    [Header("References (Auto-filled)")]
+    [SerializeField] private InventoryUI inventoryUI;
+    [SerializeField] private PlayerInventory playerInventory;
+    [SerializeField] private WeaponController weaponController;
+    
+    [Header("Test Settings")]
+    [SerializeField] private KeyCode testKey = KeyCode.F5;
+    [SerializeField] private bool showDebugPanel = true;
+    
+    private bool testPassed = false;
+    private string lastTestResult = "Press F5 to test";
+    
+    void Start()
+    {
+        if (autoFind)
+        {
+            inventoryUI = FindObjectOfType<InventoryUI>();
+            playerInventory = FindObjectOfType<PlayerInventory>();
+            weaponController = FindObjectOfType<WeaponController>();
+        }
+        
+        Debug.Log("=== INVENTORY UI TESTER READY ===");
+        Debug.Log($"Press {testKey} to run test");
+        Debug.Log("Press N to add magazines");
+        Debug.Log("Press M to add medkit");
+    }
+    
+    void Update()
+    {
+        if (Input.GetKeyDown(testKey))
+        {
+            RunTest();
+        }
+        
+        // Manual test dengan N dan M
+        if (Input.GetKeyDown(KeyCode.N))
+        {
+            TestAddMagazines();
+        }
+        
+        if (Input.GetKeyDown(KeyCode.M))
+        {
+            TestAddMedkit();
+        }
+    }
+    
+    private void RunTest()
+    {
+        Debug.Log("=== RUNNING INVENTORY UI TEST ===");
+        
+        // Check 1: References
+        if (inventoryUI == null)
+        {
+            lastTestResult = "? FAIL: InventoryUI not found!";
+            Debug.LogError(lastTestResult);
+            return;
+        }
+        
+        if (playerInventory == null)
+        {
+            lastTestResult = "? FAIL: PlayerInventory not found!";
+            Debug.LogError(lastTestResult);
+            return;
+        }
+        
+        if (weaponController == null)
+        {
+            lastTestResult = "? FAIL: WeaponController not found!";
+            Debug.LogError(lastTestResult);
+            return;
+        }
+        
+        Debug.Log("? All references found");
+        
+        // Check 2: InventoryUI Instance
+        if (InventoryUI.Instance == null)
+        {
+            lastTestResult = "? FAIL: InventoryUI.Instance is NULL!";
+            Debug.LogError(lastTestResult);
+            return;
+        }
+        
+        Debug.Log("? InventoryUI.Instance OK");
+        
+        // Check 3: Event subscription test
+        int initialMagazines = weaponController.GetMagazineCountForType(WeaponType.Handgun);
+        Debug.Log($"Initial Handgun magazines: {initialMagazines}");
+        
+        // Add magazines
+        weaponController.AddMagazine(WeaponType.Handgun, 5);
+        
+        int newMagazines = weaponController.GetMagazineCountForType(WeaponType.Handgun);
+        Debug.Log($"After add: {newMagazines} magazines");
+        
+        if (newMagazines == initialMagazines + 5)
+        {
+            lastTestResult = "? TEST PASSED! Magazines added successfully!";
+            Debug.Log(lastTestResult);
+            Debug.Log("Check UI - should show updated magazine count");
+            testPassed = true;
+        }
+        else
+        {
+            lastTestResult = $"? FAIL: Expected {initialMagazines + 5}, got {newMagazines}";
+            Debug.LogError(lastTestResult);
+        }
+        
+        Debug.Log("=== TEST COMPLETE ===");
+    }
+    
+    private void TestAddMagazines()
+    {
+        if (weaponController == null)
+        {
+            Debug.LogWarning("WeaponController not found!");
+            return;
+        }
+        
+        WeaponData currentWeapon = weaponController.GetCurrentWeapon();
+        if (currentWeapon != null)
+        {
+            int before = weaponController.GetMagazineCountForType(currentWeapon.weaponType);
+            weaponController.AddMagazine(currentWeapon.weaponType, 5);
+            int after = weaponController.GetMagazineCountForType(currentWeapon.weaponType);
+            
+            Debug.Log($"[N KEY] Added 5 magazines: {before} ? {after}");
+            Debug.Log($"Current weapon: {currentWeapon.weaponName}");
+            Debug.Log("CHECK UI NOW - should update to new count!");
+        }
+    }
+    
+    private void TestAddMedkit()
+    {
+        if (playerInventory == null)
+        {
+            Debug.LogWarning("PlayerInventory not found!");
+            return;
+        }
+        
+        int before = playerInventory.GetCurrentMedkits();
+        playerInventory.AddMedkit(1);
+        int after = playerInventory.GetCurrentMedkits();
+        
+        Debug.Log($"[M KEY] Added medkit: {before} ? {after}");
+        Debug.Log("CHECK UI NOW - should update to new count!");
+    }
+    
+    private void OnGUI()
+    {
+        if (!showDebugPanel)
+        {
+            return;
+        }
+        
+        // Background
+        GUIStyle boxStyle = new GUIStyle(GUI.skin.box);
+        boxStyle.normal.background = MakeTex(2, 2, new Color(0, 0, 0, 0.8f));
+        
+        GUIStyle textStyle = new GUIStyle(GUI.skin.label);
+        textStyle.fontSize = 14;
+        textStyle.normal.textColor = Color.white;
+        textStyle.wordWrap = true;
+        
+        GUIStyle headerStyle = new GUIStyle(textStyle);
+        headerStyle.fontSize = 16;
+        headerStyle.fontStyle = FontStyle.Bold;
+        headerStyle.normal.textColor = Color.yellow;
+        
+        // Panel position (top-right)
+        float panelWidth = 400;
+        float panelHeight = 350;
+        float x = Screen.width - panelWidth - 10;
+        float y = 10;
+        
+        GUILayout.BeginArea(new Rect(x, y, panelWidth, panelHeight), boxStyle);
+        
+        GUILayout.Label("?? INVENTORY UI TESTER", headerStyle);
+        GUILayout.Space(10);
+        
+        // Status
+        GUILayout.Label("=== STATUS ===", headerStyle);
+        GUILayout.Label($"InventoryUI: {(inventoryUI != null ? "? OK" : "? NULL")}", textStyle);
+        GUILayout.Label($"PlayerInventory: {(playerInventory != null ? "? OK" : "? NULL")}", textStyle);
+        GUILayout.Label($"WeaponController: {(weaponController != null ? "? OK" : "? NULL")}", textStyle);
+        GUILayout.Label($"Singleton: {(InventoryUI.Instance != null ? "? OK" : "? NULL")}", textStyle);
+        
+        GUILayout.Space(10);
+        
+        // Current Data
+        if (weaponController != null)
+        {
+            GUILayout.Label("=== CURRENT DATA ===", headerStyle);
+            WeaponData weapon = weaponController.GetCurrentWeapon();
+            if (weapon != null)
+            {
+                GUILayout.Label($"Weapon: {weapon.weaponName}", textStyle);
+                int mags = weaponController.GetMagazineCountForType(weapon.weaponType);
+                GUILayout.Label($"Magazines: {mags}", textStyle);
+            }
+        }
+        
+        if (playerInventory != null)
+        {
+            int medkits = playerInventory.GetCurrentMedkits();
+            GUILayout.Label($"Medkits: {medkits}", textStyle);
+        }
+        
+        GUILayout.Space(10);
+        
+        // Test result
+        GUILayout.Label("=== TEST RESULT ===", headerStyle);
+        GUIStyle resultStyle = new GUIStyle(textStyle);
+        resultStyle.normal.textColor = testPassed ? Color.green : Color.yellow;
+        GUILayout.Label(lastTestResult, resultStyle);
+        
+        GUILayout.Space(10);
+        
+        // Controls
+        GUILayout.Label("=== CONTROLS ===", headerStyle);
+        GUILayout.Label($"[{testKey}] Run Full Test", textStyle);
+        GUILayout.Label("[N] Add 5 Magazines", textStyle);
+        GUILayout.Label("[M] Add 1 Medkit", textStyle);
+        GUILayout.Label("", textStyle);
+        GUILayout.Label("??? Watch Console for details", textStyle);
+        
+        GUILayout.EndArea();
+    }
+    
+    private Texture2D MakeTex(int width, int height, Color col)
+    {
+        Color[] pix = new Color[width * height];
+        for (int i = 0; i < pix.Length; i++)
+        {
+            pix[i] = col;
+        }
+        
+        Texture2D result = new Texture2D(width, height);
+        result.SetPixels(pix);
+        result.Apply();
+        return result;
+    }
+}

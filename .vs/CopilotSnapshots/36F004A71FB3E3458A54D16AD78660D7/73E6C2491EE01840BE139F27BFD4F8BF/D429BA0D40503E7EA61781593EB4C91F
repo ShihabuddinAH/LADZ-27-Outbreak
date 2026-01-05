@@ -1,0 +1,201 @@
+﻿using UnityEngine;
+using TMPro;
+using UnityEngine.UI;
+
+/// <summary>
+/// Diagnostic tool untuk cek InventoryUI setup
+/// Attach ke InventoryUI GameObject untuk instant check
+/// </summary>
+public class InventoryUIChecker : MonoBehaviour
+{
+    private InventoryUI inventoryUI;
+    
+    void Start()
+    {
+        inventoryUI = GetComponent<InventoryUI>();
+        
+        if (inventoryUI == null)
+        {
+            Debug.LogError("? InventoryUI component NOT FOUND on this GameObject!");
+            return;
+        }
+        
+        Debug.Log("========== INVENTORY UI CHECKER ==========");
+        
+        // Check references using reflection
+        var type = typeof(InventoryUI);
+        
+        // Player references
+        var playerInventoryField = type.GetField("playerInventory", 
+            System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+        var weaponControllerField = type.GetField("weaponController", 
+            System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+        
+        // Medkit UI
+        var medkitTextField = type.GetField("medkitText", 
+            System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+        var medkitIconField = type.GetField("medkitIcon", 
+            System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+        
+        // Handgun UI
+        var handgunTextField = type.GetField("handgunAmmoText", 
+            System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+        var handgunIconField = type.GetField("handgunAmmoIcon", 
+            System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+        
+        // Rifle UI
+        var rifleTextField = type.GetField("rifleAmmoText", 
+            System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+        var rifleIconField = type.GetField("rifleAmmoIcon", 
+            System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+        
+        // Shotgun UI
+        var shotgunTextField = type.GetField("shotgunAmmoText", 
+            System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+        var shotgunIconField = type.GetField("shotgunAmmoIcon", 
+            System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+        
+        // Check all fields
+        Debug.Log("=== REFERENCES ===");
+        CheckField(playerInventoryField, "Player Inventory");
+        CheckField(weaponControllerField, "Weapon Controller");
+        
+        Debug.Log("\n=== MEDKIT UI ===");
+        CheckField(medkitTextField, "Medkit Text");
+        CheckField(medkitIconField, "Medkit Icon");
+        
+        Debug.Log("\n=== HANDGUN AMMO UI ===");
+        CheckField(handgunTextField, "Handgun Ammo Text");
+        CheckField(handgunIconField, "Handgun Ammo Icon");
+        
+        Debug.Log("\n=== RIFLE AMMO UI ===");
+        CheckField(rifleTextField, "Rifle Ammo Text");
+        CheckField(rifleIconField, "Rifle Ammo Icon");
+        
+        Debug.Log("\n=== SHOTGUN AMMO UI ===");
+        CheckField(shotgunTextField, "Shotgun Ammo Text");
+        CheckField(shotgunIconField, "Shotgun Ammo Icon");
+        
+        Debug.Log("\n==========================================");
+        
+        // Summary
+        int nullCount = CountNullReferences();
+        
+        if (nullCount == 0)
+        {
+            Debug.Log("? ALL REFERENCES ASSIGNED! UI should work!");
+        }
+        else
+        {
+            Debug.LogError($"? {nullCount} REFERENCES ARE NULL! UI won't update!");
+            Debug.LogError("? Select InventoryUI in Hierarchy");
+            Debug.LogError("? Drag UI elements from Hierarchy to Inspector fields");
+        }
+    }
+    
+    void CheckField(System.Reflection.FieldInfo field, string fieldName)
+    {
+        if (field != null && inventoryUI != null)
+        {
+            var value = field.GetValue(inventoryUI);
+            
+            if (value == null)
+            {
+                Debug.LogError($"  ? {fieldName}: NULL");
+            }
+            else
+            {
+                Debug.Log($"  ? {fieldName}: OK");
+            }
+        }
+    }
+    
+    int CountNullReferences()
+    {
+        int count = 0;
+        var type = typeof(InventoryUI);
+        
+        var fields = new System.Reflection.FieldInfo[]
+        {
+            type.GetField("medkitText", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance),
+            type.GetField("medkitIcon", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance),
+            type.GetField("handgunAmmoText", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance),
+            type.GetField("handgunAmmoIcon", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance),
+            type.GetField("rifleAmmoText", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance),
+            type.GetField("rifleAmmoIcon", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance),
+            type.GetField("shotgunAmmoText", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance),
+            type.GetField("shotgunAmmoIcon", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
+        };
+        
+        foreach (var field in fields)
+        {
+            if (field != null)
+            {
+                var value = field.GetValue(inventoryUI);
+                if (value == null)
+                {
+                    count++;
+                }
+            }
+        }
+        
+        return count;
+    }
+    
+    // Visual UI display
+    void OnGUI()
+    {
+        if (inventoryUI == null) return;
+        
+        GUIStyle style = new GUIStyle(GUI.skin.box);
+        style.normal.background = MakeTex(2, 2, new Color(0, 0, 0, 0.9f));
+        
+        GUIStyle textStyle = new GUIStyle(GUI.skin.label);
+        textStyle.normal.textColor = Color.white;
+        textStyle.fontSize = 14;
+        textStyle.fontStyle = FontStyle.Bold;
+        
+        int nullCount = CountNullReferences();
+        
+        GUILayout.BeginArea(new Rect(Screen.width - 320, 10, 310, 150), style);
+        
+        if (nullCount == 0)
+        {
+            textStyle.normal.textColor = Color.green;
+            GUILayout.Label("? UI CONNECTED!", textStyle);
+            textStyle.normal.textColor = Color.white;
+            GUILayout.Label("All references assigned", textStyle);
+        }
+        else
+        {
+            textStyle.normal.textColor = Color.red;
+            GUILayout.Label("? UI NOT CONNECTED!", textStyle);
+            textStyle.normal.textColor = Color.white;
+            GUILayout.Label($"{nullCount} references are NULL", textStyle);
+            
+            textStyle.fontSize = 12;
+            textStyle.fontStyle = FontStyle.Normal;
+            GUILayout.Space(10);
+            GUILayout.Label("FIX:", textStyle);
+            GUILayout.Label("1. Select InventoryUI in Hierarchy", textStyle);
+            GUILayout.Label("2. Inspector ? Assign all fields", textStyle);
+            GUILayout.Label("3. Check Console for details", textStyle);
+        }
+        
+        GUILayout.EndArea();
+    }
+    
+    private Texture2D MakeTex(int width, int height, Color col)
+    {
+        Color[] pix = new Color[width * height];
+        for (int i = 0; i < pix.Length; i++)
+        {
+            pix[i] = col;
+        }
+        
+        Texture2D result = new Texture2D(width, height);
+        result.SetPixels(pix);
+        result.Apply();
+        return result;
+    }
+}
